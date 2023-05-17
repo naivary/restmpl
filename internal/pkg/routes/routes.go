@@ -7,14 +7,14 @@ import (
 
 func New(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
+	r.Route("/v1", func(r chi.Router) {
+	})
 	r.Mount("/sys", sys(views))
-
 	return r
 }
 
 func sys(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
 	r.Get("/health", views.Sys.Health)
-
 	return r
 }
