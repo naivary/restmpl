@@ -8,6 +8,7 @@ import (
 func New(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
 	r.Route("/v1", func(r chi.Router) {
+		// All REST services for v1
 	})
 	r.Mount("/sys", sys(views))
 	return r

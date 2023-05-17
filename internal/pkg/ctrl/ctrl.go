@@ -5,7 +5,18 @@ import (
 	"github.com/naivary/instance/internal/app/sys"
 )
 
+func New() App {
+	return App{
+		Version: "0.1.0",
+		Views: Views{
+			Sys: sys.Env{},
+		},
+	}
+}
+
 type App struct {
+	Version string
+
 	Views  Views
 	Router chi.Router
 }

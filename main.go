@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/naivary/instance/internal/app/sys"
+	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/routes"
 	"github.com/naivary/instance/internal/pkg/server"
@@ -16,17 +16,19 @@ func main() {
 }
 
 func run() error {
-	app := ctrl.App{
-		Views: ctrl.Views{
-			Sys: sys.Env{},
-		},
-	}
+	app := ctrl.New()
 	app.Router = routes.New(&app.Views)
 
 	srv, err := server.New(":8080", app.Router)
 	if err != nil {
 		return err
 	}
+
+	k, err := config.New()
+	if err != nil {
+		return err
+	}
+	app.Views.Sys.K = k
 
 	return srv.ListenAndServe()
 }
