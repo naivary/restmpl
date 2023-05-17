@@ -7,7 +7,6 @@ import (
 
 func New() App {
 	return App{
-		Version: "0.1.0",
 		Views: Views{
 			Sys: sys.Env{},
 		},
@@ -15,9 +14,15 @@ func New() App {
 }
 
 type App struct {
-	Version string
+	// Views contains all handler
+	// for the corresponding endpoints.
+	// Every Handler in the View is represented
+	// by a directory in the /internal/app/<handler>
+	// and the needed Env of the handler.
+	Views Views
 
-	Views  Views
+	// Router contains all the endpoints of
+	// which define the REST-API.
 	Router chi.Router
 }
 
