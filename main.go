@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/routes"
+	"github.com/naivary/instance/internal/pkg/server"
 )
 
 func main() {
@@ -23,5 +23,10 @@ func run() error {
 	}
 	app.Router = routes.New(&app.Views)
 
-	return http.ListenAndServe(":8080", app.Router)
+	srv, err := server.New(":8080", app.Router)
+	if err != nil {
+		return err
+	}
+
+	return srv.ListenAndServe()
 }
