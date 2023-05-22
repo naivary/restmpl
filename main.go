@@ -5,6 +5,7 @@ import (
 
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/ctrl"
+	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/routes"
 	"github.com/naivary/instance/internal/pkg/server"
 )
@@ -29,6 +30,12 @@ func run() error {
 		return err
 	}
 	app.Views.Sys.K = k
+
+	db, err := database.Connect()
+	if err != nil {
+		return err
+	}
+	app.Views.Sys.DB = db
 
 	return srv.ListenAndServe()
 }

@@ -1,6 +1,7 @@
 package sys
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -9,16 +10,24 @@ import (
 )
 
 type Env struct {
-	K *koanf.Koanf
+	K  *koanf.Koanf
+	DB *sql.DB
+
+	m models.Metadata
 }
 
 func (e *Env) Health(w http.ResponseWriter, r *http.Request) {
 	// TODO(naivary) should be static and calculated to compile time
-	m := models.Metadata{
+	e.m = models.Metadata{
 		Version: e.K.String("version"),
 	}
 
-	err := json.NewEncoder(w).Encode(&m)
+	err := e.DB.Ping()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	err = json.NewEncoder(w).Encode(&e.m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
