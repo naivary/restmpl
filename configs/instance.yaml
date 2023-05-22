@@ -2,11 +2,12 @@
 version: "0.1.0"
 name: "instance"
 fs:
-  base: "/etc/instance"
+  base: "/home/musti/instance_example"
   # maxSize of a file in bytes.
   # Default is 12MB
   maxSize: 12582912
   formKey: "file"
+db: "sqlite"
 server:
   timeout:
     readHeader: 30s

@@ -36,7 +36,10 @@ func NewApp() (*App, error) {
 		DB: sqlDB,
 		M:  metadataMetadata,
 	}
-	filestoreFilestore := filestore.New(koanf)
+	filestoreFilestore, err := filestore.New(koanf)
+	if err != nil {
+		return nil, err
+	}
 	fsEnv := fs.Env{
 		Fs: filestoreFilestore,
 		K:  koanf,

@@ -5,8 +5,8 @@ import (
 	"github.com/naivary/instance/internal/pkg/services"
 )
 
-func sys(services *services.Services) chi.Router {
+func sys(svcs *services.Services) chi.Router {
 	r := chi.NewRouter()
-	r.Get("/health", services.Sys.Health)
+	r.Get("/health", svcs.Sys.Health)
 	return r
 }

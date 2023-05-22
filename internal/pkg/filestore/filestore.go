@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/knadh/koanf/v2"
 )
@@ -11,12 +12,21 @@ type Filestore struct {
 	// where to store the files.
 	Base string
 
-	Handler http.Handler
+	Store http.Handler
 }
 
-func New(k *koanf.Koanf) Filestore {
-	return Filestore{
-		Base: k.String("fs.base"),
-		Handler:    http.FileServer(http.Dir(k.String("fs.base"))),
+func New(k *koanf.Koanf) (Filestore, error) {
+	base := k.String("fs.base")
+	dir := http.Dir(base)
+	h := http.FileServer(dir)
+	fs := Filestore{
+		Base:  base,
+		Store: http.StripPrefix("/fs", h),
 	}
+
+	err := os.MkdirAll(fs.Base, os.ModePerm)
+	if err != nil {
+		return Filestore{}, err
+	}
+	return fs, nil
 }

@@ -12,17 +12,17 @@ const (
 	reqTimeout = 20 * time.Second
 )
 
-func New(services *services.Services) chi.Router {
+func New(svcs *services.Services) chi.Router {
 	r := chi.NewRouter()
+
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.Timeout(reqTimeout))
-	r.Use(middleware.SetHeader("content-type", "application/json"))
 
-	r.Mount("/api/v1", apiv1(services))
-	r.Mount("/sys", sys(services))
-	r.Mount("/fs", fs(services))
+	r.Mount("/api/v1", apiv1(svcs))
+	r.Mount("/sys", sys(svcs))
+	r.Mount("/fs", fs(svcs))
 	return r
 }

@@ -2,6 +2,7 @@ package fs
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -17,6 +18,7 @@ type Env struct {
 }
 
 func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path)
 	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -32,12 +34,14 @@ func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
 	dest, err := os.Create(filepath.Join(e.Fs.Base, h.Filename))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer dest.Close()
 
 	_, err = io.Copy(dest, src)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -52,7 +56,25 @@ func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(&res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
-func (e Env) Delete(w http.ResponseWriter, r *http.Request) {}
+func (e Env) Delete(w http.ResponseWriter, r *http.Request) {
+	path := struct {
+		Item string `json:"item"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = os.Remove(filepath.Join(e.K.String("fs.base"), path.Item))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
