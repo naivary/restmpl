@@ -14,7 +14,6 @@ const (
 
 func New(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
-	r.Use(middleware.AllowContentType("application/json"))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
@@ -22,10 +21,21 @@ func New(views *ctrl.Views) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 	r.Use(middleware.SetHeader("content-type", "application/json"))
 
-	r.Route("/v1", func(r chi.Router) {
-		// All REST services for v1
-	})
+	r.Mount("/api/v1", apiv1(views))
 	r.Mount("/sys", sys(views))
+	r.Mount("/fs", fs(views))
+	return r
+}
+
+func apiv1(views *ctrl.Views) chi.Router {
+	r := chi.NewRouter()
+	r.Use(middleware.AllowContentType("application/json"))
+	r.Mount("/example", example(views))
+	return r
+}
+
+func example(views *ctrl.Views) chi.Router {
+	r := chi.NewRouter()
 	return r
 }
 
@@ -33,5 +43,12 @@ func sys(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
 	r.Get("/health", views.Sys.Health)
 	r.Get("/metrics", views.Sys.Metrics)
+	return r
+}
+
+func fs(views *ctrl.Views) chi.Router {
+	r := chi.NewRouter()
+	r.Post("/upload", views.Fs.Upload)
+	r.Delete("/delete", views.Fs.Upload)
 	return r
 }

@@ -2,6 +2,7 @@ package ctrl
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
 )
 
@@ -9,6 +10,7 @@ func New() App {
 	return App{
 		Views: Views{
 			Sys: sys.Env{},
+			Fs:  fs.Env{},
 		},
 	}
 }
@@ -28,4 +30,5 @@ type App struct {
 
 type Views struct {
 	Sys sys.Env
+	Fs  fs.Env
 }
