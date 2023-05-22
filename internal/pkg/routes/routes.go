@@ -32,5 +32,6 @@ func New(views *ctrl.Views) chi.Router {
 func sys(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
 	r.Get("/health", views.Sys.Health)
+	r.Get("/metrics", views.Sys.Metrics)
 	return r
 }

@@ -34,3 +34,7 @@ func (e *Env) Health(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (e *Env) Metrics(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("the promotheus metrics!\n"))
+}
