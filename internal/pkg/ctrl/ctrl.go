@@ -7,12 +7,7 @@ import (
 )
 
 func New() App {
-	return App{
-		Views: Views{
-			Sys: sys.Env{},
-			Fs:  fs.Env{},
-		},
-	}
+	return App{}
 }
 
 type App struct {

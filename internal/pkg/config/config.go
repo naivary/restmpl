@@ -16,3 +16,4 @@ func New() (*koanf.Koanf, error) {
 	err := k.Load(fs.Provider(configs.Fs, "instance.yaml"), yaml.Parser())
 	return k, err
 }
+

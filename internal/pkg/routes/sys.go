@@ -8,6 +8,6 @@ import (
 func sys(views *ctrl.Views) chi.Router {
 	r := chi.NewRouter()
 	r.Get("/health", views.Sys.Health)
-	r.Get("/metrics", views.Sys.Metrics)
+	// r.Get("/metrics", views.Sys.Metrics)
 	return r
 }
