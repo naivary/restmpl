@@ -6,37 +6,36 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/filestore"
 )
 
-type Env struct{}
+type Env struct {
+	Fs filestore.Filestore
+	K  *koanf.Koanf
+}
 
 func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(32 << 20) // maxMemory 32MB
+	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	file, h, err := r.FormFile("file")
+	src, h, err := r.FormFile(e.K.String("fs.formKey"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	home, err := os.UserHomeDir()
+	dest, err := os.Create(filepath.Join(e.Fs.Base, h.Filename))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	defer dest.Close()
 
-	// TODO(naivary): associate with the file sever which is accessible
-	// using the /fs endpoint
-	f, err := os.Create(filepath.Join(home, h.Filename))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	defer f.Close()
-
-	_, err = io.Copy(f, file)
+	_, err = io.Copy(dest, src)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

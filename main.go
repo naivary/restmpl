@@ -22,5 +22,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
 	return srv.ListenAndServe()
 }

@@ -7,19 +7,21 @@
 package main
 
 import (
+	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
-	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/routes"
+	"github.com/naivary/instance/internal/pkg/services"
 )
 
 // Injectors from wire.go:
 
-func NewApp() (*ctrl.App, error) {
+func NewApp() (*App, error) {
 	koanf, err := config.New()
 	if err != nil {
 		return nil, err
@@ -34,29 +36,47 @@ func NewApp() (*ctrl.App, error) {
 		DB: sqlDB,
 		M:  metadataMetadata,
 	}
-	fsEnv := fs.Env{}
-	ctrlViews := ctrl.Views{
+	filestoreFilestore := filestore.New(koanf)
+	fsEnv := fs.Env{
+		Fs: filestoreFilestore,
+		K:  koanf,
+	}
+	servicesServices := services.Services{
 		Sys: env,
 		Fs:  fsEnv,
 	}
-	views2 := &ctrl.Views{
+	services2 := &services.Services{
 		Sys: env,
 		Fs:  fsEnv,
 	}
-	router := routes.New(views2)
-	ctrlApp := &ctrl.App{
-		Views:  ctrlViews,
-		Router: router,
+	router := routes.New(services2)
+	mainApp := &App{
+		Services: servicesServices,
+		Router:   router,
 	}
-	return ctrlApp, nil
+	return mainApp, nil
 }
 
 // wire.go:
 
+type App struct {
+	// Services contains all handler
+	// for the corresponding endpoints.
+	// Every Handler in the View is represented
+	// by a directory in the /internal/app/<handler>
+	// and the needed Env of the handler.
+	Services services.Services
+
+	// Router contains all the endpoints of
+	// which define the REST-API.
+	Router chi.Router
+}
+
 var (
-	db    = wire.NewSet(database.Connect)
-	views = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(ctrl.Views), "*"))
-	k     = wire.NewSet(config.New)
-	app   = wire.Struct(new(ctrl.App), "*")
-	m     = wire.NewSet(metadata.New)
+	db     = wire.NewSet(database.Connect)
+	svc    = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(services.Services), "*"))
+	app    = wire.Struct(new(App), "*")
+	httpFs = wire.NewSet(filestore.New)
+	k      = wire.NewSet(config.New)
+	m      = wire.NewSet(metadata.New)
 )

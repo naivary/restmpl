@@ -5,14 +5,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/naivary/instance/internal/pkg/ctrl"
+	"github.com/naivary/instance/internal/pkg/services"
 )
 
 const (
 	reqTimeout = 20 * time.Second
 )
 
-func New(views *ctrl.Views) chi.Router {
+func New(services *services.Services) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
@@ -21,8 +21,8 @@ func New(views *ctrl.Views) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 	r.Use(middleware.SetHeader("content-type", "application/json"))
 
-	r.Mount("/api/v1", apiv1(views))
-	r.Mount("/sys", sys(views))
-	r.Mount("/fs", fs(views))
+	r.Mount("/api/v1", apiv1(services))
+	r.Mount("/sys", sys(services))
+	r.Mount("/fs", fs(services))
 	return r
 }

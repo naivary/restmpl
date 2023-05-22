@@ -2,12 +2,11 @@ package routes
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/naivary/instance/internal/pkg/ctrl"
+	"github.com/naivary/instance/internal/pkg/services"
 )
 
-func sys(views *ctrl.Views) chi.Router {
+func sys(services *services.Services) chi.Router {
 	r := chi.NewRouter()
-	r.Get("/health", views.Sys.Health)
-	// r.Get("/metrics", views.Sys.Metrics)
+	r.Get("/health", services.Sys.Health)
 	return r
 }

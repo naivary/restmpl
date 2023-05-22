@@ -1,6 +1,12 @@
 ---
 version: "0.1.0"
 name: "instance"
+fs:
+  base: "/etc/instance"
+  # maxSize of a file in bytes.
+  # Default is 12MB
+  maxSize: 12582912
+  formKey: "file"
 server:
   timeout:
     readHeader: 30s
