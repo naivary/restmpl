@@ -2,23 +2,19 @@ package fs
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/filestore"
 )
 
 type Env struct {
-	Fs filestore.Filestore
-	K  *koanf.Koanf
+	K *koanf.Koanf
 }
 
-func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Path)
+func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -31,7 +27,7 @@ func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dest, err := os.Create(filepath.Join(e.Fs.Base, h.Filename))
+	dest, err := os.Create(filepath.Join(e.K.String("fs.base"), h.Filename))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -60,9 +56,9 @@ func (e Env) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (e Env) Delete(w http.ResponseWriter, r *http.Request) {
+func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
 	path := struct {
-		Item string `json:"item"`
+		Filepath string `json:"filepath"`
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&path)
 	if err != nil {
@@ -70,11 +66,26 @@ func (e Env) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = os.Remove(filepath.Join(e.K.String("fs.base"), path.Item))
+	err = os.Remove(filepath.Join(e.K.String("fs.base"), path.Filepath))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (e Env) Read(w http.ResponseWriter, r *http.Request) {
+	path := struct {
+		Filepath string `json:"filepath"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	http.ServeFile(w, r, filepath.Join(e.K.String("fs.base"), path.Filepath))
+
 }
