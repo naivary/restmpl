@@ -1,5 +1,5 @@
 ---
-version: "0.1.0"
+version: "v0.1.0"
 name: "instance"
 fs:
   base: "/home/musti/instance_example"
@@ -10,7 +10,7 @@ fs:
   # cache duration of a file.
   # Default: 1 minute
   ttl: 1m
-db: "sqlite"
+db: "/home/musti"
 server:
   timeout:
     readHeader: 30s

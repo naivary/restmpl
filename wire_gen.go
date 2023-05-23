@@ -26,7 +26,7 @@ func NewApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	sqlDB, err := database.Connect()
+	sqlDB, err := database.Connect(koanf)
 	if err != nil {
 		return nil, err
 	}
