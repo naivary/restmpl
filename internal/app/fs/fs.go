@@ -33,7 +33,7 @@ func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (e Env) Remove(w http.ResponseWriter, r *http.Request) {

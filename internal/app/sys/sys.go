@@ -2,9 +2,9 @@ package sys
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 
+	"github.com/google/jsonapi"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
 )
@@ -24,10 +24,9 @@ func (e *Env) Health(w http.ResponseWriter, r *http.Request) {
 
 	e.M.DBRunning = err == nil
 
-	err = json.NewEncoder(w).Encode(&e.M)
+	w.WriteHeader(http.StatusOK)
+	err = jsonapi.MarshalPayload(w, &e.M)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	w.WriteHeader(http.StatusOK)
 }

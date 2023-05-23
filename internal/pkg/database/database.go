@@ -13,6 +13,5 @@ func Connect() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return sql.Open("sqlite", filepath.Join(home, "instance.db"))
 }

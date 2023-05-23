@@ -43,8 +43,7 @@ func (f Filestore) followsNamingConvention(name string) bool {
 }
 
 func (f Filestore) Create(path string, r io.Reader) (afero.File, error) {
-	// assure that it is following a proper
-	// naming convention.
+	// assure that it is following a proper naming convention.
 	if !f.followsNamingConvention(filepath.Base(path)) {
 		return nil, ErrWrongNaming
 	}
