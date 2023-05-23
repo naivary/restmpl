@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"errors"
 	"net/http"
 	"path/filepath"
 
@@ -13,6 +14,10 @@ type Env struct {
 
 	Store filestore.Filestore
 }
+
+var (
+	errEmptyFilepath = errors.New("query parameter filepath must be set")
+)
 
 func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
@@ -57,6 +62,10 @@ func (e Env) Read(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if r.Form.Get("filepath") == "" {
+		http.Error(w, errEmptyFilepath.Error(), http.StatusBadRequest)
 	}
 	data, err := e.Store.Read(r.Form.Get("filepath"))
 	if err != nil {

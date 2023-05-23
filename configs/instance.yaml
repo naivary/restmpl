@@ -2,7 +2,7 @@
 version: "v0.1.0"
 name: "instance"
 fs:
-  base: "/home/musti/instance_example"
+  basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.
   # Default is 12MB
   maxSize: 12582912

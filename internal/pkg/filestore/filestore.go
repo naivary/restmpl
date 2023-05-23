@@ -22,7 +22,7 @@ var (
 )
 
 func New(k *koanf.Koanf) (Filestore, error) {
-	base := k.String("fs.base")
+	base := k.String("fs.basepath")
 	err := os.MkdirAll(base, os.ModePerm)
 	if err != nil {
 		return Filestore{}, err
