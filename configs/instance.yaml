@@ -4,10 +4,10 @@ name: "instance"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.
-  # Default is 12MB
+  # Default: 12MB
   maxSize: 12582912
   formKey: "file"
-  # cache duration of a file.
+  # Cache duration of a file.
   # Default: 1 minute
   ttl: 1m
 db: "/home/musti"

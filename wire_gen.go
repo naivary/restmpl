@@ -79,7 +79,7 @@ var (
 	db     = wire.NewSet(database.Connect)
 	svc    = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(services.Services), "*"))
 	app    = wire.Struct(new(App), "*")
-	httpFs = wire.NewSet(filestore.New)
+	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	k      = wire.NewSet(config.New)
 	m      = wire.NewSet(metadata.New)
 )

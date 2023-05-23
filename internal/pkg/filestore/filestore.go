@@ -10,6 +10,23 @@ import (
 	"github.com/spf13/afero"
 )
 
+type Store interface {
+	// Create creates a file which contains
+	// the data included in `r`.
+	Create(path string, r io.Reader) (afero.File, error)
+
+	// Remove will remove the file or
+	// directory given by `path`
+	Remove(path string) error
+
+	// Read is reading the content
+	// from `path` and returning
+	// any errors.
+	Read(path string) ([]byte, error)
+}
+
+var _ Store = (*Filestore)(nil)
+
 type Filestore struct {
 	Basepath string
 
@@ -24,7 +41,6 @@ func New(k *koanf.Koanf) (Filestore, error) {
 	}
 	osFs := afero.NewBasePathFs(afero.NewOsFs(), base)
 	memFs := afero.NewMemMapFs()
-
 	return Filestore{
 		Store: afero.Afero{
 			Fs: afero.NewCacheOnReadFs(osFs, memFs, k.Duration("fs.ttl")),
@@ -43,7 +59,7 @@ func (f Filestore) Create(path string, r io.Reader) (afero.File, error) {
 		return nil, &ErrWrongNaming
 	}
 
-	// dont create the file, if exiting
+	// dont create the file, if exists
 	isExisting, err := f.Store.Exists(path)
 	if err != nil {
 		return nil, err

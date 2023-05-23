@@ -15,7 +15,7 @@ import (
 type Env struct {
 	K *koanf.Koanf
 
-	Store filestore.Filestore
+	Store filestore.Store
 }
 
 func (e Env) Create(w http.ResponseWriter, r *http.Request) {
