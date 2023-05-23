@@ -37,6 +37,7 @@ func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join(r.FormValue("filepath"), h.Filename)
 	_, err = e.Store.Create(path, file)
 	if errors.Is(err, &filestore.ErrWrongNaming) {
+		w.WriteHeader(http.StatusBadRequest)
 		jsonapi.MarshalErrors(w, japi.Errors(&filestore.ErrWrongNaming))
 		return
 	}
@@ -74,10 +75,6 @@ func (e Env) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Form.Get("filepath") == "" {
-		jsonapi.MarshalErrors(w, japi.Errors(&errEmptyFilepath))
-		return
-	}
 	data, err := e.Store.Read(r.Form.Get("filepath"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
