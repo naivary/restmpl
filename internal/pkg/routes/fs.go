@@ -7,8 +7,9 @@ import (
 
 func fs(svcs *services.Services) chi.Router {
 	r := chi.NewRouter()
-	r.Use(svcs.Fs.ForceFilepath)
-
+	for _, mw := range svcs.Fs.Middlewares() {
+		r.Use(mw)
+	}
 	r.Post("/create", svcs.Fs.Create)
 	r.Delete("/remove", svcs.Fs.Remove)
 	r.Get("/read", svcs.Fs.Read)
