@@ -7,6 +7,7 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/japi"
 )
 
 type Env struct {
@@ -60,7 +61,7 @@ func (e Env) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Form.Get("filepath") == "" {
-		jsonapi.MarshalErrors(w, []*jsonapi.ErrorObject{errEmptyFilepath})
+		jsonapi.MarshalErrors(w, japi.Errors(errEmptyFilepath))
 		return
 	}
 	data, err := e.Store.Read(r.Form.Get("filepath"))

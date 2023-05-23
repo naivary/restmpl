@@ -1,13 +1,12 @@
 package metadata
 
 import (
-	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 )
 
 func New(k *koanf.Koanf) Metadata {
 	return Metadata{
-		ID:      uuid.NewString(),
+		ID:      "26e4a9ae-67e4-430f-9263-de9a18d6160b",
 		Version: k.String("version"),
 	}
 }
