@@ -7,6 +7,9 @@ fs:
   # Default is 12MB
   maxSize: 12582912
   formKey: "file"
+  # cache duration of a file.
+  # Default: 1 minute
+  ttl: 1m
 db: "sqlite"
 server:
   timeout:
