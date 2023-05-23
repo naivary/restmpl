@@ -1,10 +1,10 @@
 package fs
 
 import (
-	"errors"
 	"net/http"
 	"path/filepath"
 
+	"github.com/google/jsonapi"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
 )
@@ -14,10 +14,6 @@ type Env struct {
 
 	Store filestore.Filestore
 }
-
-var (
-	errEmptyFilepath = errors.New("query parameter filepath must be set")
-)
 
 func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
@@ -50,10 +46,9 @@ func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
 
 	err = e.Store.Remove(r.Form.Get("filepath"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -65,7 +60,8 @@ func (e Env) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Form.Get("filepath") == "" {
-		http.Error(w, errEmptyFilepath.Error(), http.StatusBadRequest)
+		jsonapi.MarshalErrors(w, []*jsonapi.ErrorObject{errEmptyFilepath})
+		return
 	}
 	data, err := e.Store.Read(r.Form.Get("filepath"))
 	if err != nil {

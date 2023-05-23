@@ -1,7 +1,6 @@
 package filestore
 
 import (
-	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,10 +15,6 @@ type Filestore struct {
 
 	Store afero.Afero
 }
-
-var (
-	ErrWrongNaming = errors.New("file name must follow the following regex pattern: [a-z._0-9-]+")
-)
 
 func New(k *koanf.Koanf) (Filestore, error) {
 	base := k.String("fs.basepath")
