@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	errEmptyFilepath = &jsonapi.ErrorObject{
+	errEmptyFilepath = jsonapi.ErrorObject{
 		ID:     "457be418-e7ee-445c-bf30-e098abe5573a",
 		Title:  "missing filepath",
 		Detail: "query parameter filepath must be set",

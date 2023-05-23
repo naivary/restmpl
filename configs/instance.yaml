@@ -11,10 +11,3 @@ fs:
   # Default: 1 minute
   ttl: 1m
 db: "/home/musti"
-server:
-  timeout:
-    readHeader: 30s
-    write: 10s
-    idle: 10s
-  header:
-    limit: 1000

@@ -17,7 +17,6 @@ func New(svcs *services.Services) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
-	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.CleanPath)

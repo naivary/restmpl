@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrWrongNaming = &jsonapi.ErrorObject{
+	ErrWrongNaming = jsonapi.ErrorObject{
 		ID:     "50493051-a153-4430-bbf7-b9b40bece960",
 		Title:  "wrong name convention",
 		Detail: "file name must follow the following regex pattern: [a-z._0-9-]+",

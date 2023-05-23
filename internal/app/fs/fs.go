@@ -1,9 +1,11 @@
 package fs
 
 import (
+	"errors"
 	"net/http"
 	"path/filepath"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/jsonapi"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
@@ -17,21 +19,30 @@ type Env struct {
 }
 
 func (e Env) Create(w http.ResponseWriter, r *http.Request) {
+	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
+		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
 	file, h, err := r.FormFile(e.K.String("fs.formKey"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
+		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
+
 	path := filepath.Join(r.FormValue("filepath"), h.Filename)
 	_, err = e.Store.Create(path, file)
+	if errors.Is(err, &filestore.ErrWrongNaming) {
+		jsonapi.MarshalErrors(w, japi.Errors(&filestore.ErrWrongNaming))
+		return
+	}
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
+		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
@@ -39,15 +50,18 @@ func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
+	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
+		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
 	err = e.Store.Remove(r.Form.Get("filepath"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		jerr := japi.NewError(err, http.StatusBadRequest, reqID)
+		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -61,7 +75,7 @@ func (e Env) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Form.Get("filepath") == "" {
-		jsonapi.MarshalErrors(w, japi.Errors(errEmptyFilepath))
+		jsonapi.MarshalErrors(w, japi.Errors(&errEmptyFilepath))
 		return
 	}
 	data, err := e.Store.Read(r.Form.Get("filepath"))
