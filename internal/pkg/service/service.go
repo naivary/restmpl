@@ -8,13 +8,12 @@ type Service interface {
 	UUID() string
 	Name() string
 
-	// Detailed description of the Service
+	// Detailed description of the service
 	Description() string
 
-	// Name of the router to mount it
-	// to at the root level.
+	// Pattern of the domain like /sys
 	Pattern() string
 
-	// Router to mount to the root router.
+	// Handler to mount to the root router.
 	Router() http.Handler
 }

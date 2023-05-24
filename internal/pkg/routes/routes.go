@@ -15,7 +15,6 @@ const (
 
 func New(svcs []service.Service) chi.Router {
 	r := chi.NewRouter()
-
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
@@ -23,6 +22,9 @@ func New(svcs []service.Service) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 
 	for _, svc := range svcs {
+		if svc.Pattern() == "/sys" {
+			continue
+		}
 		r.Mount(svc.Pattern(), svc.Router())
 	}
 
