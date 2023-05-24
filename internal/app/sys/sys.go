@@ -28,6 +28,7 @@ func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
 	}
 	s.M.DBRunning = err == nil
 
+	w.Header().Add("Content-Type", jsonapi.MediaType)
 	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)

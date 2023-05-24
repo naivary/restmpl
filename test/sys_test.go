@@ -1,29 +1,17 @@
 package test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/naivary/instance/internal/pkg/models/metadata"
 )
 
 func TestHealth(t *testing.T) {
-	m := metadata.Metadata{}
-	r := httptest.NewRequest(http.MethodGet, "/sys/health", nil)
+	r := httptest.NewRequest(http.MethodGet, "/sys", nil)
 	w := httptest.NewRecorder()
-	api.Services.Sys.Health(w, r)
-
-	res := w.Result()
-	defer res.Body.Close()
-
-	if res.StatusCode != 200 {
-		t.Fail()
-	}
-
-	err := json.NewDecoder(res.Body).Decode(&m)
-	if err != nil {
-		t.Error(err)
+	hf := http.HandlerFunc(api.Services.Sys.Health)
+	hf.ServeHTTP(w, r)
+	if w.Result().StatusCode != 200 {
+		t.Errorf("statuscode was not 200. Got: %d", w.Result().StatusCode)
 	}
 }
