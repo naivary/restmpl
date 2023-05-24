@@ -28,9 +28,6 @@ type App struct {
 	// Router contains all the endpoints of
 	// which define the REST-API.
 	Router chi.Router
-
-
-	Envs []env.Env
 }
 
 var (

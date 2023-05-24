@@ -14,9 +14,8 @@ func New(k *koanf.Koanf) Metadata {
 }
 
 type Metadata struct {
-	// Ressource ID so it is jsonapi compatible
 	ID string `jsonapi:"primary,metadata"`
 
-	Version   string `jsonapi:"attr,metadata"`
+	Version   string `jsonapi:"attr,version"`
 	DBRunning bool   `jsonapi:"attr,dbRunning"`
 }
