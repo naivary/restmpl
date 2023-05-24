@@ -8,7 +8,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
+	"github.com/naivary/instance/internal/pkg/service"
 )
+
+var _ service.Service = (*Env)(nil)
 
 type Env struct {
 	K  *koanf.Koanf

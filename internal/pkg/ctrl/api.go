@@ -1,4 +1,4 @@
-package env
+package ctrl
 
 import (
 	"github.com/go-chi/chi"
@@ -7,8 +7,5 @@ import (
 
 type API struct {
 	Services []service.Service
-
-	// Router contains all the endpoints of
-	// which define the REST-API.
-	Router chi.Router
+	Router   chi.Router
 }

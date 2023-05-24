@@ -19,7 +19,7 @@ type Env struct {
 }
 
 func (e Env) Name() string {
-	return "fs"
+	return "filestore"
 }
 
 func (e Env) UUID() string {
