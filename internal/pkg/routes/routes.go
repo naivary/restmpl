@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -22,9 +23,8 @@ func New(svcs []service.Service) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 
 	for _, svc := range svcs {
-		if svc.Pattern() == "/sys" {
-			continue
-		}
+		t, ok := svc.Router().(*chi.Mux)
+		fmt.Println(svc.Pattern(), t, ok)
 		r.Mount(svc.Pattern(), svc.Router())
 	}
 
