@@ -11,33 +11,33 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-var _ service.Service = (*Env)(nil)
+var _ service.Service = (*Sys)(nil)
 
-type Env struct {
+type Sys struct {
 	K  *koanf.Koanf
 	DB *sql.DB
 
 	M metadata.Metadata
 }
 
-func (e Env) Router() http.Handler {
+func (s Sys) Router() http.Handler {
 	r := chi.NewRouter()
-	r.Get("/health", e.Health)
+	r.Get("/health", s.Health)
 	return r
 }
 
-func (e Env) Pattern() string {
+func (s Sys) Pattern() string {
 	return "/sys"
 }
 
-func (e Env) UUID() string {
+func (e Sys) UUID() string {
 	return uuid.NewString()
 }
 
-func (e Env) Name() string {
+func (e Sys) Name() string {
 	return "sys"
 }
 
-func (e Env) Description() string {
+func (e Sys) Description() string {
 	return "system checks like metrics, health. For the full list of endpoints see the OpenApi definition."
 }

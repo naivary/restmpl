@@ -10,37 +10,37 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-var _ service.Service = (*Env)(nil)
+var _ service.Service = (*Fs)(nil)
 
-type Env struct {
+type Fs struct {
 	K *koanf.Koanf
 
 	Store filestore.Store
 }
 
-func (e Env) Name() string {
+func (f Fs) Name() string {
 	return "filestore"
 }
 
-func (e Env) UUID() string {
+func (f Fs) UUID() string {
 	return uuid.NewString()
 }
 
-func (e Env) Pattern() string {
+func (f Fs) Pattern() string {
 	return "/fs"
 }
 
-func (e Env) Router() http.Handler {
+func (f Fs) Router() http.Handler {
 	r := chi.NewRouter()
-	for _, mw := range e.Middlewares() {
+	for _, mw := range f.Middlewares() {
 		r.Use(mw)
 	}
-	r.Post("/", e.Create)
-	r.Delete("/remove", e.Remove)
-	r.Get("/read", e.Read)
+	r.Post("/", f.Create)
+	r.Delete("/remove", f.Remove)
+	r.Get("/read", f.Read)
 	return r
 }
 
-func (e Env) Description() string {
+func (f Fs) Description() string {
 	return "a simple filestore which uses the host filesystem as a sotrage"
 }

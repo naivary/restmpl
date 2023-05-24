@@ -19,7 +19,7 @@ import (
 
 var (
 	db         = wire.NewSet(database.Connect)
-	svcs       = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"))
+	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	api        = wire.Struct(new(ctrl.API), "*")
 	httpFs     = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	rootRouter = wire.NewSet(routes.New)
@@ -27,7 +27,7 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func allSvcs(sys *sys.Env, fs *fs.Env) []service.Service {
+func allSvcs(sys *sys.Sys, fs *fs.Fs) []service.Service {
 	return []service.Service{
 		sys,
 		fs,
