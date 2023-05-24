@@ -5,7 +5,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/filestore"
 )
 
-type Env struct {
+type Fs struct {
 	K *koanf.Koanf
 
 	Store filestore.Store

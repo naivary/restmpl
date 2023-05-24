@@ -6,6 +6,6 @@ import (
 )
 
 type Services struct {
-	Sys sys.Env
-	Fs  fs.Env
+	Sys sys.Sys
+	Fs  fs.Fs
 }

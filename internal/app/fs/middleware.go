@@ -8,16 +8,16 @@ import (
 	"github.com/naivary/instance/internal/pkg/japi"
 )
 
-func (e Env) Middlewares() []func(http.Handler) http.Handler {
+func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
-		e.forceFilepath,
+		f.forceFilepath,
 	}
 }
 
-func (e Env) forceFilepath(next http.Handler) http.Handler {
+func (f Fs) forceFilepath(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
-			err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
+			err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

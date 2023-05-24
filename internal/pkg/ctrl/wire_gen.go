@@ -30,7 +30,7 @@ func New() (*API, error) {
 		return nil, err
 	}
 	metadataMetadata := metadata.New(koanf)
-	env := sys.Env{
+	sysSys := sys.Sys{
 		K:  koanf,
 		DB: sqlDB,
 		M:  metadataMetadata,
@@ -39,17 +39,17 @@ func New() (*API, error) {
 	if err != nil {
 		return nil, err
 	}
-	fsEnv := fs.Env{
+	fsFs := fs.Fs{
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
 	servicesServices := services.Services{
-		Sys: env,
-		Fs:  fsEnv,
+		Sys: sysSys,
+		Fs:  fsFs,
 	}
 	services2 := &services.Services{
-		Sys: env,
-		Fs:  fsEnv,
+		Sys: sysSys,
+		Fs:  fsFs,
 	}
 	router := routes.New(services2)
 	api := &API{
@@ -63,7 +63,7 @@ func New() (*API, error) {
 
 var (
 	db     = wire.NewSet(database.Connect)
-	svc    = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(services.Services), "*"))
+	svc    = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), wire.Struct(new(services.Services), "*"))
 	app    = wire.Struct(new(API), "*")
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	k      = wire.NewSet(config.New)

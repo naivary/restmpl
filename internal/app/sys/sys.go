@@ -11,24 +11,24 @@ import (
 	"github.com/naivary/instance/internal/pkg/models/metadata"
 )
 
-type Env struct {
+type Sys struct {
 	K  *koanf.Koanf
 	DB *sql.DB
 
 	M metadata.Metadata
 }
 
-func (e *Env) Health(w http.ResponseWriter, r *http.Request) {
+func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	err := e.DB.Ping()
+	err := s.DB.Ping()
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-	e.M.DBRunning = err == nil
+	s.M.DBRunning = err == nil
 
-	err = jsonapi.MarshalPayload(w, &e.M)
+	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))

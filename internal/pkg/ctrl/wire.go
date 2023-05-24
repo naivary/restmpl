@@ -19,7 +19,7 @@ import (
 
 var (
 	db     = wire.NewSet(database.Connect)
-	svc    = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(services.Services), "*"))
+	svc    = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), wire.Struct(new(services.Services), "*"))
 	app    = wire.Struct(new(ctrl.API), "*")
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	k      = wire.NewSet(config.New)

@@ -1,19 +1,16 @@
-package sys
+package test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/naivary/instance/internal/pkg/ctrl"
+	"github.com/naivary/instance/internal/pkg/models/metadata"
 )
 
 func TestHealth(t *testing.T) {
-	api, err := ctrl.New()
-	if err != nil {
-		t.Error(err)
-	}
-
+	m := metadata.Metadata{}
 	r := httptest.NewRequest(http.MethodGet, "/sys/health", nil)
 	w := httptest.NewRecorder()
 	api.Services.Sys.Health(w, r)
@@ -21,6 +18,12 @@ func TestHealth(t *testing.T) {
 	res := w.Result()
 	defer res.Body.Close()
 
-	t.Log(res)
+	if res.StatusCode != 200 {
+		t.Fail()
+	}
 
+	err := json.NewDecoder(res.Body).Decode(&m)
+	if err != nil {
+		t.Error(err)
+	}
 }

@@ -11,16 +11,16 @@ import (
 	"github.com/naivary/instance/internal/pkg/japi"
 )
 
-func (e Env) Create(w http.ResponseWriter, r *http.Request) {
+func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	err := r.ParseMultipartForm(e.K.Int64("fs.maxSize"))
+	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
-	file, h, err := r.FormFile(e.K.String("fs.formKey"))
+	file, h, err := r.FormFile(f.K.String("fs.formKey"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
@@ -28,7 +28,7 @@ func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := filepath.Join(r.FormValue("filepath"), h.Filename)
-	_, err = e.Store.Create(path, file)
+	_, err = f.Store.Create(path, file)
 	if errors.Is(err, &filestore.ErrWrongNaming) {
 		w.WriteHeader(http.StatusBadRequest)
 		jsonapi.MarshalErrors(w, japi.Errors(&filestore.ErrWrongNaming))
@@ -43,7 +43,7 @@ func (e Env) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
+func (f Fs) Remove(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseForm()
 	if err != nil {
@@ -52,7 +52,7 @@ func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = e.Store.Remove(r.Form.Get("filepath"))
+	err = f.Store.Remove(r.Form.Get("filepath"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusBadRequest, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
@@ -61,14 +61,14 @@ func (e Env) Remove(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (e Env) Read(w http.ResponseWriter, r *http.Request) {
+func (f Fs) Read(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data, err := e.Store.Read(r.Form.Get("filepath"))
+	data, err := f.Store.Read(r.Form.Get("filepath"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
