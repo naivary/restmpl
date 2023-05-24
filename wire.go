@@ -27,13 +27,14 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func AllSvcs(sys sys.Env, fs fs.Env) []service.Service {
+func allSvcs(sys *sys.Env, fs *fs.Env) []service.Service {
 	return []service.Service{
-		sys, fs,
+		sys,
+		fs,
 	}
 }
 
 func NewApp() (*ctrl.API, error) {
-	wire.Build(db, svcs, rootRouter, api, k, m, httpFs, AllSvcs)
+	wire.Build(db, svcs, rootRouter, api, k, m, httpFs, allSvcs)
 	return &ctrl.API{}, nil
 }

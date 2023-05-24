@@ -31,7 +31,7 @@ func NewApp() (*ctrl.API, error) {
 		return nil, err
 	}
 	metadataMetadata := metadata.New(koanf)
-	env := sys.Env{
+	env := &sys.Env{
 		K:  koanf,
 		DB: sqlDB,
 		M:  metadataMetadata,
@@ -40,11 +40,11 @@ func NewApp() (*ctrl.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	fsEnv := fs.Env{
+	fsEnv := &fs.Env{
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
-	v := AllSvcs(env, fsEnv)
+	v := allSvcs(env, fsEnv)
 	router := routes.New(v)
 	ctrlAPI := &ctrl.API{
 		Services: v,
@@ -65,6 +65,6 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func AllSvcs(sys2 sys.Env, fs2 fs.Env) []service.Service {
+func allSvcs(sys2 *sys.Env, fs2 *fs.Env) []service.Service {
 	return []service.Service{sys2, fs2}
 }

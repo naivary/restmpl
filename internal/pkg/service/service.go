@@ -1,6 +1,8 @@
 package service
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Service interface {
 	UUID() string

@@ -39,5 +39,5 @@ func (e Env) Name() string {
 }
 
 func (e Env) Description() string {
-	return "system controller to check the status of the application using health checks, getting metrics etc."
+	return "system checks like metrics, health. For the full list of endpoints see the OpenApi definition."
 }
