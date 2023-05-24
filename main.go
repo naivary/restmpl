@@ -14,12 +14,12 @@ func main() {
 }
 
 func run() error {
-	app, err := ctrl.New()
+	api, err := ctrl.New()
 	if err != nil {
 		return err
 	}
 
-	srv, err := server.New(":8080", app.Router)
+	srv, err := server.New(":8080", api.Router)
 	if err != nil {
 		return err
 	}
