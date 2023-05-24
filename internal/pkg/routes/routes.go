@@ -27,3 +27,4 @@ func New(svcs *services.Services) chi.Router {
 	r.Mount("/fs", fs(svcs))
 	return r
 }
+

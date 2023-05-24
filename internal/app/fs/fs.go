@@ -22,3 +22,7 @@ func (e Env) Name() string {
 func (e Env) ID() string {
 	return uuid.NewString()
 }
+
+func (e Env) Routername() string {
+	return "/fs"
+}

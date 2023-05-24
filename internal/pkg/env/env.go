@@ -14,4 +14,7 @@ type Env interface {
 
 	// Router of the env to mount onto the main router
 	Router() http.Handler
+
+	// Name of the main router: /<Routername>/<Router>
+	Routername() string
 }
