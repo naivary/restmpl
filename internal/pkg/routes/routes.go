@@ -23,7 +23,7 @@ func New(svcs []service.Service) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 
 	for _, svc := range svcs {
-		r.Mount(svc.Routername(), svc.Router())
+		r.Mount(svc.Pattern(), svc.Router())
 	}
 
 	return r

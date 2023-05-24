@@ -13,7 +13,7 @@ type Service interface {
 
 	// Name of the router to mount it
 	// to at the root level.
-	Routername() string
+	Pattern() string
 
 	// Router to mount to the root router.
 	Router() http.Handler

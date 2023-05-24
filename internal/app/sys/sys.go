@@ -26,7 +26,7 @@ func (e Env) Router() http.Handler {
 	return r
 }
 
-func (e Env) Routername() string {
+func (e Env) Pattern() string {
 	return "/sys"
 }
 

@@ -26,7 +26,7 @@ func (e Env) UUID() string {
 	return uuid.NewString()
 }
 
-func (e Env) Routername() string {
+func (e Env) Pattern() string {
 	return "/fs"
 }
 
@@ -35,7 +35,7 @@ func (e Env) Router() http.Handler {
 	for _, mw := range e.Middlewares() {
 		r.Use(mw)
 	}
-	r.Post("/create", e.Create)
+	r.Post("/", e.Create)
 	r.Delete("/remove", e.Remove)
 	r.Get("/read", e.Read)
 	return r
