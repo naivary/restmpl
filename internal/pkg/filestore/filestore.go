@@ -13,15 +13,12 @@ import (
 type Store interface {
 	// Create creates a file which contains
 	// the data included in `r`.
+	// TODO(naivary): make it independet from afero.File and
+	// dependent to *os.File.
 	Create(path string, r io.Reader) (afero.File, error)
 
-	// Remove will remove the file or
-	// directory given by `path`
 	Remove(path string) error
 
-	// Read is reading the content
-	// from `path` and returning
-	// any errors.
 	Read(path string) ([]byte, error)
 }
 
@@ -72,6 +69,7 @@ func (f Filestore) Create(path string, r io.Reader) (afero.File, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	file, err := f.Store.Create(path)
 	if err != nil {
 		return nil, err
