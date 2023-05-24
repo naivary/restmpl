@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/server"
 )
 
@@ -13,12 +14,12 @@ func main() {
 }
 
 func run() error {
-	app, err := NewApp()
+	api, err := ctrl.New()
 	if err != nil {
 		return err
 	}
 
-	srv, err := server.New(":8080", app.Router)
+	srv, err := server.New(":8080", api.Router)
 	if err != nil {
 		return err
 	}

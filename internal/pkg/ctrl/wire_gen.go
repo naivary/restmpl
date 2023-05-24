@@ -4,10 +4,9 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package ctrl
 
 import (
-	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
@@ -21,7 +20,7 @@ import (
 
 // Injectors from wire.go:
 
-func NewApp() (*App, error) {
+func New() (*API, error) {
 	koanf, err := config.New()
 	if err != nil {
 		return nil, err
@@ -53,32 +52,19 @@ func NewApp() (*App, error) {
 		Fs:  fsEnv,
 	}
 	router := routes.New(services2)
-	mainApp := &App{
+	api := &API{
 		Services: servicesServices,
 		Router:   router,
 	}
-	return mainApp, nil
+	return api, nil
 }
 
 // wire.go:
 
-type App struct {
-	// Services contains all handler
-	// for the corresponding endpoints.
-	// Every Handler in the View is represented
-	// by a directory in the /internal/app/<handler>
-	// and the needed Env of the handler.
-	Services services.Services
-
-	// Router contains all the endpoints of
-	// which define the REST-API.
-	Router chi.Router
-}
-
 var (
 	db     = wire.NewSet(database.Connect)
 	svc    = wire.NewSet(wire.Struct(new(sys.Env), "*"), wire.Struct(new(fs.Env), "*"), wire.Struct(new(services.Services), "*"))
-	app    = wire.Struct(new(App), "*")
+	app    = wire.Struct(new(API), "*")
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	k      = wire.NewSet(config.New)
 	m      = wire.NewSet(metadata.New)
