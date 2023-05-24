@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/server"
 )
 
@@ -13,7 +14,7 @@ func main() {
 }
 
 func run() error {
-	app, err := NewApp()
+	app, err := ctrl.New()
 	if err != nil {
 		return err
 	}
