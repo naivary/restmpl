@@ -19,14 +19,7 @@ type Fs struct {
 }
 
 func (f Fs) Register(root chi.Router) {
-	r := chi.NewRouter()
-	for _, mw := range f.Middlewares() {
-		r.Use(mw)
-	}
-	r.Post("/", f.Create)
-	r.Delete("/remove", f.Remove)
-	r.Get("/read", f.Read)
-	root.Mount("/fs", r)
+	root.Mount(f.pattern(), f.router())
 }
 
 func (f Fs) Name() string {
@@ -37,11 +30,11 @@ func (f Fs) UUID() string {
 	return uuid.NewString()
 }
 
-func (f Fs) Pattern() string {
+func (f Fs) pattern() string {
 	return "/fs"
 }
 
-func (f Fs) Router() http.Handler {
+func (f Fs) router() http.Handler {
 	r := chi.NewRouter()
 	for _, mw := range f.Middlewares() {
 		r.Use(mw)

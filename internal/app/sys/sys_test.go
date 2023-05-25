@@ -37,7 +37,7 @@ var (
 )
 
 func TestHealth(t *testing.T) {
-	ts := httptest.NewServer(sysTest.Router())
+	ts := httptest.NewServer(sysTest.router())
 	defer ts.Close()
 	url, err := url.JoinPath(ts.URL, "/health")
 	if err != nil {

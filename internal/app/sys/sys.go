@@ -21,19 +21,16 @@ type Sys struct {
 }
 
 func (s Sys) Register(root chi.Router) {
-	r := chi.NewRouter()
-	r.Get("/health", s.Health)
-
-	root.Mount("/sys", r)
+	root.Mount(s.pattern(), s.router())
 }
 
-func (s Sys) Router() http.Handler {
+func (s Sys) router() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/health", s.Health)
 	return r
 }
 
-func (s Sys) Pattern() string {
+func (s Sys) pattern() string {
 	return "/sys"
 }
 
