@@ -18,16 +18,18 @@ const (
 
 func setupSys() Sys {
 	s := Sys{}
-	db, err := database.InMemConnect()
-	if err != nil {
-		log.Fatal(err)
-	}
-	s.DB = db
 	k, err := config.New(cfgFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	s.K = k
+
+	db, err := database.Connect(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s.DB = db
+
 	s.M = metadata.New(k)
 
 	return s

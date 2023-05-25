@@ -1,5 +1,5 @@
 ---
-version: "v0.1.0"
+version: "0.1.0"
 name: "instance"
 fs:
   basepath: "/home/musti/instance_example"
@@ -10,8 +10,3 @@ fs:
   # Cache duration of a file.
   # Default: 1 minute
   ttl: 1m
-db: "/home/musti"
-sqlite:
-  mode: rwc
-  journal: WAL
-  fk: true
