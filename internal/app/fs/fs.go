@@ -10,11 +10,8 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-<<<<<<< HEAD
-=======
 var _ service.Service[chi.Router] = (*Fs)(nil)
 
->>>>>>> svc-interface
 type Fs struct {
 	K *koanf.Koanf
 

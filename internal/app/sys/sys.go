@@ -11,11 +11,8 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-<<<<<<< HEAD
-=======
 var _ service.Service[chi.Router] = (*Sys)(nil)
 
->>>>>>> svc-interface
 type Sys struct {
 	K  *koanf.Koanf
 	DB *sql.DB
@@ -23,27 +20,6 @@ type Sys struct {
 	M metadata.Metadata
 }
 
-<<<<<<< HEAD
-func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
-	reqID := middleware.GetReqID(r.Context())
-	err := s.DB.Ping()
-	if err != nil {
-		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
-		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
-		return
-	}
-	s.M.DBRunning = err == nil
-
-	w.Header().Add("Content-Type", jsonapi.MediaType)
-	err = jsonapi.MarshalPayload(w, &s.M)
-	if err != nil {
-		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
-		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-=======
 func (s Sys) Register(root chi.Router) {
 	root.Mount(s.pattern(), s.router())
 }
@@ -68,5 +44,4 @@ func (e Sys) Name() string {
 
 func (e Sys) Description() string {
 	return "system checks like metrics, health. For the full list of endpoints see the OpenApi definition."
->>>>>>> svc-interface
 }
