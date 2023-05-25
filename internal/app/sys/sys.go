@@ -41,3 +41,9 @@ func (e Sys) Name() string {
 func (e Sys) Description() string {
 	return "system checks like metrics, health. For the full list of endpoints see the OpenApi definition."
 }
+
+func (s Sys) Mount(root chi.Router) {
+	r := chi.NewRouter()
+	r.Get("/health", s.Health)
+	root.Mount("/sys", r)
+}
