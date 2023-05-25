@@ -13,17 +13,27 @@ const (
 	reqTimeout = 20 * time.Second
 )
 
-func New(svcs []service.Service[chi.Router]) chi.Router {
+func newRoot() chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
-	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.Timeout(reqTimeout))
 
+	return r
+}
+
+// NewTestRouter returns a chi.Router
+// with all the root middleware attached.
+func NewTestRouter() chi.Router {
+	return newRoot()
+}
+
+func New(svcs []service.Service[chi.Router]) chi.Router {
+	root := newRoot()
 	for _, svc := range svcs {
-		svc.Register(r)
+		svc.Register(root)
 	}
 
-	return r
+	return root
 }
