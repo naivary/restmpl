@@ -2,7 +2,6 @@ package sys
 
 import (
 	"database/sql"
-	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -21,17 +20,9 @@ type Sys struct {
 }
 
 func (s Sys) Register(root chi.Router) {
-	root.Mount(s.pattern(), s.router())
-}
-
-func (s Sys) router() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/health", s.Health)
-	return r
-}
-
-func (s Sys) pattern() string {
-	return "/sys"
+	root.Mount("/sys", r)
 }
 
 func (e Sys) UUID() string {
