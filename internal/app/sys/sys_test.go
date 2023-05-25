@@ -2,6 +2,7 @@ package sys
 
 import (
 	"log"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
@@ -14,6 +15,14 @@ import (
 
 const (
 	cfgFile = "test_config.yaml"
+)
+
+var (
+	// sysTest is a test configured Sys struct
+	// which is only used for test purposes
+	sysTest = setupSys()
+
+	ts = setupTestServer()
 )
 
 func setupSys() Sys {
@@ -41,14 +50,6 @@ func setupTestServer() *httptest.Server {
 	return httptest.NewServer(root)
 }
 
-var (
-	// sysTest is a test configured Sys struct
-	// which is only used for test purposes
-	sysTest = setupSys()
-
-	ts = setupTestServer()
-)
-
 func TestHealth(t *testing.T) {
 	c := ts.Client()
 	url, err := url.JoinPath(ts.URL, "sys", "health")
@@ -60,7 +61,7 @@ func TestHealth(t *testing.T) {
 		t.Error(err)
 	}
 
-	if res.StatusCode != 200 {
-		t.Fatalf("Expected status code to be 200. Got: %d while sending request to: %s", res.StatusCode, url)
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code to be %d. Got: %d while sending request to: %s", http.StatusOK, res.StatusCode, url)
 	}
 }
