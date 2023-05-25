@@ -11,9 +11,8 @@ const (
 	keyPathDelimiter = "."
 )
 
-func New() (*koanf.Koanf, error) {
+func New(cfgFile string) (*koanf.Koanf, error) {
 	k := koanf.New(keyPathDelimiter)
-	err := k.Load(fs.Provider(configs.Fs, "instance.yaml"), yaml.Parser())
+	err := k.Load(fs.Provider(configs.Fs, cfgFile), yaml.Parser())
 	return k, err
 }
-
