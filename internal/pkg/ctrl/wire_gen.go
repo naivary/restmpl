@@ -20,8 +20,8 @@ import (
 
 // Injectors from wire.go:
 
-func New() (*API, error) {
-	koanf, err := config.New()
+func New(cfgFile string) (*API, error) {
+	koanf, err := config.New(cfgFile)
 	if err != nil {
 		return nil, err
 	}

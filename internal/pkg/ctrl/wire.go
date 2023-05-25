@@ -34,7 +34,7 @@ func allSvcs(sys *sys.Sys, fs *fs.Fs) []service.Service {
 	}
 }
 
-func New() (*ctrl.API, error) {
+func New(cfgFile string) (*ctrl.API, error) {
 	wire.Build(db, svcs, rootRouter, api, k, m, httpFs, allSvcs)
 	return &ctrl.API{}, nil
 }

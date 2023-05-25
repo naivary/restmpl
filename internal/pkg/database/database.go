@@ -10,6 +10,12 @@ import (
 )
 
 func Connect(k *koanf.Koanf) (*sql.DB, error) {
-	name := fmt.Sprintf("%s_%s.db", k.String("name"), k.String("version"))
+	name := fmt.Sprintf("file:%s_%s.db?mode=", k.String("name"), k.String("version"))
 	return sql.Open("sqlite", filepath.Join(k.String("db"), name))
+}
+
+// InMemConnect creates a sqlite database connection
+// which is stored in memory. It is used for test purposes
+func InMemConnect() (*sql.DB, error) {
+	return sql.Open("sqlite", "file::memory:?mode=rwc&_journal_mode=WAL&_fk=true")
 }
