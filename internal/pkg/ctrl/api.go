@@ -6,6 +6,6 @@ import (
 )
 
 type API struct {
-	Services []service.Service
+	Services []service.Service[chi.Router]
 	Router   chi.Router
 }

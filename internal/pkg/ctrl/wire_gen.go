@@ -7,6 +7,7 @@
 package ctrl
 
 import (
+	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
@@ -64,6 +65,6 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func allSvcs(sys2 *sys.Sys, fs2 *fs.Fs) []service.Service {
-	return []service.Service{sys2, fs2}
+func allSvcs(sys2 *sys.Sys, fs2 *fs.Fs) []service.Service[chi.Router] {
+	return []service.Service[chi.Router]{sys2, fs2}
 }

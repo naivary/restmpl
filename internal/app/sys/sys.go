@@ -11,13 +11,20 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-var _ service.Service = (*Sys)(nil)
+var _ service.Service[chi.Router] = (*Sys)(nil)
 
 type Sys struct {
 	K  *koanf.Koanf
 	DB *sql.DB
 
 	M metadata.Metadata
+}
+
+func (s Sys) Register(root chi.Router) {
+	r := chi.NewRouter()
+	r.Get("/health", s.Health)
+
+	root.Mount("/sys", r)
 }
 
 func (s Sys) Router() http.Handler {

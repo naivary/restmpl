@@ -1,9 +1,12 @@
 package sys
 
 import (
+	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config"
@@ -27,15 +30,25 @@ func setup() Sys {
 	return s
 }
 
-// sysTest is a test configured Sys struct.
-// Only use for test purposes.
-var sysTest = setup()
+var (
+	// sysTest is a test configured Sys struct.
+	// Only use for test purposes.
+	sysTest = setup()
+)
 
 func TestHealth(t *testing.T) {
-	r := httptest.NewRequest(http.MethodGet, "/hi", nil)
-	w := httptest.NewRecorder()
-
-	sysTest.Health(w, r)
-
-	t.Log(w.Body)
+	ts := httptest.NewServer(sysTest.Router())
+	defer ts.Close()
+	url, err := url.JoinPath(ts.URL, "/health")
+	if err != nil {
+		t.Error(err)
+	}
+	res, err := http.Get(url)
+	if err != nil {
+		t.Error(err)
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(res.Body)
+	fmt.Println(buf)
+	t.Log(res)
 }

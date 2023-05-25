@@ -13,7 +13,7 @@ const (
 	reqTimeout = 20 * time.Second
 )
 
-func New(svcs []service.Service) chi.Router {
+func New(svcs []service.Service[chi.Router]) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
 	r.Use(middleware.Logger)
@@ -22,7 +22,7 @@ func New(svcs []service.Service) chi.Router {
 	r.Use(middleware.Timeout(reqTimeout))
 
 	for _, svc := range svcs {
-		r.Mount(svc.Pattern(), svc.Router())
+		svc.Register(r)
 	}
 
 	return r

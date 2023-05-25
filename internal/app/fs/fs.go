@@ -10,12 +10,23 @@ import (
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-var _ service.Service = (*Fs)(nil)
+var _ service.Service[chi.Router] = (*Fs)(nil)
 
 type Fs struct {
 	K *koanf.Koanf
 
 	Store filestore.Store
+}
+
+func (f Fs) Register(root chi.Router) {
+	r := chi.NewRouter()
+	for _, mw := range f.Middlewares() {
+		r.Use(mw)
+	}
+	r.Post("/", f.Create)
+	r.Delete("/remove", f.Remove)
+	r.Get("/read", f.Read)
+	root.Mount("/fs", r)
 }
 
 func (f Fs) Name() string {

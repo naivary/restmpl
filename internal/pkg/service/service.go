@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-type Service interface {
+type Service[T any] interface {
 	UUID() string
 	Name() string
 
@@ -16,4 +16,8 @@ type Service interface {
 
 	// Handler to mount to the root router.
 	Router() http.Handler
+
+	// Register is passing the root router
+	// so the Service can register itself.
+	Register(T)
 }
