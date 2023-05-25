@@ -17,7 +17,7 @@ func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.M.DBRunning = err == nil
-	s.M.ReqID = reqID
+
 	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)

@@ -18,5 +18,4 @@ type Metadata struct {
 
 	Version   string `jsonapi:"attr,version"`
 	DBRunning bool   `jsonapi:"attr,dbRunning"`
-	ReqID     string `jsonapi:"attr,reqID"`
 }
