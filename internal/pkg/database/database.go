@@ -1,11 +1,9 @@
 package database
 
 import (
-	"database/sql"
-
 	"github.com/knadh/koanf/v2"
 	"github.com/pocketbase/dbx"
-	"modernc.org/sqlite"
+	_ "modernc.org/sqlite"
 )
 
 // inMem provides an in-memory
@@ -26,7 +24,7 @@ func inMem() (*dbx.DB, error) {
 
 // Connect creates a connectiont to the sqlite database.
 // If `k` is nil, the database will be created in memory.
-// This should be only considered for testing puposes.
+// This should be only considered for testing purposes.
 func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 	// check if the connection is needed for testing purposes
 	if k == nil {
@@ -42,14 +40,4 @@ func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 		return nil, err
 	}
 	return db, nil
-}
-
-func GetDriverName(db *sql.DB) string {
-	switch db.Driver().(type) {
-	case *sqlite.Driver:
-		return "sqlite"
-	default:
-		return "unknown"
-	}
-
 }

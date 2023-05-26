@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/pocketbase/dbx"
 )
 
@@ -15,7 +14,7 @@ func New(k *koanf.Koanf, d *dbx.DB) Metadata {
 		ID:         "26e4a9ae-67e4-430f-9263-de9a18d6160b",
 		Version:    k.String("version"),
 		DBStats:    d.DB().Stats(),
-		DriverName: database.GetDriverName(d.DB()),
+		DriverName: d.DriverName(),
 	}
 }
 

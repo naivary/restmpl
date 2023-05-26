@@ -18,6 +18,8 @@ type Sys struct {
 	M metadata.Metadata
 }
 
+func (s Sys) RegisterRootMiddleware(root chi.Router) {}
+
 func (s Sys) Register(root chi.Router) {
 	r := chi.NewRouter()
 	r.Get("/health", s.Health)

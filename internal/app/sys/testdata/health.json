@@ -3,7 +3,18 @@
     "type": "metadata",
     "id": "26e4a9ae-67e4-430f-9263-de9a18d6160b",
     "attributes": {
-      "dbRunning": true,
+      "dbStats": {
+        "MaxOpenConnections": 1,
+        "OpenConnections": 1,
+        "InUse": 0,
+        "Idle": 1,
+        "WaitCount": 0,
+        "WaitDuration": 0,
+        "MaxIdleClosed": 0,
+        "MaxIdleTimeClosed": 0,
+        "MaxLifetimeClosed": 0
+      },
+      "driverName": "sqlite",
       "version": "0.1.0"
     }
   }

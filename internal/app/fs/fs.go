@@ -16,6 +16,8 @@ type Fs struct {
 	Store filestore.Store
 }
 
+func (f Fs) RegisterRootMiddleware(root chi.Router) {}
+
 func (f Fs) Register(root chi.Router) {
 	r := chi.NewRouter()
 	for _, mw := range f.Middlewares() {
