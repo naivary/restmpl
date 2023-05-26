@@ -26,14 +26,14 @@ func New(cfgFile string) (*API, error) {
 	if err != nil {
 		return nil, err
 	}
-	sqlDB, err := database.Connect(koanf)
+	dbxDB, err := database.Connect(koanf)
 	if err != nil {
 		return nil, err
 	}
-	metadataMetadata := metadata.New(koanf)
+	metadataMetadata := metadata.New(koanf, dbxDB)
 	sysSys := &sys.Sys{
 		K:  koanf,
-		DB: sqlDB,
+		DB: dbxDB,
 		M:  metadataMetadata,
 	}
 	filestoreFilestore, err := filestore.New(koanf)

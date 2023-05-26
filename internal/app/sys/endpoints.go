@@ -9,21 +9,19 @@ import (
 )
 
 func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
-	reqID := middleware.GetReqID(r.Context())
-	err := s.DB.Ping()
+	ctx := r.Context()
+	reqID := middleware.GetReqID(ctx)
+	err := s.DB.DB().PingContext(ctx)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-	s.M.DBRunning = err == nil
-
 	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-
 	w.WriteHeader(http.StatusOK)
 }

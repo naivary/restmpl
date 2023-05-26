@@ -8,6 +8,8 @@ import (
 
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/must"
+	"github.com/pocketbase/dbx"
+	"modernc.org/sqlite"
 	_ "modernc.org/sqlite"
 )
 
@@ -31,7 +33,7 @@ func buildDsn(k *koanf.Koanf) string {
 	return fmt.Sprintf("file:%s/%s.db", dir, k.String("name"))
 }
 
-func initPragmas(db *sql.DB) error {
+func initPragmas(db *dbx.DB) error {
 	query := `
 		PRAGMA busy_timeout       = 10000;
 		PRAGMA journal_mode       = WAL;
@@ -39,22 +41,21 @@ func initPragmas(db *sql.DB) error {
 		PRAGMA synchronous        = NORMAL;
 		PRAGMA foreign_keys       = 1;	
 	`
-	_, err := db.Exec(query, nil)
-	if err != nil {
+	if _, err := db.NewQuery(query).Execute(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func initOptions(db *sql.DB) {
-	db.SetMaxOpenConns(1)
+func initOptions(db *dbx.DB) {
+	db.DB().SetMaxOpenConns(1)
 }
 
 // inMem provides an in-memory
 // sqlite database which is
 // used for test purposes
-func inMem() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "file::memory:")
+func inMem() (*dbx.DB, error) {
+	db, err := dbx.Open("sqlite", "file::memory:")
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +70,12 @@ func inMem() (*sql.DB, error) {
 // Connect creates a connectiont to the sqlite database.
 // If `k` is nil, the database will be created in memory.
 // This should be only considered for testing puposes.
-func Connect(k *koanf.Koanf) (*sql.DB, error) {
+func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 	// check if the connection is needed for testing purposes
 	if k == nil {
 		return inMem()
 	}
-	fmt.Println(buildDsn(k))
-	db, err := sql.Open("sqlite", buildDsn(k))
+	db, err := dbx.Open("sqlite", buildDsn(k))
 	if err != nil {
 		return nil, err
 	}
@@ -85,4 +85,14 @@ func Connect(k *koanf.Koanf) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func GetDriverName(db *sql.DB) string {
+	switch db.Driver().(type) {
+	case *sqlite.Driver:
+		return "sqlite"
+	default:
+		return "unknown"
+	}
+
 }

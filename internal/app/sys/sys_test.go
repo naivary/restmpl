@@ -43,7 +43,7 @@ func setupSys() Sys {
 	}
 	s.DB = db
 
-	s.M = metadata.New(k)
+	s.M = metadata.New(k, db)
 
 	return s
 }
