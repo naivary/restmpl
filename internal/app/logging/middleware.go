@@ -10,7 +10,7 @@ import (
 func (l Logging) Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqID := middleware.GetReqID(r.Context())
-		l.Info.InfoCtx(r.Context(), "request", "method", r.Method, "reqID", reqID, "endpoint", r.URL, "host", r.Host)
+		l.Info.InfoCtx(r.Context(), "request", "method", r.Method, "reqID", reqID, "endpoint", r.URL, "host", r.Host, "remoteAddr", r.RemoteAddr)
 		next.ServeHTTP(w, r)
 	})
 }

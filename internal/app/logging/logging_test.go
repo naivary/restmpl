@@ -1,10 +1,12 @@
 package logging
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -39,5 +41,18 @@ func TestDefaultLogger(t *testing.T) {
 	hf := l.Logger(http.HandlerFunc(empty))
 	id := middleware.RequestID(hf)
 	id.ServeHTTP(w, r)
-	t.Log(w.Body)
+
+	// check if host key is set to example.com
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(w.Body)
+	attrs := strings.Split(buf.String(), " ")
+	for _, attr := range attrs {
+		key, value, ok := strings.Cut(attr, "=")
+		if !ok {
+			t.Fatalf("cutting went wrong. Key:%s, Value:%s", key, value)
+		}
+		if key == "host" && value == "example.com" {
+			return
+		}
+	}
 }
