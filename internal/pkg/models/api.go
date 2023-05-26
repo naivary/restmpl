@@ -1,4 +1,4 @@
-package ctrl
+package models
 
 import (
 	"github.com/go-chi/chi/v5"

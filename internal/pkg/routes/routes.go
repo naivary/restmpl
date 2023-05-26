@@ -16,7 +16,6 @@ const (
 func newRoot() chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
-	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.Timeout(reqTimeout))
@@ -25,6 +24,9 @@ func newRoot() chi.Router {
 
 func New(svcs []service.Service[chi.Router]) chi.Router {
 	root := newRoot()
+	for _, svc := range svcs {
+		svc.RegisterRootMiddleware(root)
+	}
 	for _, svc := range svcs {
 		svc.Register(root)
 	}

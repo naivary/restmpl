@@ -13,4 +13,9 @@ type Service[T any] interface {
 	// Register is passing the root router
 	// so the Service can register itself.
 	Register(T)
+
+	// ResgiterRootMiddleware allows every service to add
+	// custom middleware to the root router. It will be called
+	// before Register(T)
+	RegisterRootMiddleware(T)
 }

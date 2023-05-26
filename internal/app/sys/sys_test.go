@@ -89,6 +89,7 @@ func TestHealth(t *testing.T) {
 	}
 
 	if ok, err := testutil.AreEqualJSON(buf.String(), got.String()); !ok || err != nil {
+		t.Log(buf.String(), got.String())
 		t.Fatalf("Should be equal: %v", err)
 	}
 }

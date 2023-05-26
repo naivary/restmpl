@@ -14,7 +14,6 @@ const (
 
 // NewTestRouter returns a chi.Router
 // with all the root middleware attached.
-// Only use this for testing.
 func New() chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
