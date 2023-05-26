@@ -46,9 +46,7 @@ func New(cfgFile string) (*models.API, error) {
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
-	loggingLogging := &logging.Logging{
-		K: koanf,
-	}
+	loggingLogging := logging.New()
 	v := allSvcs(sysSys, fsFs, loggingLogging)
 	router := routes.New(v)
 	modelsAPI := &models.API{
@@ -63,7 +61,7 @@ func New(cfgFile string) (*models.API, error) {
 
 var (
 	db         = wire.NewSet(database.Connect)
-	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), wire.Struct(new(logging.Logging), "*"))
+	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), logging.New)
 	api        = wire.Struct(new(models.API), "*")
 	httpFs     = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	rootRouter = wire.NewSet(routes.New)

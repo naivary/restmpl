@@ -18,11 +18,11 @@ func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }

@@ -2,6 +2,7 @@ package logging
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -15,6 +16,12 @@ var _ service.Service[chi.Router] = (*Logging)(nil)
 type Logging struct {
 	K    *koanf.Koanf
 	Info *slog.Logger
+}
+
+func New() *Logging {
+	return &Logging{
+		Info: slog.New(slog.NewTextHandler(os.Stdout, nil)),
+	}
 }
 
 func (l Logging) UUID() string {
