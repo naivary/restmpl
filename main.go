@@ -16,7 +16,7 @@ func main() {
 }
 
 func getCfgFile() (string, error) {
-	if len(os.Args) < 1 {
+	if len(os.Args) < 2 {
 		return "", errors.New("missing config file as the first argument")
 	}
 	return os.Args[1], nil
