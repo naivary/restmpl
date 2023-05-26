@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config"
-	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/routes"
+	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
+	"github.com/naivary/instance/internal/pkg/must"
+	"github.com/naivary/instance/internal/pkg/routes/routestest"
 )
 
 const (
@@ -33,7 +33,7 @@ func setupFs() Fs {
 	}
 	f.K = k
 
-	st, err := filestore.NewTestStore(k)
+	st, err := filestoretest.New(k)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,21 +42,13 @@ func setupFs() Fs {
 }
 
 func setupTs() *httptest.Server {
-	root := routes.NewTestRouter()
+	root := routestest.New()
 	fsTest.Register(root)
 	return httptest.NewServer(root)
 }
 
-func mustOpen(path string) *os.File {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return file
-}
-
 func upload(client *http.Client, url string, params map[string]string, formKey string, path string) (*http.Response, error) {
-	file := mustOpen(path)
+	file := must.Open(path)
 	defer file.Close()
 	info, err := file.Stat()
 	if err != nil {
@@ -139,7 +131,7 @@ func remove(t *testing.T) {
 
 func read(t *testing.T) {
 	c := ts.Client()
-	file := mustOpen("./testdata/dummy.pdf")
+	file := must.Open("./testdata/dummy.pdf")
 	u, err := url.JoinPath(ts.URL, "fs", "read")
 	if err != nil {
 		t.Error(err)

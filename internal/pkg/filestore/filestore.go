@@ -30,25 +30,6 @@ type Filestore struct {
 	Store afero.Afero
 }
 
-// NewTestStore provides a in memory fs which
-// caching. The caching has no benefits but
-// simulates the "real" filestore.
-func NewTestStore(k *koanf.Koanf) (Filestore, error) {
-	base := k.String("fs.basepath")
-	err := os.MkdirAll(base, os.ModePerm)
-	if err != nil {
-		return Filestore{}, err
-	}
-	firstLayer := afero.NewBasePathFs(afero.NewMemMapFs(), base)
-	secLayer := afero.NewMemMapFs()
-	return Filestore{
-		Store: afero.Afero{
-			Fs: afero.NewCacheOnReadFs(firstLayer, secLayer, k.Duration("fs.ttl")),
-		},
-	}, nil
-
-}
-
 func New(k *koanf.Koanf) (Filestore, error) {
 	base := k.String("fs.basepath")
 	err := os.MkdirAll(base, os.ModePerm)

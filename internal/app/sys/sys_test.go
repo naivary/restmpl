@@ -3,19 +3,18 @@ package sys
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
-	"reflect"
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
-	"github.com/naivary/instance/internal/pkg/routes"
+	"github.com/naivary/instance/internal/pkg/routes/routestest"
+	"github.com/naivary/instance/internal/pkg/testutil"
 )
 
 const (
@@ -50,7 +49,7 @@ func setupSys() Sys {
 }
 
 func setupTestServer() *httptest.Server {
-	root := routes.NewTestRouter()
+	root := routestest.New()
 	sysTest.Register(root)
 	return httptest.NewServer(root)
 }
@@ -61,23 +60,6 @@ func mustOpen(path string) *os.File {
 		log.Fatal(err)
 	}
 	return file
-}
-
-func areEqualJSON(s1, s2 string) (bool, error) {
-	var o1 interface{}
-	var o2 interface{}
-
-	var err error
-	err = json.Unmarshal([]byte(s1), &o1)
-	if err != nil {
-		return false, fmt.Errorf("Error mashalling string 1 :: %s", err.Error())
-	}
-	err = json.Unmarshal([]byte(s2), &o2)
-	if err != nil {
-		return false, fmt.Errorf("Error mashalling string 2 :: %s", err.Error())
-	}
-
-	return reflect.DeepEqual(o1, o2), nil
 }
 
 func TestHealth(t *testing.T) {
@@ -114,7 +96,7 @@ func TestHealth(t *testing.T) {
 		t.Error(err)
 	}
 
-	if ok, err := areEqualJSON(buf.String(), got.String()); !ok || err != nil {
+	if ok, err := testutil.AreEqualJSON(buf.String(), got.String()); !ok || err != nil {
 		t.Fatalf("Should be equal: %v", err)
 	}
 }
