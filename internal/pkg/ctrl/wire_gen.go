@@ -49,6 +49,7 @@ func New(cfgFile string) (*API, error) {
 	ctrlAPI := &API{
 		Services: v,
 		Router:   router,
+		K:        koanf,
 	}
 	return ctrlAPI, nil
 }

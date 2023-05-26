@@ -19,10 +19,10 @@ func run() error {
 		return err
 	}
 
-	srv, err := server.New(":8080", api.Router)
+	srv, err := server.New(api.K, api.Router)
 	if err != nil {
 		return err
 	}
 
-	return srv.ListenAndServe()
+	return srv.ListenAndServeTLS(api.K.String("server.crt"), api.K.String("server.key"))
 }

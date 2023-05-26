@@ -10,3 +10,12 @@ fs:
   # Cache duration of a file.
   # Default: 1 minute
   ttl: 1m
+server:
+  crt: ./configs/cert/localhost.crt
+  key: ./configs/cert/localhost.key
+  addr: ":8080"
+  timeout:
+    readHeader: 2s
+    write: 2s
+    idle: 10s
+  maxHeaderBytes: 1024

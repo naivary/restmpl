@@ -18,7 +18,6 @@
 .glide/
 
 # config file with credentials 
-configs/asive.yaml
 configs/cert/
 
 
