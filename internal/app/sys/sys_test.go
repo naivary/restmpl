@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
+	"github.com/naivary/instance/internal/pkg/must"
 	"github.com/naivary/instance/internal/pkg/routes/routestest"
 	"github.com/naivary/instance/internal/pkg/testutil"
 )
@@ -54,14 +54,6 @@ func setupTestServer() *httptest.Server {
 	return httptest.NewServer(root)
 }
 
-func mustOpen(path string) *os.File {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return file
-}
-
 func TestHealth(t *testing.T) {
 	c := ts.Client()
 	url, err := url.JoinPath(ts.URL, "sys", "health")
@@ -85,7 +77,7 @@ func TestHealth(t *testing.T) {
 		t.Error(err)
 	}
 
-	file := mustOpen("./testdata/health.json")
+	file := must.Open("./testdata/health.json")
 	_, err = expected.ReadFrom(file)
 	if err != nil {
 		t.Error(err)

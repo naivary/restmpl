@@ -17,6 +17,7 @@ func (s *Sys) Health(w http.ResponseWriter, r *http.Request) {
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
+
 	err = jsonapi.MarshalPayload(w, &s.M)
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
