@@ -9,10 +9,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-const (
-	cfgFile = "instance.yaml"
-)
-
 func main() {
 	if err := run(); err != nil {
 		slog.Error("something went wrong while starting the sevrer", "err", err.Error())
@@ -27,7 +23,11 @@ func getCfgFile() (string, error) {
 }
 
 func run() error {
-	api, err := ctrl.New("instance.yaml")
+	cfgFile, err := getCfgFile()
+	if err != nil {
+		return err
+	}
+	api, err := ctrl.New(cfgFile)
 	if err != nil {
 		return err
 	}
