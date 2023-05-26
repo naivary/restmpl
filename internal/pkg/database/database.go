@@ -17,7 +17,7 @@ func buildDataDir(k *koanf.Koanf) (string, error) {
 		return "", err
 	}
 	name := fmt.Sprintf("%s_data", k.String("name"))
-	path := filepath.Join(wd, name)
+	path := filepath.Join(wd, name, k.String("version"))
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		return "", err
@@ -28,7 +28,7 @@ func buildDataDir(k *koanf.Koanf) (string, error) {
 func buildDsn(k *koanf.Koanf) string {
 	dir, err := buildDataDir(k)
 	must.Must(err)
-	return fmt.Sprintf("file:%s/%s_%s.db", dir, k.String("name"), k.String("version"))
+	return fmt.Sprintf("file:%s/%s.db", dir, k.String("name"))
 }
 
 func initPragmas(db *sql.DB) error {
@@ -74,15 +74,15 @@ func Connect(k *koanf.Koanf) (*sql.DB, error) {
 	if k == nil {
 		return inMem()
 	}
-
+	fmt.Println(buildDsn(k))
 	db, err := sql.Open("sqlite", buildDsn(k))
 	if err != nil {
 		return nil, err
 	}
+	initOptions(db)
 	err = initPragmas(db)
 	if err != nil {
 		return nil, err
 	}
-	initOptions(db)
 	return db, nil
 }
