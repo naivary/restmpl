@@ -4,7 +4,16 @@ import (
 	"errors"
 	"os"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/naivary/instance/internal/app/fs"
+	"github.com/naivary/instance/internal/app/sys"
+	"github.com/naivary/instance/internal/pkg/config"
+	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/env"
+	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/server"
+	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 
@@ -36,4 +45,32 @@ func run() error {
 	}
 	slog.Info("starting the server", "usedCfgFile", cfgFile)
 	return srv.ListenAndServeTLS(api.Config().String("server.crt"), api.Config().String("server.key"))
+}
+
+func newEnv(cfgFile string) (env.API, error) {
+	k, err := config.New(cfgFile)
+	if err != nil {
+		return env.API{}, err
+	}
+	db, err := database.Connect(k)
+	if err != nil {
+		return env.API{}, err
+	}
+	m := metadata.New(k, db)
+	s := &sys.Sys{
+		K:  k,
+		DB: db,
+		M:  m,
+	}
+	fstore, err := filestore.New(k)
+	if err != nil {
+		return env.API{}, err
+	}
+	f := &fs.Fs{
+		K:     k,
+		Store: fstore,
+	}
+	svcs := []service.Service[chi.Router]{s, f}
+	api := env.NewAPI(svcs, k)
+	return api, nil
 }
