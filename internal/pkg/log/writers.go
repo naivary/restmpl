@@ -16,9 +16,22 @@ var (
 	}
 )
 
+type LogWriter interface {
+	Get(slog.Leveler) (io.Writer, bool)
+	Add(slog.Leveler, io.Writer)
+}
+
+// Writers persist the location to which a
+// slog.Leveler should be writing. So the
+// common pattern would be that a Writers
+// would be injected into every Service which
+// needs logging. Based upon the slog.Leveler
+// which is needed the right io.Writer will be
+// delivered. Writers implementes the LogWriter
+// interface.
 type Writers map[slog.Leveler]io.Writer
 
-func NewWriters(k *koanf.Koanf) *Writers {
+func NewWriters(k *koanf.Koanf) LogWriter {
 	w := &Writers{}
 	for level, filename := range defaults {
 		p := filepath.Join(k.String("logsDir"), filename)

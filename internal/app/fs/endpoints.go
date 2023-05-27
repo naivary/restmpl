@@ -2,6 +2,7 @@ package fs
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
-	f.info(r)
+	fmt.Println("hitted")
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 	if err != nil {
@@ -40,7 +41,6 @@ func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-
 	w.WriteHeader(http.StatusCreated)
 }
 

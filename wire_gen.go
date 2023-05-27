@@ -4,67 +4,57 @@
 //go:build !wireinject
 // +build !wireinject
 
-package ctrl
+package main
 
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
+	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/models"
-	"github.com/naivary/instance/internal/pkg/models/metadata"
-	"github.com/naivary/instance/internal/pkg/routes"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
 // Injectors from wire.go:
 
-func New(cfgFile string) (*models.API, error) {
+func newEnv(cfgFile string) (env.API, error) {
 	koanf, err := config.New(cfgFile)
 	if err != nil {
-		return nil, err
+		return env.API{}, err
 	}
 	dbxDB, err := database.Connect(koanf)
 	if err != nil {
-		return nil, err
+		return env.API{}, err
 	}
-	metadataMetadata := metadata.New(koanf, dbxDB)
 	sysSys := &sys.Sys{
 		K:  koanf,
 		DB: dbxDB,
-		M:  metadataMetadata,
 	}
 	filestoreFilestore, err := filestore.New(koanf)
 	if err != nil {
-		return nil, err
+		return env.API{}, err
 	}
 	fsFs := &fs.Fs{
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
 	v := allSvcs(sysSys, fsFs)
-	router := routes.New(v)
-	modelsAPI := &models.API{
-		Services: v,
-		Router:   router,
-		K:        koanf,
-	}
-	return modelsAPI, nil
+	api := env.NewAPI(v, koanf)
+	return api, nil
 }
 
 // wire.go:
 
 var (
-	db         = wire.NewSet(database.Connect)
-	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
-	api        = wire.Struct(new(models.API), "*")
-	httpFs     = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
-	rootRouter = wire.NewSet(routes.New)
-	k          = wire.NewSet(config.New)
-	m          = wire.NewSet(metadata.New)
+	db     = wire.NewSet(database.Connect)
+	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "K", "DB"), wire.Struct(new(fs.Fs), "*"))
+	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
+	e      = wire.NewSet(env.NewAPI, wire.Bind(new(env.Env[*koanf.Koanf]), new(env.API)))
+	k      = wire.NewSet(config.New)
 )
 
 func allSvcs(sys2 *sys.Sys, fs2 *fs.Fs) []service.Service[chi.Router] {

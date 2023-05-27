@@ -4,10 +4,11 @@ import (
 	"database/sql"
 
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/pocketbase/dbx"
 )
 
-func New(k *koanf.Koanf, d *dbx.DB) Metadata {
+func New(k *koanf.Koanf, d *dbx.DB, e env.Env[*koanf.Koanf]) Metadata {
 	return Metadata{
 		// ID is static so it will be uniquely identified
 		// on every deployment version.
@@ -19,8 +20,9 @@ func New(k *koanf.Koanf, d *dbx.DB) Metadata {
 }
 
 type Metadata struct {
-	ID         string      `jsonapi:"primary,metadata"`
-	Version    string      `jsonapi:"attr,version"`
-	DBStats    sql.DBStats `jsonapi:"attr,dbStats"`
-	DriverName string      `jsonapi:"attr,driverName"`
+	ID         string                `jsonapi:"primary,metadata"`
+	Version    string                `jsonapi:"attr,version"`
+	DBStats    sql.DBStats           `jsonapi:"attr,dbStats"`
+	DriverName string                `jsonapi:"attr,driverName"`
+	Env        env.Env[*koanf.Koanf] `jsonapi:"attr,env"`
 }

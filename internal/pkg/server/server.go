@@ -3,11 +3,10 @@ package server
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
 )
 
-func New(k *koanf.Koanf, r chi.Router) (*http.Server, error) {
+func New(k *koanf.Koanf, r http.Handler) (*http.Server, error) {
 	srv := &http.Server{
 		Addr:              k.String("server.addr"),
 		ReadHeaderTimeout: k.Duration("server.timeout.readHeader"),

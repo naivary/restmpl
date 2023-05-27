@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 
-	"github.com/naivary/instance/internal/pkg/ctrl"
 	"github.com/naivary/instance/internal/pkg/server"
 	"golang.org/x/exp/slog"
 )
@@ -27,14 +26,14 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	api, err := ctrl.New(cfgFile)
+	api, err := newEnv(cfgFile)
 	if err != nil {
 		return err
 	}
-	srv, err := server.New(api.K, api.Router)
+	srv, err := server.New(api.Config(), api.Router())
 	if err != nil {
 		return err
 	}
 	slog.Info("starting the server", "usedCfgFile", cfgFile)
-	return srv.ListenAndServeTLS(api.K.String("server.crt"), api.K.String("server.key"))
+	return srv.ListenAndServeTLS(api.Config().String("server.crt"), api.Config().String("server.key"))
 }
