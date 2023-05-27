@@ -56,7 +56,7 @@ var (
 	db     = wire.NewSet(database.Connect)
 	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
-	e      = wire.NewSet(env.NewAPI, wire.Bind(new(env.Env[*koanf.Koanf]), new(env.API)))
+	e      = wire.NewSet(env.NewAPI, wire.Bind(new(env.Env[*koanf.Koanf, chi.Router]), new(env.API)))
 	k      = wire.NewSet(config.New)
 )
 

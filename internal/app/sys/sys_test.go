@@ -9,11 +9,13 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/naivary/instance/internal/pkg/config/configtest"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/must"
-	"github.com/naivary/instance/internal/pkg/routes/routestest"
+	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/naivary/instance/internal/pkg/testutil"
 )
 
@@ -22,7 +24,7 @@ var (
 	// which is only used for test purposes
 	sysTest = setupSys()
 
-	ts = setupTestServer()
+	ts = setupTs()
 )
 
 func setupSys() Sys {
@@ -42,9 +44,9 @@ func setupSys() Sys {
 	return s
 }
 
-func setupTestServer() *httptest.Server {
-	root := routestest.New()
-	sysTest.Register(root)
+func setupTs() *httptest.Server {
+	api := env.NewAPI([]service.Service[chi.Router]{sysTest}, sysTest.K)
+	root := api.Router()
 	return httptest.NewServer(root)
 }
 

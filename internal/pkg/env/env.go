@@ -1,18 +1,21 @@
 package env
 
 import (
-	"net/http"
-
-	"github.com/go-chi/chi/v5"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-type Env[T any] interface {
+// TODO(naivary): second generic Parameter
+// for chi.Router
+type Env[T any, R any] interface {
 	UUID() string
 	Version() string
 
-	Services() map[string]service.Service[chi.Router]
-	Router() http.Handler
+	Services() map[string]service.Service[R]
+
+	// Router returns the root
+	// router of the application
+	// for public traffic
+	Router() R
 
 	// Config return the config Manager of
 	// your application.

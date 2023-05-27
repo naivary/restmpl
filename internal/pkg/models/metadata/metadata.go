@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/pocketbase/dbx"
 )
 
@@ -20,9 +19,8 @@ func New(k *koanf.Koanf, d *dbx.DB) Metadata {
 }
 
 type Metadata struct {
-	ID         string                `jsonapi:"primary,metadata"`
-	Version    string                `jsonapi:"attr,version"`
-	DBStats    sql.DBStats           `jsonapi:"attr,dbStats"`
-	DriverName string                `jsonapi:"attr,driverName"`
-	Env        env.Env[*koanf.Koanf] `jsonapi:"attr,env"`
+	ID         string      `jsonapi:"primary,metadata"`
+	Version    string      `jsonapi:"attr,version"`
+	DBStats    sql.DBStats `jsonapi:"attr,dbStats"`
+	DriverName string      `jsonapi:"attr,driverName"`
 }

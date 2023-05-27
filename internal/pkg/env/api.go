@@ -1,7 +1,6 @@
 package env
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -16,15 +15,15 @@ const (
 	reqTimeout = 20 * time.Second
 )
 
-var _ Env[*koanf.Koanf] = (*API)(nil)
+var _ Env[*koanf.Koanf, chi.Router] = (*API)(nil)
 
 // API is API env and
 // implements the Env
 // interface
 type API struct {
-	services   []service.Service[chi.Router]
-	rootRouter chi.Router
-	k          *koanf.Koanf
+	services []service.Service[chi.Router]
+	k        *koanf.Koanf
+	router   chi.Router
 }
 
 func NewAPI(svcs []service.Service[chi.Router], k *koanf.Koanf) API {
@@ -42,7 +41,10 @@ func (a API) Version() string {
 	return a.k.String("version")
 }
 
-func (a API) Router() http.Handler {
+func (a *API) Router() chi.Router {
+	if a.router != nil {
+		return a.router
+	}
 	root := chi.NewRouter()
 	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
 	root.Use(middleware.RequestID)
@@ -54,9 +56,8 @@ func (a API) Router() http.Handler {
 	for _, svc := range a.services {
 		svc.Register(root)
 	}
-
-	a.rootRouter = root
-	return a.rootRouter
+	a.router = root
+	return root
 }
 
 func (a API) Config() *koanf.Koanf {

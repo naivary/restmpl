@@ -10,10 +10,12 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/naivary/instance/internal/pkg/config/configtest"
+	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/instance/internal/pkg/must"
-	"github.com/naivary/instance/internal/pkg/routes/routestest"
+	"github.com/naivary/instance/internal/pkg/service"
 )
 
 var (
@@ -38,8 +40,8 @@ func setupFs() Fs {
 }
 
 func setupTs() *httptest.Server {
-	root := routestest.New()
-	fsTest.Register(root)
+	api := env.NewAPI([]service.Service[chi.Router]{fsTest}, fsTest.K)
+	root := api.Router()
 	return httptest.NewServer(root)
 }
 
