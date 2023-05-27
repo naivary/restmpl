@@ -10,7 +10,10 @@ import (
 	"github.com/pocketbase/dbx"
 )
 
-func buildDataDir(k *koanf.Koanf) (string, error) {
+// buildDirs creates the needed directories for
+// the current API version. The directories
+// include the main database, backup and log directory.
+func buildDirs(k *koanf.Koanf) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -25,11 +28,15 @@ func buildDataDir(k *koanf.Koanf) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	err = os.MkdirAll(filepath.Join(path, "logs"), os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 	return path, nil
 }
 
 func buildDsn(k *koanf.Koanf) string {
-	dir, err := buildDataDir(k)
+	dir, err := buildDirs(k)
 	must.Must(err)
 	return fmt.Sprintf("file:%s/%s.db", dir, k.String("name"))
 }

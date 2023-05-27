@@ -1,6 +1,7 @@
 ---
 version: "0.1.0"
 name: "instance"
+data: "/home/musti"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.

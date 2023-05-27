@@ -35,6 +35,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-
+	slog.Info("starting the server", "usedCfgFile", cfgFile)
 	return srv.ListenAndServeTLS(api.K.String("server.crt"), api.K.String("server.key"))
 }

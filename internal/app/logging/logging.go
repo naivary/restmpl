@@ -14,14 +14,18 @@ import (
 var _ service.Service[chi.Router] = (*Logging)(nil)
 
 type Logging struct {
-	K    *koanf.Koanf
-	Info *slog.Logger
+	K     *koanf.Koanf
+	Info  *slog.Logger
+	Error *slog.Logger
 }
 
-func New() *Logging {
-	return &Logging{
-		Info: slog.New(slog.NewTextHandler(os.Stdout, nil)),
+func New(k *koanf.Koanf) (*Logging, error) {
+	l := &Logging{
+		K:     k,
+		Info:  slog.New(slog.NewTextHandler(os.Stdout, nil)),
+		Error: slog.New(slog.NewTextHandler(os.Stderr, nil)),
 	}
+	return l, nil
 }
 
 func (l Logging) UUID() string {

@@ -46,7 +46,10 @@ func New(cfgFile string) (*models.API, error) {
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
-	loggingLogging := logging.New()
+	loggingLogging, err := logging.New(koanf)
+	if err != nil {
+		return nil, err
+	}
 	v := allSvcs(sysSys, fsFs, loggingLogging)
 	router := routes.New(v)
 	modelsAPI := &models.API{

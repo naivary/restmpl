@@ -14,6 +14,9 @@ func Open(path string) *os.File {
 
 }
 
+// Must check if err
+// is non nil and exits
+// if non nil
 func Must(err error) {
 	if err != nil {
 		log.Fatal(err)
