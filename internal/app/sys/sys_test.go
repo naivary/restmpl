@@ -9,16 +9,12 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/naivary/instance/internal/pkg/config"
+	"github.com/naivary/instance/internal/pkg/config/configtest"
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/must"
 	"github.com/naivary/instance/internal/pkg/routes/routestest"
 	"github.com/naivary/instance/internal/pkg/testutil"
-)
-
-const (
-	cfgFile = "instance.yaml"
 )
 
 var (
@@ -31,7 +27,7 @@ var (
 
 func setupSys() Sys {
 	s := Sys{}
-	k, err := config.New(cfgFile)
+	k, err := configtest.New()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,9 +38,7 @@ func setupSys() Sys {
 		log.Fatal(err)
 	}
 	s.DB = db
-
 	s.M = metadata.New(k, db)
-
 	return s
 }
 

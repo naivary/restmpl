@@ -10,14 +10,10 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/naivary/instance/internal/pkg/config"
+	"github.com/naivary/instance/internal/pkg/config/configtest"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/instance/internal/pkg/must"
 	"github.com/naivary/instance/internal/pkg/routes/routestest"
-)
-
-const (
-	cfgFile = "instance.yaml"
 )
 
 var (
@@ -27,7 +23,7 @@ var (
 
 func setupFs() Fs {
 	f := Fs{}
-	k, err := config.New(cfgFile)
+	k, err := configtest.New()
 	if err != nil {
 		log.Fatal(err)
 	}
