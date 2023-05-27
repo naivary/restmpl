@@ -16,6 +16,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
@@ -30,9 +31,11 @@ func newEnv(cfgFile string) (env.API, error) {
 	if err != nil {
 		return env.API{}, err
 	}
+	metadataMetadata := metadata.New(koanf, dbxDB)
 	sysSys := &sys.Sys{
 		K:  koanf,
 		DB: dbxDB,
+		M:  metadataMetadata,
 	}
 	filestoreFilestore, err := filestore.New(koanf)
 	if err != nil {
@@ -51,7 +54,7 @@ func newEnv(cfgFile string) (env.API, error) {
 
 var (
 	db     = wire.NewSet(database.Connect)
-	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "K", "DB"), wire.Struct(new(fs.Fs), "*"))
+	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	e      = wire.NewSet(env.NewAPI, wire.Bind(new(env.Env[*koanf.Koanf]), new(env.API)))
 	k      = wire.NewSet(config.New)

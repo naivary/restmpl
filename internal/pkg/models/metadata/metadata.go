@@ -8,7 +8,7 @@ import (
 	"github.com/pocketbase/dbx"
 )
 
-func New(k *koanf.Koanf, d *dbx.DB, e env.Env[*koanf.Koanf]) Metadata {
+func New(k *koanf.Koanf, d *dbx.DB) Metadata {
 	return Metadata{
 		// ID is static so it will be uniquely identified
 		// on every deployment version.

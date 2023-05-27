@@ -14,12 +14,13 @@ import (
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
 var (
 	db     = wire.NewSet(database.Connect)
-	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "K", "DB"), wire.Struct(new(fs.Fs), "*"))
+	svcs   = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	httpFs = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	e      = wire.NewSet(env.NewAPI, wire.Bind(new(env.Env[*koanf.Koanf]), new(env.API)))
 	k      = wire.NewSet(config.New)
@@ -33,6 +34,6 @@ func allSvcs(sys *sys.Sys, fs *fs.Fs) []service.Service[chi.Router] {
 }
 
 func newEnv(cfgFile string) (env.API, error) {
-	wire.Build(db, svcs, k, httpFs, allSvcs, e)
+	wire.Build(db, svcs, k, httpFs, allSvcs, e, metadata.New)
 	return env.API{}, nil
 }
