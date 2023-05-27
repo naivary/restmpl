@@ -2,43 +2,13 @@ package database
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/must"
 	"github.com/pocketbase/dbx"
 )
 
-// buildDirs creates the needed directories for
-// the current API version. The directories
-// include the main database, backup and log directory.
-func buildDirs(k *koanf.Koanf) (string, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	name := fmt.Sprintf("%s_data", k.String("name"))
-	path := filepath.Join(wd, name, k.String("version"))
-	err = os.MkdirAll(path, os.ModePerm)
-	if err != nil {
-		return "", err
-	}
-	err = os.MkdirAll(filepath.Join(path, "backup"), os.ModePerm)
-	if err != nil {
-		return "", err
-	}
-	err = os.MkdirAll(filepath.Join(path, "logs"), os.ModePerm)
-	if err != nil {
-		return "", err
-	}
-	return path, nil
-}
-
 func buildDsn(k *koanf.Koanf) string {
-	dir, err := buildDirs(k)
-	must.Must(err)
-	return fmt.Sprintf("file:%s/%s.db", dir, k.String("name"))
+	return fmt.Sprintf("file:%s/%s.db", k.String("versionDir"), k.String("name"))
 }
 
 func initPragmas(db *dbx.DB) error {

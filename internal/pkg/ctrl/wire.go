@@ -8,7 +8,6 @@ import (
 	"github.com/google/wire"
 
 	"github.com/naivary/instance/internal/app/fs"
-	"github.com/naivary/instance/internal/app/logging"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
@@ -21,7 +20,7 @@ import (
 
 var (
 	db         = wire.NewSet(database.Connect)
-	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), logging.New)
+	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	api        = wire.Struct(new(models.API), "*")
 	httpFs     = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	rootRouter = wire.NewSet(routes.New)
@@ -29,11 +28,10 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func allSvcs(sys *sys.Sys, fs *fs.Fs, logger *logging.Logging) []service.Service[chi.Router] {
+func allSvcs(sys *sys.Sys, fs *fs.Fs) []service.Service[chi.Router] {
 	return []service.Service[chi.Router]{
 		sys,
 		fs,
-		logger,
 	}
 }
 

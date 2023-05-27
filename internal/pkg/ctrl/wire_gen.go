@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
 	"github.com/naivary/instance/internal/app/fs"
-	"github.com/naivary/instance/internal/app/logging"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
@@ -46,11 +45,7 @@ func New(cfgFile string) (*models.API, error) {
 		K:     koanf,
 		Store: filestoreFilestore,
 	}
-	loggingLogging, err := logging.New(koanf)
-	if err != nil {
-		return nil, err
-	}
-	v := allSvcs(sysSys, fsFs, loggingLogging)
+	v := allSvcs(sysSys, fsFs)
 	router := routes.New(v)
 	modelsAPI := &models.API{
 		Services: v,
@@ -64,7 +59,7 @@ func New(cfgFile string) (*models.API, error) {
 
 var (
 	db         = wire.NewSet(database.Connect)
-	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"), logging.New)
+	svcs       = wire.NewSet(wire.Struct(new(sys.Sys), "*"), wire.Struct(new(fs.Fs), "*"))
 	api        = wire.Struct(new(models.API), "*")
 	httpFs     = wire.NewSet(filestore.New, wire.Bind(new(filestore.Store), new(filestore.Filestore)))
 	rootRouter = wire.NewSet(routes.New)
@@ -72,6 +67,6 @@ var (
 	m          = wire.NewSet(metadata.New)
 )
 
-func allSvcs(sys2 *sys.Sys, fs2 *fs.Fs, logger *logging.Logging) []service.Service[chi.Router] {
-	return []service.Service[chi.Router]{sys2, fs2, logger}
+func allSvcs(sys2 *sys.Sys, fs2 *fs.Fs) []service.Service[chi.Router] {
+	return []service.Service[chi.Router]{sys2, fs2}
 }

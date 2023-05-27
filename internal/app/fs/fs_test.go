@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	cfgFile = "test_config.yaml"
+	cfgFile = "instance.yaml"
 )
 
 var (

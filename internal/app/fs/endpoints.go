@@ -12,6 +12,7 @@ import (
 )
 
 func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
+	f.info(r)
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 	if err != nil {

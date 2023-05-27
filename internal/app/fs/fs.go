@@ -14,6 +14,7 @@ type Fs struct {
 	K *koanf.Koanf
 
 	Store filestore.Store
+
 }
 
 func (f Fs) RegisterRootMiddleware(root chi.Router) {}
