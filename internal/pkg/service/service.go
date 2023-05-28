@@ -1,19 +1,21 @@
 package service
 
 type Service[T any] interface {
-	// Unique identifier of the service. Recommended is
-	// to assign an UUID which you generated beforehand
-	// to be able to reference the service in other services
-	// or external systems.
+	// Unique identifier of the service.
 	ID() string
 
-	// Name of the service which may not be unique
+	// Human friendly name of the service.
 	Name() string
 
 	// Detailed description of the service
 	Description() string
 
-	// Register registers the service to
-	// root router of type `T` of the env.
+	// Register registers the service
+	// to the public router of type T
 	Register(T)
+
+	// Health reutrns the health status
+	// of the service. If the error is
+	// non nil the service is considered unhealthy.
+	// Health(http.Responsewriter, *http.Request) error
 }
