@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
@@ -12,7 +13,6 @@ import (
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
-	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
@@ -35,19 +35,15 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	api, err := newEnv(cfgFile)
+	e, err := newEnv(cfgFile)
 	if err != nil {
 		return err
 	}
-	srv, err := server.New(api.Config(), api.Router())
-	if err != nil {
-		return err
-	}
-	slog.Info("starting the server", "usedCfgFile", cfgFile)
-	return srv.ListenAndServeTLS(api.Config().String("server.crt"), api.Config().String("server.key"))
+	slog.Info("running the env", "usedCfgFile", cfgFile)
+	return e.Run()
 }
 
-func newEnv(cfgFile string) (*env.API, error) {
+func newEnv(cfgFile string) (env.Env[*koanf.Koanf, chi.Router], error) {
 	k, err := config.New(cfgFile)
 	if err != nil {
 		return nil, err
@@ -70,7 +66,7 @@ func newEnv(cfgFile string) (*env.API, error) {
 	}
 	svcs := []service.Service[chi.Router]{s, f}
 	api := env.NewAPI(svcs, k)
-	m := metadata.New(k, db, &api)
+	m := metadata.New[*koanf.Koanf, chi.Router](k, db, &api)
 	s.M = m
 	return &api, nil
 }

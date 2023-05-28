@@ -15,6 +15,12 @@
         "MaxLifetimeClosed": 0
       },
       "driverName": "sqlite",
+      "env": {
+        "ID": "7bb728fb-1310-40b7-a014-5148dc493a83",
+        "Services": {
+          "d7c8593f-55a3-466f-9837-31f00d03bf26": "sys"
+        }
+      },
       "version": "0.1.0"
     }
   }

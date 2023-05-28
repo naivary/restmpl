@@ -19,7 +19,7 @@ func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 
 func (f Fs) infoLog(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		wrs := log.NewWriters(f.K)
+		wrs := log.New(f.K)
 		file, _ := wrs.Get(slog.LevelInfo)
 		slog.New(slog.NewTextHandler(file, nil)).InfoCtx(r.Context(),
 			"message",
@@ -31,7 +31,7 @@ func (f Fs) infoLog(next http.Handler) http.Handler {
 			),
 			slog.Group("service",
 				slog.String("name", f.Name()),
-				slog.String("id", f.UUID()),
+				slog.String("id", f.ID()),
 			),
 		)
 		next.ServeHTTP(w, r)

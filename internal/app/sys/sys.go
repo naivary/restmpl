@@ -1,8 +1,6 @@
 package sys
 
 import (
-	"fmt"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
@@ -20,16 +18,13 @@ type Sys struct {
 	M metadata.Metadata
 }
 
-func (s Sys) RegisterRootMiddleware(root chi.Router) {}
-
 func (s Sys) Register(root chi.Router) {
 	r := chi.NewRouter()
 	r.Get("/health", s.Health)
 	root.Mount("/sys", r)
-	fmt.Println("djaksldjaskdjsa")
 }
 
-func (e Sys) UUID() string {
+func (e Sys) ID() string {
 	return uuid.NewString()
 }
 

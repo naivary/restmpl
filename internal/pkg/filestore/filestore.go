@@ -10,19 +10,15 @@ import (
 	"github.com/spf13/afero"
 )
 
-type Store interface {
-	// Create creates a file which contains
-	// the data included in `r`.
-	// TODO(naivary): make it independet from afero.File and
-	// dependent to *os.File.
-	Create(path string, r io.Reader) (afero.File, error)
+type Store[T any] interface {
+	Create(path string, r io.Reader) (T, error)
 
 	Remove(path string) error
 
 	Read(path string) ([]byte, error)
 }
 
-var _ Store = (*Filestore)(nil)
+var _ Store[afero.File] = (*Filestore)(nil)
 
 type Filestore struct {
 	Basepath string

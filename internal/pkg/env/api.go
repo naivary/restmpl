@@ -8,6 +8,7 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
@@ -26,6 +27,7 @@ type API struct {
 	router   chi.Router
 }
 
+// NewAPI returns an api environment.
 func NewAPI(svcs []service.Service[chi.Router], k *koanf.Koanf) API {
 	return API{
 		services: svcs,
@@ -33,7 +35,7 @@ func NewAPI(svcs []service.Service[chi.Router], k *koanf.Koanf) API {
 	}
 }
 
-func (a API) UUID() string {
+func (a API) ID() string {
 	return uuid.NewString()
 }
 
@@ -51,9 +53,6 @@ func (a *API) Router() chi.Router {
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(reqTimeout))
 	for _, svc := range a.services {
-		svc.RegisterRootMiddleware(root)
-	}
-	for _, svc := range a.services {
 		svc.Register(root)
 	}
 	a.router = root
@@ -67,7 +66,15 @@ func (a API) Config() *koanf.Koanf {
 func (a API) Services() map[string]service.Service[chi.Router] {
 	m := make(map[string]service.Service[chi.Router], len(a.services))
 	for _, svc := range a.services {
-		m[svc.UUID()] = svc
+		m[svc.ID()] = svc
 	}
 	return m
+}
+
+func (a API) Run() error {
+	srv, err := server.New(a.k, a.Router())
+	if err != nil {
+		return err
+	}
+	return srv.ListenAndServeTLS(a.k.String("server.crt"), a.k.String("server.key"))
 }

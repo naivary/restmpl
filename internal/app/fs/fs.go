@@ -6,6 +6,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/spf13/afero"
 )
 
 var _ service.Service[chi.Router] = (*Fs)(nil)
@@ -13,11 +14,8 @@ var _ service.Service[chi.Router] = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	Store filestore.Store
-
+	Store filestore.Store[afero.File]
 }
-
-func (f Fs) RegisterRootMiddleware(root chi.Router) {}
 
 func (f Fs) Register(root chi.Router) {
 	r := chi.NewRouter()
@@ -34,7 +32,7 @@ func (f Fs) Name() string {
 	return "filestore"
 }
 
-func (f Fs) UUID() string {
+func (f Fs) ID() string {
 	return uuid.NewString()
 }
 

@@ -2,7 +2,6 @@ package fs
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -13,7 +12,6 @@ import (
 )
 
 func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hitted")
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 	if err != nil {

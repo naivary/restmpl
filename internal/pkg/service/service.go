@@ -3,10 +3,9 @@ package service
 type Service[T any] interface {
 	// Unique identifier of the service. Recommended is
 	// to assign an UUID which you generated beforehand
-	// to be able to reference the service in other services.
-	// At runtime you can receive a mpping of id and service name
-	// from models.API.Services().
-	UUID() string
+	// to be able to reference the service in other services
+	// or external systems.
+	ID() string
 
 	// Name of the service which may not be unique
 	Name() string
@@ -14,12 +13,11 @@ type Service[T any] interface {
 	// Detailed description of the service
 	Description() string
 
-	// Register is passing the root router
-	// so the Service can register itself.
+	// Register registers the service to
+	// root router of type `T` of the env.
 	Register(T)
 
-	// ResgiterRootMiddleware allows every service to add
-	// custom middleware to the root router. It will be called
-	// before Register(T)
-	RegisterRootMiddleware(T)
+	// Middlewares returns the public middlewars
+	// to attach to the root router.
+	// Middlewares() []func(http.Handler) http.Handler
 }

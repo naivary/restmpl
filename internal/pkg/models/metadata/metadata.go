@@ -3,13 +3,12 @@ package metadata
 import (
 	"database/sql"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/pocketbase/dbx"
 )
 
-func New(k *koanf.Koanf, d *dbx.DB, e env.Env[*koanf.Koanf, chi.Router]) Metadata {
+func New[T any, R any](k *koanf.Koanf, d *dbx.DB, e env.Env[T, R]) Metadata {
 	return Metadata{
 		// ID is static so it will be uniquely identified
 		// on every deployment version.
@@ -18,11 +17,11 @@ func New(k *koanf.Koanf, d *dbx.DB, e env.Env[*koanf.Koanf, chi.Router]) Metadat
 		DBStats:    d.DB().Stats(),
 		DriverName: d.DriverName(),
 		Env: envStats{
-			ID: e.UUID(),
+			ID: e.ID(),
 			Services: func() map[string]string {
 				m := make(map[string]string, len(e.Services()))
 				for _, svc := range e.Services() {
-					m[svc.UUID()] = svc.Name()
+					m[svc.ID()] = svc.Name()
 				}
 				return m
 			}(),
