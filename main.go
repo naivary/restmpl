@@ -47,24 +47,22 @@ func run() error {
 	return srv.ListenAndServeTLS(api.Config().String("server.crt"), api.Config().String("server.key"))
 }
 
-func newEnv(cfgFile string) (env.API, error) {
+func newEnv(cfgFile string) (*env.API, error) {
 	k, err := config.New(cfgFile)
 	if err != nil {
-		return env.API{}, err
+		return nil, err
 	}
 	db, err := database.Connect(k)
 	if err != nil {
-		return env.API{}, err
+		return nil, err
 	}
-	m := metadata.New(k, db)
 	s := &sys.Sys{
 		K:  k,
 		DB: db,
-		M:  m,
 	}
 	fstore, err := filestore.New(k)
 	if err != nil {
-		return env.API{}, err
+		return nil, err
 	}
 	f := &fs.Fs{
 		K:     k,
@@ -72,5 +70,7 @@ func newEnv(cfgFile string) (env.API, error) {
 	}
 	svcs := []service.Service[chi.Router]{s, f}
 	api := env.NewAPI(svcs, k)
-	return api, nil
+	m := metadata.New(k, db, &api)
+	s.M = m
+	return &api, nil
 }

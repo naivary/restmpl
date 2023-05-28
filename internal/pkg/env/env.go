@@ -20,4 +20,9 @@ type Env[T any, R any] interface {
 	// Config return the config Manager of
 	// your application.
 	Config() T
+
+	// Start will start the
+	// env by making any preparations
+	// which are needed
+	// Start()
 }

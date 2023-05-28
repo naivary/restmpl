@@ -1,6 +1,8 @@
 package sys
 
 import (
+	"fmt"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
@@ -24,6 +26,7 @@ func (s Sys) Register(root chi.Router) {
 	r := chi.NewRouter()
 	r.Get("/health", s.Health)
 	root.Mount("/sys", r)
+	fmt.Println("djaksldjaskdjsa")
 }
 
 func (e Sys) UUID() string {
