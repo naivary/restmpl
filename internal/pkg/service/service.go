@@ -19,9 +19,20 @@ type Service interface {
 	// Health returns the health status
 	// of the service. If the error is
 	// non nil the service is considered unhealthy.
-	// Health(http.ResponseWriter, *http.Request) error
+	// If the service is healthy, some information
+	// about the service will be provided.
+	// Health() (Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
 	// Metrics()
+}
+
+type Info struct {
+	ID   string
+	Name string
+	Desc string
+	// Dependencies of the Service keyed
+	// by the name of the dependency
+	Deps map[string]string
 }

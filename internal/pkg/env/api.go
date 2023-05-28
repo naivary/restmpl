@@ -25,14 +25,12 @@ type API struct {
 	svcs   []service.Service
 	k      *koanf.Koanf
 	router chi.Router
-	db     *dbx.DB
 }
 
 func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB) API {
 	return API{
 		svcs: svcs,
 		k:    k,
-		db:   db,
 	}
 }
 

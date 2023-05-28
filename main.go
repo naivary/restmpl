@@ -4,8 +4,6 @@ import (
 	"errors"
 	"os"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
@@ -43,7 +41,7 @@ func run() error {
 	return e.Run()
 }
 
-func newEnv(cfgFile string) (env.Env[*koanf.Koanf, chi.Router], error) {
+func newEnv(cfgFile string) (env.Env, error) {
 	k, err := config.New(cfgFile)
 	if err != nil {
 		return nil, err
@@ -64,10 +62,10 @@ func newEnv(cfgFile string) (env.Env[*koanf.Koanf, chi.Router], error) {
 		K:     k,
 		Store: fstore,
 	}
-	svcs := []service.Service[chi.Router]{s, f}
-	api := env.NewAPI(svcs, k, db)
-	m := metadata.New[*koanf.Koanf, chi.Router](k, db, &api)
+	svcs := []service.Service{s, f}
 	s.Svcs = svcs
+	api := env.NewAPI(svcs, k, db)
+	m := metadata.New(k, db, &api)
 	s.M = m
 	return &api, nil
 }
