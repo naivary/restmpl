@@ -1,6 +1,8 @@
 package service
 
-type Service[T any] interface {
+import "github.com/go-chi/chi/v5"
+
+type Service interface {
 	// Unique identifier of the service.
 	ID() string
 
@@ -12,10 +14,14 @@ type Service[T any] interface {
 
 	// Register registers the service
 	// to the public router of type T
-	Register(T)
+	Register(chi.Router)
 
-	// Health reutrns the health status
+	// Health returns the health status
 	// of the service. If the error is
 	// non nil the service is considered unhealthy.
-	// Health(http.Responsewriter, *http.Request) error
+	// Health(http.ResponseWriter, *http.Request) error
+
+	// Metrics returns the service specific
+	// collected metrics. Probably Prometheus in our case
+	// Metrics()
 }

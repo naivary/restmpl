@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/naivary/instance/internal/pkg/config/configtest"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
@@ -40,7 +39,7 @@ func setupFs() Fs {
 }
 
 func setupTs() *httptest.Server {
-	api := env.NewAPI([]service.Service[chi.Router]{fsTest}, fsTest.K)
+	api := env.NewAPI([]service.Service{fsTest}, fsTest.K, nil)
 	root := api.Router()
 	return httptest.NewServer(root)
 }

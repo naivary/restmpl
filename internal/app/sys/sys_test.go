@@ -8,8 +8,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config/configtest"
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/env"
@@ -35,8 +33,8 @@ func setup() *httptest.Server {
 	}
 	s.DB = db
 
-	e := env.NewAPI([]service.Service[chi.Router]{s}, k)
-	s.M = metadata.New[*koanf.Koanf, chi.Router](k, db, &e)
+	e := env.NewAPI([]service.Service{s}, k, db)
+	s.M = metadata.New(k, db, &e)
 	return httptest.NewServer(e.Router())
 }
 

@@ -10,26 +10,29 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/pocketbase/dbx"
 )
 
 const (
 	reqTimeout = 20 * time.Second
 )
 
-var _ Env[*koanf.Koanf, chi.Router] = (*API)(nil)
+var _ Env = (*API)(nil)
 
 // API environment which
 // implements the Env interface.
 type API struct {
-	services []service.Service[chi.Router]
-	k        *koanf.Koanf
-	router   chi.Router
+	svcs   []service.Service
+	k      *koanf.Koanf
+	router chi.Router
+	db     *dbx.DB
 }
 
-func NewAPI(svcs []service.Service[chi.Router], k *koanf.Koanf) API {
+func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB) API {
 	return API{
-		services: svcs,
-		k:        k,
+		svcs: svcs,
+		k:    k,
+		db:   db,
 	}
 }
 
@@ -50,7 +53,7 @@ func (a *API) Router() chi.Router {
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(reqTimeout))
-	for _, svc := range a.services {
+	for _, svc := range a.svcs {
 		svc.Register(root)
 	}
 	a.router = root
@@ -61,9 +64,9 @@ func (a API) Config() *koanf.Koanf {
 	return a.k
 }
 
-func (a API) Services() map[string]service.Service[chi.Router] {
-	m := make(map[string]service.Service[chi.Router], len(a.services))
-	for _, svc := range a.services {
+func (a API) Services() map[string]service.Service {
+	m := make(map[string]service.Service, len(a.svcs))
+	for _, svc := range a.svcs {
 		m[svc.ID()] = svc
 	}
 	return m

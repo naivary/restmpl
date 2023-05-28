@@ -1,10 +1,12 @@
 package env
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
-type Env[T any, R any] interface {
+type Env interface {
 	// Unique ID of the environment
 	ID() string
 
@@ -13,18 +15,18 @@ type Env[T any, R any] interface {
 
 	// Services returns the running services
 	// of the environment keyed by ID.
-	Services() map[string]service.Service[R]
+	Services() map[string]service.Service
 
 	// Router returns the public
 	// router to serve public traffic
-	Router() R
+	Router() chi.Router
 
 	// Config return the configuration
 	// of your env. It can be in any
 	// form like your favorite config
 	// manager (e.g. viper, koanf) or
 	// a simple map.
-	Config() T
+	Config() *koanf.Koanf
 
 	// Run will prepare and
 	// run the env to accept

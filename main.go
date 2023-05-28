@@ -65,8 +65,9 @@ func newEnv(cfgFile string) (env.Env[*koanf.Koanf, chi.Router], error) {
 		Store: fstore,
 	}
 	svcs := []service.Service[chi.Router]{s, f}
-	api := env.NewAPI(svcs, k)
+	api := env.NewAPI(svcs, k, db)
 	m := metadata.New[*koanf.Koanf, chi.Router](k, db, &api)
+	s.Svcs = svcs
 	s.M = m
 	return &api, nil
 }

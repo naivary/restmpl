@@ -9,11 +9,12 @@ import (
 	"github.com/pocketbase/dbx"
 )
 
-var _ service.Service[chi.Router] = (*Sys)(nil)
+var _ service.Service = (*Sys)(nil)
 
 type Sys struct {
-	K  *koanf.Koanf
-	DB *dbx.DB
+	K    *koanf.Koanf
+	DB   *dbx.DB
+	Svcs []service.Service
 
 	M metadata.Metadata
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var _ service.Service[chi.Router] = (*Fs)(nil)
+var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
 	K *koanf.Koanf
