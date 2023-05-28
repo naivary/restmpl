@@ -57,12 +57,10 @@ func (f Fs) forceFilepath(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		if r.Form.Get("filepath") != "" {
 			next.ServeHTTP(w, r)
 			return
 		}
-
 		w.WriteHeader(http.StatusBadRequest)
 		jsonapi.MarshalErrors(w, japi.Errors(&errEmptyFilepath))
 	})

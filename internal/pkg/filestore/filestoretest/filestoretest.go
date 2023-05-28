@@ -11,15 +11,15 @@ import (
 // NewTestStore provides a in memory fs which
 // caching. The caching has no benefits but
 // simulates the "real" filestore.
-func New(k *koanf.Koanf) (filestore.Filestore, error) {
+func New(k *koanf.Koanf) (filestore.Store[afero.File], error) {
 	base := k.String("fs.basepath")
 	err := os.MkdirAll(base, os.ModePerm)
 	if err != nil {
-		return filestore.Filestore{}, err
+		return nil, err
 	}
 	firstLayer := afero.NewBasePathFs(afero.NewMemMapFs(), base)
 	secLayer := afero.NewMemMapFs()
-	return filestore.Filestore{
+	return &filestore.Filestore{
 		Store: afero.Afero{
 			Fs: afero.NewCacheOnReadFs(firstLayer, secLayer, k.Duration("fs.ttl")),
 		},

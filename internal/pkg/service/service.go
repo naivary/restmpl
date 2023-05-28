@@ -16,8 +16,4 @@ type Service[T any] interface {
 	// Register registers the service to
 	// root router of type `T` of the env.
 	Register(T)
-
-	// Middlewares returns the public middlewars
-	// to attach to the root router.
-	// Middlewares() []func(http.Handler) http.Handler
 }

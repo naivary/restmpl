@@ -18,16 +18,14 @@ const (
 
 var _ Env[*koanf.Koanf, chi.Router] = (*API)(nil)
 
-// API is API env and
-// implements the Env
-// interface
+// API environment which
+// implements the Env interface.
 type API struct {
 	services []service.Service[chi.Router]
 	k        *koanf.Koanf
 	router   chi.Router
 }
 
-// NewAPI returns an api environment.
 func NewAPI(svcs []service.Service[chi.Router], k *koanf.Koanf) API {
 	return API{
 		services: svcs,

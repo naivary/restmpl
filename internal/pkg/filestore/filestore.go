@@ -12,9 +12,7 @@ import (
 
 type Store[T any] interface {
 	Create(path string, r io.Reader) (T, error)
-
 	Remove(path string) error
-
 	Read(path string) ([]byte, error)
 }
 

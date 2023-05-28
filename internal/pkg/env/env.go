@@ -12,13 +12,11 @@ type Env[T any, R any] interface {
 	Version() string
 
 	// Services returns the running services
-	// of the environment keyed by the ID
-	// of the services.
+	// of the environment keyed by ID.
 	Services() map[string]service.Service[R]
 
-	// Router returns the current
-	// router which serves possible
-	// public traffic.
+	// Router returns the public
+	// router to serve public traffic
 	Router() R
 
 	// Config return the configuration
