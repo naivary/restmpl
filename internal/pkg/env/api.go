@@ -10,7 +10,6 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
-	"github.com/pocketbase/dbx"
 )
 
 const (
@@ -27,7 +26,7 @@ type API struct {
 	router chi.Router
 }
 
-func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB) API {
+func NewAPI(svcs []service.Service, k *koanf.Koanf) API {
 	return API{
 		svcs: svcs,
 		k:    k,

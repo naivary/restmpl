@@ -18,11 +18,10 @@ import (
 )
 
 var (
-	fsTest = setupFs()
-	ts     = setupTs()
+	fsTest, ts = setup()
 )
 
-func setupFs() Fs {
+func setup() (Fs, *httptest.Server) {
 	f := Fs{}
 	k, err := configtest.New()
 	if err != nil {
@@ -35,13 +34,8 @@ func setupFs() Fs {
 		log.Fatal(err)
 	}
 	f.Store = st
-	return f
-}
-
-func setupTs() *httptest.Server {
-	api := env.NewAPI([]service.Service{fsTest}, fsTest.K, nil)
-	root := api.Router()
-	return httptest.NewServer(root)
+	e := env.NewAPI([]service.Service{f}, k)
+	return f, httptest.NewServer(e.Router())
 }
 
 func upload(client *http.Client, url string, params map[string]string, formKey string, path string) (*http.Response, error) {

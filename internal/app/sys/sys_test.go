@@ -33,7 +33,7 @@ func setup() *httptest.Server {
 	}
 	s.DB = db
 
-	e := env.NewAPI([]service.Service{s}, k, db)
+	e := env.NewAPI([]service.Service{s}, k)
 	s.M = metadata.New(k, db, &e)
 	return httptest.NewServer(e.Router())
 }

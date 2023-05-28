@@ -64,7 +64,7 @@ func newEnv(cfgFile string) (env.Env, error) {
 	}
 	svcs := []service.Service{s, f}
 	s.Svcs = svcs
-	api := env.NewAPI(svcs, k, db)
+	api := env.NewAPI(svcs, k)
 	m := metadata.New(k, db, &api)
 	s.M = m
 	return &api, nil
