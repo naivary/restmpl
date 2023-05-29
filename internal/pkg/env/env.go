@@ -14,8 +14,7 @@ type Env interface {
 	// Running services of the environment keyed by ID.
 	Services() map[string]service.Service
 
-	// Public router to serve
-	// http request to the services
+	// http router to serve public request to the services
 	HTTP() chi.Router
 
 	// Config return the configuration
@@ -26,10 +25,10 @@ type Env interface {
 	Config() *koanf.Koanf
 
 	// Serve the services for
-	// public traffic
+	// public traffic.
 	Serve() error
 
 	// Monitor agent of the
-	// env for all the services
+	// env for all the services.
 	Monitor() monitor.Agent
 }
