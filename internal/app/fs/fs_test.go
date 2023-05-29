@@ -163,5 +163,4 @@ func read(t *testing.T) {
 	if !bytes.Equal(got.Bytes(), expected.Bytes()) {
 		t.Fatalf("Expected too be equal")
 	}
-
 }

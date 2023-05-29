@@ -2,7 +2,9 @@ package service
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/register"
+	"github.com/pocketbase/dbx"
 )
 
 type Service interface {
@@ -29,6 +31,9 @@ type Service interface {
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
 	Metrics() error
+
+	// Initialize the service given the global dependencies
+	Init(*koanf.Koanf, *dbx.DB) error
 }
 
 type Info struct {

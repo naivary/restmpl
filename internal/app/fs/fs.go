@@ -9,6 +9,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/pocketbase/dbx"
 	"github.com/spf13/afero"
 )
 
@@ -60,4 +61,14 @@ func (f Fs) ID() string {
 
 func (f Fs) Description() string {
 	return "a simple filestore which uses the host filesystem as a sotrage"
+}
+
+func (f *Fs) Init(k *koanf.Koanf, db *dbx.DB) error {
+	f.K = k
+	fstore, err := filestore.New(k)
+	if err != nil {
+		return err
+	}
+	f.Store = fstore
+	return nil
 }

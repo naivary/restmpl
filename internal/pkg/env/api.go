@@ -8,7 +8,8 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/dependency"
+	"github.com/naivary/instance/internal/pkg/config"
+	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -27,14 +28,13 @@ type API struct {
 	http     chi.Router
 	monAgent monitor.Agent
 	db       *dbx.DB
+	cfgFile  string
 }
 
-func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB, deps []dependency.Pinger) API {
+func NewAPI(cfgFile string, svcs []service.Service) API {
 	return API{
-		svcs:     svcs,
-		k:        k,
-		monAgent: monitor.New(svcs, deps),
-		db:       db,
+		cfgFile: cfgFile,
+		svcs:    svcs,
 	}
 }
 
@@ -85,4 +85,28 @@ func (a API) Serve() error {
 		return err
 	}
 	return srv.ListenAndServeTLS(a.k.String("server.crt"), a.k.String("server.key"))
+}
+
+func (a *API) Init() error {
+	k, err := config.New(a.cfgFile)
+	if err != nil {
+		return err
+	}
+	a.k = k
+
+	db, err := database.Connect(k)
+	if err != nil {
+		return err
+	}
+	a.db = db
+
+	a.monAgent = monitor.New(a.svcs)
+
+	for _, svc := range a.svcs {
+		err := svc.Init(k, db)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
