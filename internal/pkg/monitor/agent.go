@@ -24,7 +24,7 @@ type Agent interface {
 var _ Agent = (*agent)(nil)
 
 type agent struct {
-	// svcs which has to be checked
+	// svcs which will be checked
 	svcs []service.Service
 }
 
