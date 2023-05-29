@@ -1,7 +1,6 @@
 package env
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -9,8 +8,10 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/pocketbase/dbx"
 )
 
 const (
@@ -19,29 +20,25 @@ const (
 
 var _ Env = (*API)(nil)
 
-// API environment which
-// implements the Env interface.
 type API struct {
-	svcs   []service.Service
-	k      *koanf.Koanf
-	router chi.Router
+	svcs     []service.Service
+	k        *koanf.Koanf
+	http     chi.Router
+	monAgent monitor.Agent
+	db       *dbx.DB
 }
 
-func NewAPI(svcs []service.Service, k *koanf.Koanf) API {
+func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB) API {
 	return API{
-		svcs: svcs,
-		k:    k,
+		svcs:     svcs,
+		k:        k,
+		monAgent: monitor.New(svcs),
+		db:       db,
 	}
 }
 
-func (a API) health(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (a API) Sys() chi.Router {
-	r := chi.NewRouter()
-	r.Get("/health", a.health)
-	return r
+func (a API) Monitor() monitor.Agent {
+	return a.monAgent
 }
 
 func (a API) ID() string {
@@ -52,9 +49,9 @@ func (a API) Version() string {
 	return a.k.String("version")
 }
 
-func (a *API) Router() chi.Router {
-	if a.router != nil {
-		return a.router
+func (a *API) HTTP() chi.Router {
+	if a.http != nil {
+		return a.http
 	}
 	root := chi.NewRouter()
 	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
@@ -64,7 +61,8 @@ func (a *API) Router() chi.Router {
 	for _, svc := range a.svcs {
 		svc.Register(root)
 	}
-	a.router = root
+	a.http = root
+	root.Mount("/sys", a.monAgent.HTTP())
 	return root
 }
 
@@ -81,7 +79,7 @@ func (a API) Services() map[string]service.Service {
 }
 
 func (a API) Run() error {
-	srv, err := server.New(a.k, a.Router())
+	srv, err := server.New(a.k, a.HTTP())
 	if err != nil {
 		return err
 	}

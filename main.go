@@ -5,12 +5,10 @@ import (
 	"os"
 
 	"github.com/naivary/instance/internal/app/fs"
-	"github.com/naivary/instance/internal/app/sys"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/models/metadata"
 	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
@@ -50,10 +48,6 @@ func newEnv(cfgFile string) (env.Env, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &sys.Sys{
-		K:  k,
-		DB: db,
-	}
 	fstore, err := filestore.New(k)
 	if err != nil {
 		return nil, err
@@ -62,10 +56,7 @@ func newEnv(cfgFile string) (env.Env, error) {
 		K:     k,
 		Store: fstore,
 	}
-	svcs := []service.Service{s, f}
-	s.Svcs = svcs
-	api := env.NewAPI(svcs, k)
-	m := metadata.New(k, db, &api)
-	s.M = m
+	svcs := []service.Service{f}
+	api := env.NewAPI(svcs, k, db)
 	return &api, nil
 }

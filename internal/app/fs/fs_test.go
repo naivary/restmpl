@@ -34,8 +34,8 @@ func setup() (Fs, *httptest.Server) {
 		log.Fatal(err)
 	}
 	f.Store = st
-	e := env.NewAPI([]service.Service{f}, k)
-	return f, httptest.NewServer(e.Router())
+	e := env.NewAPI([]service.Service{f}, k, nil)
+	return f, httptest.NewServer(e.HTTP())
 }
 
 func upload(client *http.Client, url string, params map[string]string, formKey string, path string) (*http.Response, error) {

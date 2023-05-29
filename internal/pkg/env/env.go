@@ -3,23 +3,20 @@ package env
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
 type Env interface {
-	// Unique ID of the environment
 	ID() string
-
-	// Current version of the environment
 	Version() string
 
-	// Services returns the running services
-	// of the environment keyed by ID.
+	// Running services of the environment keyed by ID.
 	Services() map[string]service.Service
 
-	// Router returns the public
-	// router to serve public traffic
-	Router() chi.Router
+	// Public router to serve
+	// http request to the services
+	HTTP() chi.Router
 
 	// Config return the configuration
 	// of your env. It can be in any
@@ -33,9 +30,7 @@ type Env interface {
 	// possible public traffic.
 	Run() error
 
-	// Sys returns a router which
-	// delivers health check, metrics
-	// or in general sys specific
-	// needs
-	Sys() chi.Router
+	// Monitor agent of the
+	// env for all the services
+	Monitor() monitor.Agent
 }
