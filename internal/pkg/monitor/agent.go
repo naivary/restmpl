@@ -7,6 +7,7 @@ import (
 )
 
 type Agent interface {
+	// TODO(naivary): health should provide info about the services checed
 	Health() error
 	Metrics() error
 
@@ -14,10 +15,8 @@ type Agent interface {
 	// agent's services
 	HTTP() chi.Router
 
-	// Services up on which
-	// monitoring checks will be apllied
-	// TODO(naivary): return information
-	// about the services not the services on their own
+	// services which the agent
+	// is checking
 	Services() []service.Service
 }
 

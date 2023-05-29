@@ -22,13 +22,14 @@ type Service interface {
 	// Health returns the health status
 	// of the service. If the error is
 	// non nil the service is considered unhealthy.
-	// If the service is healthy, some information
-	// about the service will be provided.
 	Health(register.Register) (*Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
 	Metrics() error
+
+	// init
+	// Init() error
 }
 
 type Info struct {
