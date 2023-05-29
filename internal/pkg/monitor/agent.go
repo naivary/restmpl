@@ -1,7 +1,7 @@
 package monitor
 
 import (
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/naivary/instance/internal/pkg/service"
 )
@@ -10,8 +10,8 @@ type Agent interface {
 	Health() error
 	Metrics() error
 
-	// Public router to access
-	// the monitor agent
+	// HTTP access to the
+	// agent's services
 	HTTP() chi.Router
 
 	// Services up on which

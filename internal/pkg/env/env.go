@@ -25,10 +25,9 @@ type Env interface {
 	// a simple map.
 	Config() *koanf.Koanf
 
-	// Run will prepare and
-	// run the env to accept
-	// possible public traffic.
-	Run() error
+	// Serve the services for
+	// public traffic
+	Serve() error
 
 	// Monitor agent of the
 	// env for all the services

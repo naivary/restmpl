@@ -61,8 +61,8 @@ func (a *API) HTTP() chi.Router {
 	for _, svc := range a.svcs {
 		svc.Register(root)
 	}
+	root.Mount("/sys", a.Monitor().HTTP())
 	a.http = root
-	root.Mount("/sys", a.monAgent.HTTP())
 	return root
 }
 
@@ -78,7 +78,7 @@ func (a API) Services() map[string]service.Service {
 	return m
 }
 
-func (a API) Run() error {
+func (a API) Serve() error {
 	srv, err := server.New(a.k, a.HTTP())
 	if err != nil {
 		return err

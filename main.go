@@ -36,7 +36,7 @@ func run() error {
 		return err
 	}
 	slog.Info("running the env", "usedCfgFile", cfgFile)
-	return e.Run()
+	return e.Serve()
 }
 
 func newEnv(cfgFile string) (env.Env, error) {
@@ -53,7 +53,7 @@ func newEnv(cfgFile string) (env.Env, error) {
 		return nil, err
 	}
 	f := &fs.Fs{
-		K:     k,
+		K:     nil,
 		Store: fstore,
 	}
 	svcs := []service.Service{f}

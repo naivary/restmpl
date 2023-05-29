@@ -24,7 +24,7 @@ type Service interface {
 	// non nil the service is considered unhealthy.
 	// If the service is healthy, some information
 	// about the service will be provided.
-	Health(register.Register) (Info, error)
+	Health(register.Register) (*Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
@@ -32,7 +32,7 @@ type Service interface {
 }
 
 type Info struct {
-	ID   string
-	Name string
-	Desc string
+	ID   string `jsonapi:"attr,id"`
+	Name string `jsonapi:"attr,name"`
+	Desc string `jsonapi:"attr,desc"`
 }

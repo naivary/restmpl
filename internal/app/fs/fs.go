@@ -1,6 +1,8 @@
 package fs
 
 import (
+	"errors"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
@@ -22,8 +24,15 @@ func (f Fs) Metrics() error {
 	return nil
 }
 
-func (f Fs) Health(reg register.Register) (service.Info, error) {
-	return service.Info{}, nil
+func (f Fs) Health(reg register.Register) (*service.Info, error) {
+	if f.K == nil {
+		return nil, errors.New("missing config manager")
+	}
+	return &service.Info{
+		ID:   f.ID(),
+		Name: f.Name(),
+		Desc: f.Description(),
+	}, nil
 }
 
 func (f Fs) Register(root chi.Router) {
