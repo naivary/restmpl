@@ -1,6 +1,7 @@
 package env
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -31,6 +32,16 @@ func NewAPI(svcs []service.Service, k *koanf.Koanf) API {
 		svcs: svcs,
 		k:    k,
 	}
+}
+
+func (a API) health(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (a API) Sys() chi.Router {
+	r := chi.NewRouter()
+	r.Get("/health", a.health)
+	return r
 }
 
 func (a API) ID() string {

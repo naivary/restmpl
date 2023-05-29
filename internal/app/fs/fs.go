@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/spf13/afero"
 )
@@ -15,6 +16,14 @@ type Fs struct {
 	K *koanf.Koanf
 
 	Store filestore.Store[afero.File]
+}
+
+func (f Fs) Metrics() error {
+	return nil
+}
+
+func (f Fs) Health(reg register.Register) (service.Info, error) {
+	return service.Info{}, nil
 }
 
 func (f Fs) Register(root chi.Router) {

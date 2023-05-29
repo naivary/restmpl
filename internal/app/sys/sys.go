@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/models/metadata"
+	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
 )
@@ -17,6 +18,14 @@ type Sys struct {
 	Svcs []service.Service
 
 	M metadata.Metadata
+}
+
+func (s Sys) Metrics() error {
+	return nil
+}
+
+func (s Sys) health(reg register.Register) (service.Info, error) {
+	return service.Info{}, nil
 }
 
 func (s Sys) Register(root chi.Router) {

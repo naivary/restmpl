@@ -1,6 +1,9 @@
 package service
 
-import "github.com/go-chi/chi/v5"
+import (
+	"github.com/go-chi/chi/v5"
+	"github.com/naivary/instance/internal/pkg/register"
+)
 
 type Service interface {
 	// Unique identifier of the service.
@@ -21,18 +24,15 @@ type Service interface {
 	// non nil the service is considered unhealthy.
 	// If the service is healthy, some information
 	// about the service will be provided.
-	// Health() (Info, error)
+	Health(register.Register) (Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
-	// Metrics()
+	Metrics() error
 }
 
 type Info struct {
 	ID   string
 	Name string
 	Desc string
-	// Dependencies of the Service keyed
-	// by the name of the dependency
-	Deps map[string]string
 }

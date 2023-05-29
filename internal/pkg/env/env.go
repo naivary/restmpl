@@ -32,4 +32,10 @@ type Env interface {
 	// run the env to accept
 	// possible public traffic.
 	Run() error
+
+	// Sys returns a router which
+	// delivers health check, metrics
+	// or in general sys specific
+	// needs
+	Sys() chi.Router
 }
