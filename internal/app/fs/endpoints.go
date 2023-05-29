@@ -13,14 +13,14 @@ import (
 
 func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
+	err := r.ParseMultipartForm(f.k.Int64("fs.maxSize"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
-	file, h, err := r.FormFile(f.K.String("fs.formKey"))
+	file, h, err := r.FormFile(f.k.String("fs.formKey"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
@@ -28,7 +28,7 @@ func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := filepath.Join(r.FormValue("filepath"), h.Filename)
-	_, err = f.Store.Create(path, file)
+	_, err = f.store.Create(path, file)
 	if errors.Is(err, &filestore.ErrWrongNaming) {
 		w.WriteHeader(http.StatusBadRequest)
 		jsonapi.MarshalErrors(w, japi.Errors(&filestore.ErrWrongNaming))
@@ -51,7 +51,7 @@ func (f Fs) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = f.Store.Remove(r.Form.Get("filepath"))
+	err = f.store.Remove(r.Form.Get("filepath"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusBadRequest, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
@@ -67,7 +67,7 @@ func (f Fs) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := f.Store.Read(r.Form.Get("filepath"))
+	data, err := f.store.Read(r.Form.Get("filepath"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -31,4 +31,6 @@ type Env interface {
 	// Monitor agent of the
 	// env for all the services.
 	Monitor() monitor.Agent
+
+	Init() error
 }

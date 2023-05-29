@@ -2,6 +2,8 @@ package service
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/knadh/koanf/v2"
+	"github.com/pocketbase/dbx"
 )
 
 type Service interface {
@@ -17,12 +19,22 @@ type Service interface {
 	// HTTP router to serve public request
 	HTTP() chi.Router
 
-	// Recommended pattern to use router mountage
+	// Recommended pattern to mount the router to.
 	Pattern() string
+
+	// Health returns the health status
+	// of the service. If the error is
+	// non nil the service is considered unhealthy.
+	// The information providede will be served
+	// to the requester.
+	Health() (*Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
 	Metrics() error
+
+	// Initialize the service given the global dependencies
+	Init(*koanf.Koanf, *dbx.DB) error
 }
 
 type Info struct {
