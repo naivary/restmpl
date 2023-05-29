@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/naivary/instance/internal/pkg/register"
 )
 
 type Service interface {
@@ -20,11 +19,6 @@ type Service interface {
 
 	// Recommended pattern to use router mountage
 	Pattern() string
-
-	// Health returns the health status
-	// of the service. If the error is
-	// non nil the service is considered unhealthy.
-	Health(register.Register) (*Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
