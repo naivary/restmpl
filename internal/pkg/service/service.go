@@ -27,9 +27,6 @@ type Service interface {
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
 	Metrics() error
-
-	// init
-	// Init() error
 }
 
 type Info struct {
