@@ -56,7 +56,7 @@ func newEnv(cfgFile string) (env.Env, error) {
 		return nil, err
 	}
 	f := &fs.Fs{
-		K:     nil,
+		K:     k,
 		Store: fstore,
 	}
 	deps := createPinger(db, k)
