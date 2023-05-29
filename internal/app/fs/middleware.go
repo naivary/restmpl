@@ -6,36 +6,12 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/naivary/instance/internal/pkg/japi"
-	"github.com/naivary/instance/internal/pkg/log"
-	"golang.org/x/exp/slog"
 )
 
 func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		f.forceFilepath,
-		f.infoLog,
 	}
-}
-
-func (f Fs) infoLog(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		wrs := log.New(f.k)
-		file, _ := wrs.Get(slog.LevelInfo)
-		slog.New(slog.NewTextHandler(file, nil)).InfoCtx(r.Context(),
-			"message",
-			slog.Group("request",
-				slog.String("method", r.Method),
-				slog.String("host", r.Host),
-				slog.String("endpoint", r.URL.Path),
-				slog.String("remoteAddr", r.RemoteAddr),
-			),
-			slog.Group("service",
-				slog.String("name", f.Name()),
-				slog.String("id", f.ID()),
-			),
-		)
-		next.ServeHTTP(w, r)
-	})
 }
 
 func (f Fs) forceFilepath(next http.Handler) http.Handler {

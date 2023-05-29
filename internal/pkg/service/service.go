@@ -19,7 +19,7 @@ type Service interface {
 	// HTTP router to serve public request
 	HTTP() chi.Router
 
-	// Recommended pattern to use router mountage
+	// Recommended pattern to mount the router to.
 	Pattern() string
 
 	// Health returns the health status
