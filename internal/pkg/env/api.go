@@ -8,6 +8,7 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/dependency"
 	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -28,11 +29,11 @@ type API struct {
 	db       *dbx.DB
 }
 
-func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB) API {
+func NewAPI(svcs []service.Service, k *koanf.Koanf, db *dbx.DB, deps []dependency.Pinger) API {
 	return API{
 		svcs:     svcs,
 		k:        k,
-		monAgent: monitor.New(svcs),
+		monAgent: monitor.New(svcs, deps),
 		db:       db,
 	}
 }

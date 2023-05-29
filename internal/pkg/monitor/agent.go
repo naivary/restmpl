@@ -2,7 +2,7 @@ package monitor
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/naivary/instance/internal/pkg/register"
+	"github.com/naivary/instance/internal/pkg/dependency"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
@@ -25,11 +25,14 @@ var _ Agent = (*agent)(nil)
 type agent struct {
 	// svcs which will be checked
 	svcs []service.Service
+
+	deps []dependency.Pinger
 }
 
-func New(svcs []service.Service) agent {
+func New(svcs []service.Service, deps []dependency.Pinger) agent {
 	return agent{
 		svcs: svcs,
+		deps: deps,
 	}
 }
 
@@ -42,9 +45,8 @@ func (a agent) Metrics() error {
 }
 
 func (a agent) Health() error {
-	reg := register.New()
-	for _, svc := range a.svcs {
-		_, err := svc.Health(reg)
+	for _, dep := range a.deps {
+		err := dep.Ping()
 		if err != nil {
 			return err
 		}

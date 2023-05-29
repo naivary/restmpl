@@ -8,6 +8,7 @@ import (
 	"github.com/naivary/instance/internal/app/fs"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/dependency"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -58,26 +59,21 @@ func newEnv(cfgFile string) (env.Env, error) {
 		K:     nil,
 		Store: fstore,
 	}
+	deps := createPinger(db, k)
 	svcs := []service.Service{f}
-	api := env.NewAPI(svcs, k, db)
+	api := env.NewAPI(svcs, k, db, deps)
 	return &api, nil
 }
 
-func depsReg(db *dbx.DB) {
-	kPing := func(k *koanf.Koanf) error {
+func createPinger(db *dbx.DB, k *koanf.Koanf) []dependency.Pinger {
+	d := dependency.New(func(d *dbx.DB) error {
+		return d.DB().Ping()
+	}, db)
+	d2 := dependency.New(func(k *koanf.Koanf) error {
 		if k == nil {
-			return errors.New("config manager is not present")
+			return errors.New("config manager missing")
 		}
 		return nil
-	}
-	dbPing := func(db *dbx.DB) error {
-		return db.DB().Ping()
-	}
-	fsStore := func(fs *filestore.Filestore) error {
-		if fs == nil {
-			return errors.New("filestore missong")
-		}
-		return nil
-	}
-
+	}, k)
+	return []dependency.Pinger{d, d2}
 }

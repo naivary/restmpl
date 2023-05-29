@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config/configtest"
+	"github.com/naivary/instance/internal/pkg/dependency"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/instance/internal/pkg/must"
@@ -34,7 +35,9 @@ func setup() (Fs, *httptest.Server) {
 		log.Fatal(err)
 	}
 	f.Store = st
-	e := env.NewAPI([]service.Service{f}, k, nil)
+	kDep := dependency.New(nil, k)
+	stDep := dependency.New(nil, st)
+	e := env.NewAPI([]service.Service{f}, k, nil, []dependency.Pinger{kDep, stDep})
 	return f, httptest.NewServer(e.HTTP())
 }
 
