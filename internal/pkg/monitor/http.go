@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/jsonapi"
 	"github.com/naivary/instance/internal/pkg/japi"
-	"github.com/naivary/instance/internal/pkg/register"
 	"golang.org/x/exp/slog"
 )
 
@@ -21,9 +20,8 @@ func (a agent) HTTP() chi.Router {
 
 func (a agent) health(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	reg := register.New()
 	for _, svc := range a.svcs {
-		info, err := svc.Health(reg)
+		info, err := svc.Health()
 		if err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			jerr := japi.NewError(err, http.StatusServiceUnavailable, reqID)

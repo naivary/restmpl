@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
 	"github.com/spf13/afero"
@@ -16,17 +15,17 @@ import (
 var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
-	K *koanf.Koanf
+	k *koanf.Koanf
 
-	Store filestore.Store[afero.File]
+	store filestore.Store[afero.File]
 }
 
 func (f Fs) Metrics() error {
 	return nil
 }
 
-func (f Fs) Health(reg register.Register) (*service.Info, error) {
-	if f.K == nil {
+func (f Fs) Health() (*service.Info, error) {
+	if f.k == nil {
 		return nil, errors.New("missing config manager")
 	}
 	return &service.Info{
@@ -64,11 +63,11 @@ func (f Fs) Description() string {
 }
 
 func (f *Fs) Init(k *koanf.Koanf, db *dbx.DB) error {
-	f.K = k
+	f.k = k
 	fstore, err := filestore.New(k)
 	if err != nil {
 		return err
 	}
-	f.Store = fstore
+	f.store = fstore
 	return nil
 }

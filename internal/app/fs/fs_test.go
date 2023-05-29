@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/naivary/instance/internal/pkg/config/configtest"
-	"github.com/naivary/instance/internal/pkg/dependency"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/instance/internal/pkg/must"
@@ -28,16 +27,14 @@ func setup() (Fs, *httptest.Server) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.K = k
+	f.k = k
 
 	st, err := filestoretest.New(k)
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Store = st
-	kDep := dependency.New(nil, k)
-	stDep := dependency.New(nil, st)
-	e := env.NewAPI([]service.Service{f}, k, nil, []dependency.Pinger{kDep, stDep})
+	f.store = st
+	e := env.NewAPI("", []service.Service{&f})
 	return f, httptest.NewServer(e.HTTP())
 }
 
@@ -83,7 +80,7 @@ func TestCreate(t *testing.T) {
 		"filepath": "pdf/",
 	}
 
-	res, err := upload(c, u, params, fsTest.K.String("fs.formKey"), "./testdata/dummy.pdf")
+	res, err := upload(c, u, params, fsTest.k.String("fs.formKey"), "./testdata/dummy.pdf")
 	if err != nil {
 		t.Error(err)
 	}

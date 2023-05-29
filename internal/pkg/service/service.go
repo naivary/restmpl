@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/register"
 	"github.com/pocketbase/dbx"
 )
 
@@ -26,7 +25,9 @@ type Service interface {
 	// Health returns the health status
 	// of the service. If the error is
 	// non nil the service is considered unhealthy.
-	Health(register.Register) (*Info, error)
+	// The information providede will be served
+	// to the requester.
+	Health() (*Info, error)
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case

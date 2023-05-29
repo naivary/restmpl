@@ -19,7 +19,7 @@ func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 
 func (f Fs) infoLog(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		wrs := log.New(f.K)
+		wrs := log.New(f.k)
 		file, _ := wrs.Get(slog.LevelInfo)
 		slog.New(slog.NewTextHandler(file, nil)).InfoCtx(r.Context(),
 			"message",
@@ -41,7 +41,7 @@ func (f Fs) infoLog(next http.Handler) http.Handler {
 func (f Fs) forceFilepath(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
-			err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
+			err := r.ParseMultipartForm(f.k.Int64("fs.maxSize"))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
