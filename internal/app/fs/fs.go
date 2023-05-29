@@ -35,7 +35,7 @@ func (f Fs) Health(reg register.Register) (*service.Info, error) {
 	}, nil
 }
 
-func (f Fs) Register(root chi.Router) {
+func (f Fs) HTTP() chi.Router {
 	r := chi.NewRouter()
 	for _, mw := range f.Middlewares() {
 		r.Use(mw)
@@ -43,7 +43,11 @@ func (f Fs) Register(root chi.Router) {
 	r.Post("/", f.Create)
 	r.Delete("/remove", f.Remove)
 	r.Get("/read", f.Read)
-	root.Mount("/fs", r)
+	return r
+}
+
+func (f Fs) Pattern() string {
+	return "/fs"
 }
 
 func (f Fs) Name() string {

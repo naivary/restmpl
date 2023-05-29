@@ -60,7 +60,7 @@ func (a *API) HTTP() chi.Router {
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(reqTimeout))
 	for _, svc := range a.svcs {
-		svc.Register(root)
+		root.Mount(svc.Pattern(), svc.HTTP())
 	}
 	root.Mount("/sys", a.Monitor().HTTP())
 	a.http = root

@@ -15,9 +15,11 @@ type Service interface {
 	// Detailed description of the service
 	Description() string
 
-	// Register registers the service
-	// to the public router of type T
-	Register(chi.Router)
+	// HTTP router to serve public request
+	HTTP() chi.Router
+
+	// Recommended pattern to use router mountage
+	Pattern() string
 
 	// Health returns the health status
 	// of the service. If the error is
