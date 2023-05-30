@@ -28,9 +28,9 @@ type Env interface {
 	// public traffic.
 	Serve() error
 
-	// Monitor agent of the
+	// Monitor manaher of the
 	// env for all the services.
-	Monitor() monitor.Agent
+	Monitor() monitor.Manager
 
 	Init() error
 

@@ -10,17 +10,17 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func (a agent) HTTP() chi.Router {
+func (m manager) HTTP() chi.Router {
 	r := chi.NewRouter()
-	r.Get("/health", a.health)
-	r.Get("/metrics", a.metrics)
-	r.Get("/services", a.services)
+	r.Get("/health", m.health)
+	r.Get("/metrics", m.metrics)
+	r.Get("/services", m.services)
 	return r
 }
 
-func (a agent) health(w http.ResponseWriter, r *http.Request) {
+func (m manager) health(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	for _, svc := range a.svcs {
+	for _, svc := range m.svcs {
 		info, err := svc.Health()
 		if err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -32,6 +32,6 @@ func (a agent) health(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a agent) metrics(w http.ResponseWriter, r *http.Request) {}
+func (m manager) metrics(w http.ResponseWriter, r *http.Request) {}
 
-func (a agent) services(w http.ResponseWriter, r *http.Request) {}
+func (m manager) services(w http.ResponseWriter, r *http.Request) {}

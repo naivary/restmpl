@@ -27,7 +27,7 @@ type API struct {
 	svcs       []service.Service
 	k          *koanf.Koanf
 	http       chi.Router
-	monAgent   monitor.Agent
+	monManager monitor.Manager
 	logManager log.Manager
 	db         *dbx.DB
 	cfgFile    string
@@ -41,8 +41,8 @@ func NewAPI(cfgFile string, svcs []service.Service) API {
 	}
 }
 
-func (a API) Monitor() monitor.Agent {
-	return a.monAgent
+func (a API) Monitor() monitor.Manager {
+	return a.monManager
 }
 
 func (a API) ID() string {
@@ -107,7 +107,7 @@ func (a *API) Init() error {
 	}
 	a.db = db
 
-	a.monAgent = monitor.New(a.svcs)
+	a.monManager = monitor.New(a.svcs)
 
 	a.initHTTP()
 	a.isInited = true

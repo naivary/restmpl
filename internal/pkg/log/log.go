@@ -11,6 +11,9 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+// Should all log to the same file or seperate?
+// If so: Every service should provide its own file to which it logs
+// in the schema <name>_<id>.log
 type Manager interface {
 	Log(context.Context, string, slog.Level, ...slog.Attr)
 	AddLevel(slog.Leveler, *slog.Logger) error
