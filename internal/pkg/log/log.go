@@ -1,13 +1,13 @@
 package log
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/log/builder"
 	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
@@ -16,33 +16,50 @@ import (
 // If so: Every service should provide its own file to which it logs
 // in the schema <name>_<id>.log
 type Manager interface {
-	Log(context.Context, string, slog.Level, ...slog.Attr)
-	Init() error
+	Log(builder.Recorder)
+	// Shutdown() error
 }
 
 var _ Manager = (*manager)(nil)
 
 type manager struct {
-	isInited bool
+	isInited   bool
+	maxSize    uint
+	maxAge     uint
+	maxBackups uint
+	filename   string
+	compress   bool
 
 	k      *koanf.Koanf
 	svc    service.Service
 	w      io.Writer
 	logger *slog.Logger
+	ch     chan builder.Recorder
 }
 
-func New(k *koanf.Koanf, svc service.Service) Manager {
-	return &manager{
-		k: k,
+func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
+	m := &manager{
+		k:  k,
+		ch: make(chan builder.Recorder, 2),
+	}
+	if err := m.init(); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (m manager) Log(record builder.Recorder) {
+	m.ch <- record
+}
+
+func (m manager) handle() {
+	for record := range m.ch {
+		ctx, rec := record.Data()
+		m.logger.Handler().Handle(ctx, rec)
 	}
 }
 
-// TODO(naivary): make slog.Attr to group and private so it has to use a builder
-func (m manager) Log(ctx context.Context, msg string, level slog.Level, attrs ...slog.Attr) {
-	m.logger.LogAttrs(ctx, level, msg, attrs...)
-}
-
-func (m *manager) Init() error {
+func (m *manager) init() error {
 	if m.isInited {
 		return nil
 	}
@@ -54,5 +71,7 @@ func (m *manager) Init() error {
 	}
 	m.logger = slog.New(slog.NewTextHandler(file, nil))
 	m.w = file
+	// IDK if this is good or not
+	go m.handle()
 	return nil
 }

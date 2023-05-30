@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
-	"github.com/pocketbase/dbx"
 )
 
 type Service interface {
@@ -36,7 +34,7 @@ type Service interface {
 	Metrics() error
 
 	// Initialize the service given the global dependencies
-	Init(*koanf.Koanf, *dbx.DB) error
+	Init() error
 }
 
 type Info interface {

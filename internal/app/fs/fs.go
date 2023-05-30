@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/instance/internal/pkg/log"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/spf13/afero"
 )
@@ -14,9 +15,9 @@ import (
 var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
-	service.Service
-	k     *koanf.Koanf
-	store filestore.Store[afero.File]
+	k          *koanf.Koanf
+	store      filestore.Store[afero.File]
+	logManager log.Manager
 }
 
 func (f Fs) Health() (*service.Info, error) {
@@ -48,4 +49,20 @@ func (f Fs) Name() string {
 
 func (f Fs) Pattern() string {
 	return "/fs"
+}
+
+func (f Fs) Init() error {
+	return nil
+}
+
+func (f Fs) Shutdown() error {
+	return nil
+}
+
+func (f Fs) Metrics() error {
+	return nil
+}
+
+func (f Fs) Description() string {
+	return "simple file storage based upon sqlite"
 }

@@ -32,7 +32,5 @@ type Env interface {
 	// env for all the services.
 	Monitor() monitor.Manager
 
-	Init() error
-
 	Join(svcs ...service.Service) error
 }

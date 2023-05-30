@@ -1,8 +1,6 @@
 package env
 
 import (
-	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -12,12 +10,10 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
-	"github.com/naivary/instance/internal/pkg/log"
 	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
-	"golang.org/x/exp/slog"
 )
 
 const (
@@ -36,11 +32,16 @@ type API struct {
 	isInited   bool
 }
 
-func NewAPI(cfgFile string, svcs []service.Service) API {
-	return API{
+func NewAPI(cfgFile string, svcs []service.Service) (*API, error) {
+	a := &API{
 		cfgFile: cfgFile,
 		svcs:    svcs,
 	}
+	err := a.init()
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }
 
 func (a API) Monitor() monitor.Manager {
@@ -93,7 +94,7 @@ func (a API) Serve() error {
 	return srv.ListenAndServeTLS(a.k.String("server.crt"), a.k.String("server.key"))
 }
 
-func (a *API) Init() error {
+func (a *API) init() error {
 	if a.isInited {
 		return nil
 	}
@@ -117,19 +118,10 @@ func (a *API) Init() error {
 }
 
 func (a *API) Join(svcs ...service.Service) error {
-	if err := a.Init(); err != nil {
-		return err
-	}
 	for _, svc := range svcs {
-		fmt.Println(svc)
-		if err := svc.Init(a.k, a.db); err != nil {
+		if err := svc.Init(); err != nil {
 			return err
 		}
-		mngr := log.New(a.k, svc)
-		if err := mngr.Init(); err != nil {
-			return err
-		}
-		mngr.Log(context.Background(), "some meesage", slog.LevelInfo)
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 	}
 	return nil

@@ -32,10 +32,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	err = e.Init()
-	if err != nil {
-		return err
-	}
 	slog.Info("serving the api", "used_config_file", cfgFile)
 	return e.Serve()
 }
@@ -43,12 +39,12 @@ func run() error {
 func newEnv(cfgFile string) (env.Env, error) {
 	f := &fs.Fs{}
 	svcs := []service.Service{f}
-	api := env.NewAPI(cfgFile, svcs)
-	if err := api.Init(); err != nil {
+	api, err := env.NewAPI(cfgFile, svcs)
+	if err != nil {
 		return nil, err
 	}
 	if err := api.Join(svcs...); err != nil {
 		return nil, err
 	}
-	return &api, nil
+	return api, nil
 }

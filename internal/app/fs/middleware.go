@@ -6,12 +6,22 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/naivary/instance/internal/pkg/japi"
+	"github.com/naivary/instance/internal/pkg/log/builder"
+	"golang.org/x/exp/slog"
 )
 
 func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		f.forceFilepath,
 	}
+}
+
+func (f Fs) info(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rec := builder.New(r.Context(), slog.LevelInfo, "handling request")
+		rec.IncomingRequest(r)
+		f.logManager.Log(rec)
+	})
 }
 
 func (f Fs) forceFilepath(next http.Handler) http.Handler {
