@@ -2,12 +2,13 @@ package log
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 
@@ -16,55 +17,42 @@ import (
 // in the schema <name>_<id>.log
 type Manager interface {
 	Log(context.Context, string, slog.Level, ...slog.Attr)
-	AddLevel(slog.Leveler, *slog.Logger) error
 	Init() error
 }
 
 var _ Manager = (*manager)(nil)
 
 type manager struct {
-	k        *koanf.Koanf
-	loggers  map[slog.Leveler]*slog.Logger
-	defaults map[slog.Leveler]string
+	isInited bool
+
+	k      *koanf.Koanf
+	svc    service.Service
+	w      io.Writer
+	logger *slog.Logger
 }
 
-func New(k *koanf.Koanf) Manager {
+func New(k *koanf.Koanf, svc service.Service) Manager {
 	return &manager{
 		k: k,
-		defaults: map[slog.Leveler]string{
-			slog.LevelInfo:  "info.log",
-			slog.LevelError: "error.log",
-		},
 	}
 }
 
-func (m manager) AddLevel(level slog.Leveler, l *slog.Logger) error {
-	_, ok := m.loggers[level]
-	if ok {
-		return errors.New("level already exists")
-	}
-	m.loggers[level] = l
-	return nil
-}
-
+// TODO(naivary): make slog.Attr to group and private so it has to use a builder
 func (m manager) Log(ctx context.Context, msg string, level slog.Level, attrs ...slog.Attr) {
-	logger := m.loggers[level]
-	logger.LogAttrs(ctx, level, msg, attrs...)
+	m.logger.LogAttrs(ctx, level, msg, attrs...)
 }
 
-func (m manager) initLogger(level slog.Leveler, w io.Writer) {
-	l := slog.New(slog.NewTextHandler(w, nil))
-	m.loggers[level] = l
-}
-
-func (m manager) Init() error {
-	for level, filename := range m.defaults {
-		p := filepath.Join(m.k.String("logsDir"), filename)
-		file, err := os.Create(p)
-		if err != nil {
-			return err
-		}
-		m.initLogger(level, file)
+func (m *manager) Init() error {
+	if m.isInited {
+		return nil
 	}
+	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
+	p := filepath.Join(m.k.String("logsDir"), filename)
+	file, err := os.Create(p)
+	if err != nil {
+		return err
+	}
+	m.logger = slog.New(slog.NewTextHandler(file, nil))
+	m.w = file
 	return nil
 }

@@ -1,6 +1,8 @@
 package env
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -15,6 +17,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -28,7 +31,6 @@ type API struct {
 	k          *koanf.Koanf
 	http       chi.Router
 	monManager monitor.Manager
-	logManager log.Manager
 	db         *dbx.DB
 	cfgFile    string
 	isInited   bool
@@ -115,15 +117,19 @@ func (a *API) Init() error {
 }
 
 func (a *API) Join(svcs ...service.Service) error {
-	err := a.Init()
-	if err != nil {
+	if err := a.Init(); err != nil {
 		return err
 	}
 	for _, svc := range svcs {
-		err = svc.Init(a.k, a.db)
-		if err != nil {
+		fmt.Println(svc)
+		if err := svc.Init(a.k, a.db); err != nil {
 			return err
 		}
+		mngr := log.New(a.k, svc)
+		if err := mngr.Init(); err != nil {
+			return err
+		}
+		mngr.Log(context.Background(), "some meesage", slog.LevelInfo)
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 	}
 	return nil
