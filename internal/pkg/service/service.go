@@ -1,8 +1,6 @@
 package service
 
 import (
-	"encoding/json"
-
 	"github.com/go-chi/chi/v5"
 )
 
@@ -37,11 +35,7 @@ type Service interface {
 	Init() error
 }
 
-type Info interface {
-	json.Marshaler
-}
-
-type info struct {
+type Info struct {
 	ID   string `jsonapi:"attr,id"`
 	Name string `jsonapi:"attr,name"`
 	Desc string `jsonapi:"attr,desc"`
