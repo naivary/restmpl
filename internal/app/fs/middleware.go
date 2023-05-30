@@ -12,6 +12,7 @@ import (
 
 func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
+		f.info,
 		f.forceFilepath,
 	}
 }
@@ -20,14 +21,14 @@ func (f Fs) info(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rec := builder.New(r.Context(), slog.LevelInfo, "handling request")
 		rec.IncomingRequest(r)
-		f.logManager.Log(rec)
+		f.LogManager.Log(rec)
 	})
 }
 
 func (f Fs) forceFilepath(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
-			err := r.ParseMultipartForm(f.k.Int64("fs.maxSize"))
+			err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

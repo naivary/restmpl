@@ -31,17 +31,17 @@ func (r record) Data() (context.Context, slog.Record) {
 	return r.ctx, r.slogRecord
 }
 
-func (r record) IncomingRequest(req *http.Request) {
-	reqID := middleware.GetReqID(req.Context())
+func (r *record) IncomingRequest(req *http.Request) {
+	id := middleware.GetReqID(req.Context())
 	attr := slog.Group(
 		"request",
+		slog.String("id", id),
 		slog.String("method", req.Method),
 		slog.String("host", req.Host),
 		slog.String("remote_addr", req.RemoteAddr),
 		slog.String("endpoint", req.URL.Path),
 		slog.String("protocol_version", req.Proto),
 		slog.String("user_agent", req.UserAgent()),
-		slog.String("request_id", reqID),
 	)
 	r.slogRecord.AddAttrs(attr)
 }

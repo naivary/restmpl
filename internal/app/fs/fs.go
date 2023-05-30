@@ -15,15 +15,19 @@ import (
 var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
-	k          *koanf.Koanf
-	store      filestore.Store[afero.File]
-	logManager log.Manager
+	K          *koanf.Koanf
+	LogManager log.Manager
+
+	store filestore.Store[afero.File]
 }
 
 func (f Fs) Health() (*service.Info, error) {
-	f.k = koanf.New(".")
-	if f.k == nil {
+	if f.K == nil {
 		return nil, errors.New("missing config manager")
+	}
+
+	if f.store == nil {
+		return nil, errors.New("missing filestore")
 	}
 	return nil, nil
 }
@@ -33,9 +37,9 @@ func (f Fs) HTTP() chi.Router {
 	for _, mw := range f.Middlewares() {
 		r.Use(mw)
 	}
-	r.Post("/", f.Create)
-	r.Delete("/remove", f.Remove)
-	r.Get("/read", f.Read)
+	r.Post("/", f.create)
+	r.Delete("/remove", f.remove)
+	r.Get("/read", f.read)
 	return r
 }
 
@@ -51,7 +55,12 @@ func (f Fs) Pattern() string {
 	return "/fs"
 }
 
-func (f Fs) Init() error {
+func (f *Fs) Init() error {
+	fstore, err := filestore.New(f.K)
+	if err != nil {
+		return err
+	}
+	f.store = fstore
 	return nil
 }
 

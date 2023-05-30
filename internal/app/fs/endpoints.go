@@ -11,16 +11,16 @@ import (
 	"github.com/naivary/instance/internal/pkg/japi"
 )
 
-func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
+func (f Fs) create(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
-	err := r.ParseMultipartForm(f.k.Int64("fs.maxSize"))
+	err := r.ParseMultipartForm(f.K.Int64("fs.maxSize"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
 
-	file, h, err := r.FormFile(f.k.String("fs.formKey"))
+	file, h, err := r.FormFile(f.K.String("fs.formKey"))
 	if err != nil {
 		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
@@ -42,7 +42,7 @@ func (f Fs) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (f Fs) Remove(w http.ResponseWriter, r *http.Request) {
+func (f Fs) remove(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseForm()
 	if err != nil {
@@ -60,7 +60,7 @@ func (f Fs) Remove(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (f Fs) Read(w http.ResponseWriter, r *http.Request) {
+func (f Fs) read(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

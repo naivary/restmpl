@@ -39,8 +39,9 @@ type manager struct {
 
 func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
 	m := &manager{
-		k:  k,
-		ch: make(chan builder.Recorder, 2),
+		k:   k,
+		svc: svc,
+		ch:  make(chan builder.Recorder, 2),
 	}
 	if err := m.init(); err != nil {
 		return nil, err
@@ -60,9 +61,6 @@ func (m manager) handle() {
 }
 
 func (m *manager) init() error {
-	if m.isInited {
-		return nil
-	}
 	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	file, err := os.Create(p)

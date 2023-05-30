@@ -32,16 +32,18 @@ type API struct {
 	isInited   bool
 }
 
-func NewAPI(cfgFile string, svcs []service.Service) (*API, error) {
+func NewAPI(cfgFile string) (*API, error) {
 	a := &API{
 		cfgFile: cfgFile,
-		svcs:    svcs,
 	}
-	err := a.init()
-	if err != nil {
+	if err := a.init(); err != nil {
 		return nil, err
 	}
 	return a, nil
+}
+
+func (a API) DB() *dbx.DB {
+	return a.db
 }
 
 func (a API) Monitor() monitor.Manager {
@@ -120,6 +122,9 @@ func (a *API) init() error {
 func (a *API) Join(svcs ...service.Service) error {
 	for _, svc := range svcs {
 		if err := svc.Init(); err != nil {
+			return err
+		}
+		if _, err := svc.Health(); err != nil {
 			return err
 		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
