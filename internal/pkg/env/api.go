@@ -10,6 +10,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/log"
 	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -23,12 +24,14 @@ const (
 var _ Env = (*API)(nil)
 
 type API struct {
-	svcs     []service.Service
-	k        *koanf.Koanf
-	http     chi.Router
-	monAgent monitor.Agent
-	db       *dbx.DB
-	cfgFile  string
+	svcs       []service.Service
+	k          *koanf.Koanf
+	http       chi.Router
+	monAgent   monitor.Agent
+	logManager log.Manager
+	db         *dbx.DB
+	cfgFile    string
+	isInited   bool
 }
 
 func NewAPI(cfgFile string, svcs []service.Service) API {
@@ -50,21 +53,22 @@ func (a API) Version() string {
 	return a.k.String("version")
 }
 
-func (a *API) HTTP() chi.Router {
-	if a.http != nil {
-		return a.http
-	}
+func (a *API) initHTTP() {
 	root := chi.NewRouter()
 	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(reqTimeout))
-	for _, svc := range a.svcs {
-		root.Mount(svc.Pattern(), svc.HTTP())
-	}
 	root.Mount("/sys", a.Monitor().HTTP())
 	a.http = root
-	return root
+}
+
+func (a *API) HTTP() chi.Router {
+	if a.http != nil {
+		return a.http
+	}
+	a.initHTTP()
+	return a.http
 }
 
 func (a API) Config() *koanf.Koanf {
@@ -88,6 +92,9 @@ func (a API) Serve() error {
 }
 
 func (a *API) Init() error {
+	if a.isInited {
+		return nil
+	}
 	k, err := config.New(a.cfgFile)
 	if err != nil {
 		return err
@@ -102,11 +109,22 @@ func (a *API) Init() error {
 
 	a.monAgent = monitor.New(a.svcs)
 
-	for _, svc := range a.svcs {
-		err := svc.Init(k, db)
+	a.initHTTP()
+	a.isInited = true
+	return nil
+}
+
+func (a *API) Join(svcs ...service.Service) error {
+	err := a.Init()
+	if err != nil {
+		return err
+	}
+	for _, svc := range svcs {
+		err = svc.Init(a.k, a.db)
 		if err != nil {
 			return err
 		}
+		a.http.Mount(svc.Pattern(), svc.HTTP())
 	}
 	return nil
 }

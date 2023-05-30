@@ -1,6 +1,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
 	"github.com/pocketbase/dbx"
@@ -37,7 +39,11 @@ type Service interface {
 	Init(*koanf.Koanf, *dbx.DB) error
 }
 
-type Info struct {
+type Info interface {
+	json.Marshaler
+}
+
+type info struct {
 	ID   string `jsonapi:"attr,id"`
 	Name string `jsonapi:"attr,name"`
 	Desc string `jsonapi:"attr,desc"`

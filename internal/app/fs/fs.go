@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/logging"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/spf13/afero"
 )
@@ -16,9 +15,8 @@ var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
 	service.Service
-	k       *koanf.Koanf
-	logMngr logging.Manager
-	store   filestore.Store[afero.File]
+	k     *koanf.Koanf
+	store filestore.Store[afero.File]
 }
 
 func (f Fs) Health() (*service.Info, error) {
@@ -26,11 +24,7 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.k == nil {
 		return nil, errors.New("missing config manager")
 	}
-	return &service.Info{
-		ID:   f.ID(),
-		Name: f.Name(),
-		Desc: f.Description(),
-	}, nil
+	return nil, nil
 }
 
 func (f Fs) HTTP() chi.Router {

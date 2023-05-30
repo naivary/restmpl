@@ -6,7 +6,6 @@ import (
 )
 
 type Agent interface {
-	// TODO(naivary): health should provide info about the services checed
 	Health() error
 	Metrics() error
 
@@ -17,6 +16,8 @@ type Agent interface {
 	// services which the agent
 	// is checking
 	Services() []service.Service
+
+	Join(...service.Service)
 }
 
 var _ Agent = (*agent)(nil)
@@ -26,8 +27,8 @@ type agent struct {
 	svcs []service.Service
 }
 
-func New(svcs []service.Service) agent {
-	return agent{
+func New(svcs []service.Service) *agent {
+	return &agent{
 		svcs: svcs,
 	}
 }
@@ -42,4 +43,8 @@ func (a agent) Metrics() error {
 
 func (a agent) Health() error {
 	return nil
+}
+
+func (a *agent) Join(svcs ...service.Service) {
+	a.svcs = append(a.svcs, svcs...)
 }

@@ -33,4 +33,6 @@ type Env interface {
 	Monitor() monitor.Agent
 
 	Init() error
+
+	Join(svcs ...service.Service) error
 }
