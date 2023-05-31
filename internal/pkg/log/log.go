@@ -1,8 +1,8 @@
 package log
 
 import (
-	"compress/gzip"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -35,7 +35,7 @@ type manager struct {
 	k      *koanf.Koanf
 	svc    service.Service
 	file   *os.File
-	gzipw  *gzip.Writer
+	w      io.Writer
 	logger *slog.Logger
 	stream chan builder.Recorder
 }
@@ -66,11 +66,8 @@ func (m manager) write() error {
 	for record := range m.stream {
 		ctx, rec := record.Data()
 		m.logger.Handler().Handle(ctx, rec)
-		err := m.gzipw.Flush()
-		if err != nil {
-			return err
-		}
 		if err := m.rotate(); err != nil {
+			close(m.stream)
 			return err
 		}
 	}
@@ -80,19 +77,20 @@ func (m manager) write() error {
 func (m manager) handle() {
 	if err := m.write(); err != nil {
 		m.Shutdown()
+		slog.Error("log manager could not write", slog.String("err", err.Error()))
 	}
 }
 
 func (m *manager) init() error {
-	filename := fmt.Sprintf("%s_%s.gz", m.svc.Name(), m.svc.ID())
+	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	file, err := os.Create(p)
 	if err != nil {
 		return err
 	}
-	m.gzipw = gzip.NewWriter(file)
+	m.w = file
 	m.file = file
-	m.logger = slog.New(slog.NewTextHandler(m.gzipw, nil)).With(m.commonAttrs()...)
+	m.logger = slog.New(slog.NewTextHandler(m.w, nil)).With(m.commonAttrs()...)
 	go m.handle()
 	return nil
 }

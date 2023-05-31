@@ -15,7 +15,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		slog.Error("something went wrong while starting the sevrer", "err", err.Error())
+		slog.Error("something went wrong while starting the sevrer", slog.String("err", err.Error()))
 	}
 }
 
