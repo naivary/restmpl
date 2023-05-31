@@ -22,6 +22,7 @@ func (f Fs) info(next http.Handler) http.Handler {
 		rec := builder.New(r.Context(), slog.LevelInfo, "handling request")
 		rec.IncomingRequest(r)
 		f.logManager.Log(rec)
+		next.ServeHTTP(w, r)
 	})
 }
 

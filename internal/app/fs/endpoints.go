@@ -46,13 +46,14 @@ func (f Fs) remove(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
 	err := r.ParseForm()
 	if err != nil {
-		jerr := japi.NewError(err, http.StatusInternalServerError, reqID)
+		w.WriteHeader(http.StatusBadRequest)
+		jerr := japi.NewError(err, http.StatusBadRequest, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
-
 	err = f.store.Remove(r.Form.Get("filepath"))
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		jerr := japi.NewError(err, http.StatusBadRequest, reqID)
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return

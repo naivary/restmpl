@@ -24,7 +24,6 @@ logs:
   # maxSize of a log file before a
   # rotation should be applied (in bytes)
   # default: 12582912 (12 MB)
-  # maxSize: 12582912
-  maxSize: 500
-  maxBackups: 3
+  maxSize: 12582912
+  maxBackups: 5
   compress: true

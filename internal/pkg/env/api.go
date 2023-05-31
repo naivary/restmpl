@@ -93,6 +93,7 @@ func (a *API) init() error {
 	if a.isInited {
 		return nil
 	}
+
 	k, err := config.New(a.cfgFile)
 	if err != nil {
 		return err
