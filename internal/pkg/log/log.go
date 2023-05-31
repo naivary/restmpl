@@ -1,8 +1,8 @@
 package log
 
 import (
+	"compress/gzip"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -17,31 +17,34 @@ import (
 // in the schema <name>_<id>.log
 type Manager interface {
 	Log(builder.Recorder)
-	// Shutdown() error
+	Shutdown()
 }
 
 var _ Manager = (*manager)(nil)
 
 type manager struct {
-	isInited   bool
-	maxSize    uint
-	maxAge     uint
+	// size at which a rotate should be initiliazed
+	maxSize uint64
+	// maxAge to keep ol backups
+	maxAge uint
+	// maximum number of backups to create
 	maxBackups uint
-	filename   string
-	compress   bool
+	// if the backups should be compressed
+	compress bool
 
 	k      *koanf.Koanf
 	svc    service.Service
-	w      io.Writer
+	file   *os.File
+	gzipw  *gzip.Writer
 	logger *slog.Logger
-	ch     chan builder.Recorder
+	stream chan builder.Recorder
 }
 
 func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
 	m := &manager{
-		k:   k,
-		svc: svc,
-		ch:  make(chan builder.Recorder, 2),
+		k:      k,
+		svc:    svc,
+		stream: make(chan builder.Recorder, 2),
 	}
 	if err := m.init(); err != nil {
 		return nil, err
@@ -50,26 +53,59 @@ func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
 }
 
 func (m manager) Log(record builder.Recorder) {
-	m.ch <- record
+	m.stream <- record
+}
+
+// shutdown
+func (m manager) Shutdown() {
+	m.file.Close()
+	close(m.stream)
+}
+
+func (m manager) write() error {
+	for record := range m.stream {
+		ctx, rec := record.Data()
+		m.logger.Handler().Handle(ctx, rec)
+		err := m.gzipw.Flush()
+		if err != nil {
+			return err
+		}
+		if err := m.rotate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m manager) handle() {
-	for record := range m.ch {
-		ctx, rec := record.Data()
-		m.logger.Handler().Handle(ctx, rec)
+	if err := m.write(); err != nil {
+		m.Shutdown()
 	}
 }
 
 func (m *manager) init() error {
-	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
+	filename := fmt.Sprintf("%s_%s.gz", m.svc.Name(), m.svc.ID())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	file, err := os.Create(p)
 	if err != nil {
 		return err
 	}
-	m.logger = slog.New(slog.NewTextHandler(file, nil))
-	m.w = file
-	// IDK if this is good or not
+	m.gzipw = gzip.NewWriter(file)
+	m.file = file
+	m.logger = slog.New(slog.NewTextHandler(m.gzipw, nil)).With(m.commonAttrs()...)
 	go m.handle()
 	return nil
+}
+
+func (m manager) commonAttrs() []any {
+	svc := slog.Group(
+		"service",
+		slog.String("id", m.svc.ID()),
+		slog.String("name", m.svc.Name()),
+	)
+	api := slog.Group(
+		"api",
+		slog.String("version", m.k.String("version")),
+	)
+	return []any{api, svc}
 }
