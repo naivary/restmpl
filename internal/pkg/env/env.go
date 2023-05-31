@@ -3,7 +3,6 @@ package env
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/service"
 )
 
@@ -27,10 +26,6 @@ type Env interface {
 	// Serve the services for
 	// public traffic.
 	Serve() error
-
-	// Monitor manaher of the
-	// env for all the services.
-	Monitor() monitor.Manager
 
 	Join(svcs ...service.Service) error
 }

@@ -21,7 +21,7 @@ func (f Fs) info(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rec := builder.New(r.Context(), slog.LevelInfo, "handling request")
 		rec.IncomingRequest(r)
-		f.LogManager.Log(rec)
+		f.logManager.Log(rec)
 	})
 }
 

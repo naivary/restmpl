@@ -10,7 +10,6 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
-	"github.com/naivary/instance/internal/pkg/monitor"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
@@ -23,13 +22,12 @@ const (
 var _ Env = (*API)(nil)
 
 type API struct {
-	svcs       []service.Service
-	k          *koanf.Koanf
-	http       chi.Router
-	monManager monitor.Manager
-	db         *dbx.DB
-	cfgFile    string
-	isInited   bool
+	svcs     []service.Service
+	k        *koanf.Koanf
+	http     chi.Router
+	db       *dbx.DB
+	cfgFile  string
+	isInited bool
 }
 
 func NewAPI(cfgFile string) (*API, error) {
@@ -46,10 +44,6 @@ func (a API) DB() *dbx.DB {
 	return a.db
 }
 
-func (a API) Monitor() monitor.Manager {
-	return a.monManager
-}
-
 func (a API) ID() string {
 	return uuid.NewString()
 }
@@ -64,7 +58,6 @@ func (a *API) initHTTP() {
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(reqTimeout))
-	root.Mount("/sys", a.Monitor().HTTP())
 	a.http = root
 }
 
@@ -111,8 +104,6 @@ func (a *API) init() error {
 		return err
 	}
 	a.db = db
-
-	a.monManager = monitor.New(a.svcs)
 
 	a.initHTTP()
 	a.isInited = true

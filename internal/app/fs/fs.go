@@ -15,10 +15,10 @@ import (
 var _ service.Service = (*Fs)(nil)
 
 type Fs struct {
-	K          *koanf.Koanf
-	LogManager log.Manager
+	K *koanf.Koanf
 
-	store filestore.Store[afero.File]
+	logManager log.Manager
+	store      filestore.Store[afero.File]
 }
 
 func (f Fs) Health() (*service.Info, error) {
@@ -29,7 +29,11 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.store == nil {
 		return nil, errors.New("missing filestore")
 	}
-	return nil, nil
+	return &service.Info{
+		ID:   f.ID(),
+		Name: f.Name(),
+		Desc: f.Description(),
+	}, nil
 }
 
 func (f Fs) HTTP() chi.Router {
@@ -61,6 +65,12 @@ func (f *Fs) Init() error {
 		return err
 	}
 	f.store = fstore
+
+	mngr, err := log.New(f.K, f)
+	if err != nil {
+		return err
+	}
+	f.logManager = mngr
 	return nil
 }
 
