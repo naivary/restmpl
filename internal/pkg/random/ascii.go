@@ -2,6 +2,7 @@ package random
 
 import (
 	"crypto/rand"
+	"encoding/hex"
 )
 
 const (
@@ -32,4 +33,9 @@ func ascii(length int) (string, error) {
 	}
 
 	return string(result), nil
+}
+
+func ID(len int) string {
+	id, _ := ascii(len)
+	return hex.EncodeToString([]byte(id))
 }

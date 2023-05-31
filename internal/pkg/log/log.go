@@ -2,7 +2,6 @@ package log
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -24,50 +23,56 @@ var _ Manager = (*manager)(nil)
 
 type manager struct {
 	// size at which a rotate should be initiliazed
-	maxSize uint64
-	// maxAge to keep ol backups
-	maxAge uint
+	maxSize int64
 	// maximum number of backups to create
-	maxBackups uint
+	maxBackups int
 	// if the backups should be compressed
 	compress bool
 
-	k      *koanf.Koanf
-	svc    service.Service
+	// created backups
+	backups []*os.File
+	k       *koanf.Koanf
+	svc     service.Service
+	// file to which logger writes. It does not hold the content of the
+	// current log file. This should be
 	file   *os.File
-	w      io.Writer
 	logger *slog.Logger
 	stream chan builder.Recorder
 }
 
 func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
 	m := &manager{
-		k:      k,
-		svc:    svc,
-		stream: make(chan builder.Recorder, 2),
+		k:          k,
+		svc:        svc,
+		stream:     make(chan builder.Recorder, 1),
+		maxSize:    k.Int64("logs.maxSize"),
+		maxBackups: k.Int("logs.maxBackups"),
+		compress:   k.Bool("logs.compress"),
 	}
 	if err := m.init(); err != nil {
 		return nil, err
 	}
+	m.backups = make([]*os.File, m.maxBackups)
 	return m, nil
 }
 
-func (m manager) Log(record builder.Recorder) {
-	m.stream <- record
+func (m manager) Log(r builder.Recorder) {
+	m.stream <- r
 }
 
-// shutdown
 func (m manager) Shutdown() {
+	fmt.Println("shutdownn called")
 	m.file.Close()
 	close(m.stream)
 }
 
-func (m manager) write() error {
+func (m *manager) write() error {
 	for record := range m.stream {
 		ctx, rec := record.Data()
-		m.logger.Handler().Handle(ctx, rec)
+		if err := m.logger.Handler().Handle(ctx, rec); err != nil {
+			return err
+		}
 		if err := m.rotate(); err != nil {
-			close(m.stream)
 			return err
 		}
 	}
@@ -88,9 +93,8 @@ func (m *manager) init() error {
 	if err != nil {
 		return err
 	}
-	m.w = file
 	m.file = file
-	m.logger = slog.New(slog.NewTextHandler(m.w, nil)).With(m.commonAttrs()...)
+	m.logger = slog.New(slog.NewJSONHandler(m.file, nil)).With(m.commonAttrs()...)
 	go m.handle()
 	return nil
 }

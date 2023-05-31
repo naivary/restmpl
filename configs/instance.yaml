@@ -20,3 +20,11 @@ server:
     write: 2s
     idle: 10s
   maxHeaderBytes: 1024
+logs:
+  # maxSize of a log file before a
+  # rotation should be applied (in bytes)
+  # default: 12582912 (12 MB)
+  # maxSize: 12582912
+  maxSize: 500
+  maxBackups: 3
+  compress: true
