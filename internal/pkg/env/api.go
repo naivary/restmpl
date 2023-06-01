@@ -39,7 +39,7 @@ type API struct {
 	svcs       []service.Service
 	http       chi.Router
 	srv        *http.Server
-	logManager logging.Manager[*builder.EnvBuilder]
+	logManager logging.Manager
 	ctx        context.Context
 }
 

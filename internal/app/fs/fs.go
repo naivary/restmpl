@@ -8,7 +8,6 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
 	"github.com/naivary/instance/internal/pkg/logging"
-	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/spf13/afero"
 )
@@ -18,7 +17,7 @@ var _ service.Service = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	logManager logging.Manager[*builder.SvcBuilder]
+	logManager logging.Manager
 	store      filestore.Store[afero.File]
 }
 

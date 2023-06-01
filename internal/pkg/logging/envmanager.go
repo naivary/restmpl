@@ -7,7 +7,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var _ Manager[*builder.EnvBuilder] = (*envManager)(nil)
+var _ Manager = (*envManager)(nil)
 
 type envManager struct {
 	logger *slog.Logger

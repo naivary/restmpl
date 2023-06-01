@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/logging"
-	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"github.com/naivary/instance/internal/pkg/models"
 	"github.com/naivary/instance/internal/pkg/service"
 )
@@ -19,7 +18,7 @@ type Sys struct {
 	K    *koanf.Koanf
 	Meta models.Meta
 
-	logManager logging.Manager[*builder.SvcBuilder]
+	logManager logging.Manager
 }
 
 func (s Sys) ID() string {
