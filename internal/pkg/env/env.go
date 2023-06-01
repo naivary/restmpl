@@ -1,6 +1,8 @@
 package env
 
 import (
+	"context"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -28,4 +30,10 @@ type Env interface {
 	Serve() error
 
 	Join(svcs ...service.Service) error
+
+	// Graceful shutdown of the env
+	Shutdown() error
+
+	// Context of the environmen
+	Context() context.Context
 }

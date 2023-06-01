@@ -33,6 +33,9 @@ type Service interface {
 
 	// Initialize the service given the global dependencies
 	Init() error
+
+	// Graceful shutdown of the service
+	Shutdown() error
 }
 
 type Info struct {

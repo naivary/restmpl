@@ -70,3 +70,8 @@ func (s *Sys) Init() error {
 	s.logManager = mngr
 	return nil
 }
+
+func (s *Sys) Shutdown() error {
+	s.logManager.Shutdown()
+	return nil
+}

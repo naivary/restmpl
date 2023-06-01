@@ -1,6 +1,8 @@
 package env
 
 import (
+	"context"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -13,6 +15,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -22,17 +25,23 @@ const (
 var _ Env = (*API)(nil)
 
 type API struct {
-	svcs     []service.Service
-	k        *koanf.Koanf
-	http     chi.Router
-	db       *dbx.DB
 	cfgFile  string
 	isInited bool
+
+	// global dependencies
+	db *dbx.DB
+	k  *koanf.Koanf
+
+	svcs []service.Service
+	http chi.Router
+	srv  *http.Server
+	ctx  context.Context
 }
 
 func NewAPI(cfgFile string) (*API, error) {
 	a := &API{
 		cfgFile: cfgFile,
+		ctx:     context.Background(),
 	}
 	if err := a.init(); err != nil {
 		return nil, err
@@ -81,12 +90,28 @@ func (a API) Services() map[string]service.Service {
 	return m
 }
 
-func (a API) Serve() error {
+// Serve will start the http server for public
+// requests. It also handles the graceful shutdown
+// of OS Interrupts signals.
+func (a *API) Serve() error {
 	srv, err := server.New(a.k, a.HTTP())
 	if err != nil {
 		return err
 	}
-	return srv.ListenAndServeTLS(a.k.String("server.crt"), a.k.String("server.key"))
+	go func() {
+		if err := srv.ListenAndServeTLS(a.k.String("server.crt"), a.k.String("server.key")); err != nil {
+			return
+		}
+	}()
+	slog.InfoCtx(
+		a.ctx,
+		"Starting the http server",
+		slog.String("api_name", a.k.String("name")),
+		slog.String("version", a.k.String("version")),
+		slog.String("used_config_file", a.cfgFile),
+	)
+	a.srv = srv
+	return nil
 }
 
 func (a *API) init() error {
@@ -122,4 +147,28 @@ func (a *API) Join(svcs ...service.Service) error {
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 	}
 	return nil
+}
+
+// Shutdown will gracefully shutdown the env.
+// This includes the http server, the services
+// and the global dependencies db, koanf.
+func (a *API) Shutdown() error {
+	ctx, cancel := context.WithTimeout(a.ctx, 10*time.Second)
+	defer cancel()
+	if err := a.db.Close(); err != nil {
+		return err
+	}
+	if err := a.srv.Shutdown(ctx); err != nil {
+		return err
+	}
+	for _, svc := range a.svcs {
+		if err := svc.Shutdown(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (a API) Context() context.Context {
+	return a.ctx
 }
