@@ -11,17 +11,9 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// Should all log to the same file or seperate?
-// If so: Every service should provide its own file to which it logs
-// in the schema <name>_<id>.log
-type Manager interface {
-	Log(builder.Recorder)
-	Shutdown()
-}
+var _ Manager = (*svcManager)(nil)
 
-var _ Manager = (*manager)(nil)
-
-type manager struct {
+type svcManager struct {
 	// size at which a rotate should be initiliazed
 	maxSize int64
 	// maximum number of backups to create
@@ -41,7 +33,7 @@ type manager struct {
 }
 
 func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
-	m := &manager{
+	m := &svcManager{
 		k:          k,
 		svc:        svc,
 		stream:     make(chan builder.Recorder, 1),
@@ -56,36 +48,30 @@ func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
 	return m, nil
 }
 
-func (m manager) Log(r builder.Recorder) {
+func (m svcManager) Log(r builder.Recorder) {
 	m.stream <- r
 }
 
-func (m manager) Shutdown() {
+func (m svcManager) Shutdown() {
 	m.file.Close()
 	close(m.stream)
 }
 
-func (m *manager) write() error {
+func (m *svcManager) handle() {
 	for record := range m.stream {
 		ctx, rec := record.Data()
 		if err := m.logger.Handler().Handle(ctx, rec); err != nil {
-			return err
+			slog.Error("could not write", slog.String("err", err.Error()))
+			return
 		}
 		if err := m.rotate(); err != nil {
-			return err
+			slog.Error("could not rotate", slog.String("err", err.Error()))
+			return
 		}
 	}
-	return nil
 }
 
-func (m manager) handle() {
-	if err := m.write(); err != nil {
-		m.Shutdown()
-		slog.Error("log manager could not write", slog.String("err", err.Error()))
-	}
-}
-
-func (m *manager) init() error {
+func (m *svcManager) init() error {
 	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	file, err := os.Create(p)
@@ -98,7 +84,7 @@ func (m *manager) init() error {
 	return nil
 }
 
-func (m manager) commonAttrs() []any {
+func (m svcManager) commonAttrs() []any {
 	svc := slog.Group(
 		"service",
 		slog.String("id", m.svc.ID()),

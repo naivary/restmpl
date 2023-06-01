@@ -14,6 +14,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/log"
 	"github.com/naivary/instance/internal/pkg/log/builder"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
@@ -33,13 +34,13 @@ type API struct {
 	k  *koanf.Koanf
 
 	// internal
-	cfgFile  string
-	isInited bool
-	svcs     []service.Service
-	http     chi.Router
-	srv      *http.Server
-	logger   *slog.Logger
-	ctx      context.Context
+	cfgFile    string
+	isInited   bool
+	svcs       []service.Service
+	http       chi.Router
+	srv        *http.Server
+	logManager log.Manager
+	ctx        context.Context
 }
 
 // NewAPI creates the an API env provided
@@ -60,6 +61,7 @@ func NewAPI(cfgFile string) (*API, error) {
 	if err := a.k.Set("cfgFile", cfgFile); err != nil {
 		return nil, err
 	}
+	a.logManager = log.NewEnvManager(os.Stdout)
 	return a, nil
 }
 
@@ -70,7 +72,6 @@ func (a *API) Init() error {
 	if a.isInited {
 		return nil
 	}
-	a.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	db, err := database.Connect(a.k)
 	if err != nil {
@@ -128,12 +129,9 @@ func (a *API) Serve() error {
 			return
 		}
 	}()
-
-	rec := builder.New(a.ctx, slog.LevelInfo, "Successfully started API server!")
+	rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!")
 	rec.APIServerStart(a.k, srv)
-	if err := a.log(rec); err != nil {
-		return err
-	}
+	a.logManager.Log(rec)
 
 	a.srv = srv
 	return nil
@@ -167,15 +165,9 @@ func (a *API) Shutdown() error {
 		return err
 	}
 	for _, svc := range a.svcs {
-		slog.InfoCtx(
-			a.ctx,
-			"service shutdown",
-			slog.Group(
-				"service",
-				slog.String("name", svc.Name()),
-				slog.String("id", svc.ID()),
-			),
-		)
+		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown")
+		rec.ServiceShutdown(svc)
+		a.logManager.Log(rec)
 		if err := svc.Shutdown(); err != nil {
 			return err
 		}
@@ -193,14 +185,6 @@ func (a API) Health() error {
 	}
 	if a.k == nil {
 		return errors.New("config manager is nil")
-	}
-	return nil
-}
-
-func (a API) log(rec builder.Recorder) error {
-	_, r := rec.Data()
-	if err := a.logger.Handler().Handle(a.ctx, r); err != nil {
-		return err
 	}
 	return nil
 }

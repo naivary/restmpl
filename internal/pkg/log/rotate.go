@@ -11,7 +11,7 @@ import (
 	"github.com/naivary/instance/internal/pkg/random"
 )
 
-func (m *manager) rotate() error {
+func (m *svcManager) rotate() error {
 	if ok, err := m.shouldRotate(); !ok || err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (m *manager) rotate() error {
 
 // shouldRotate answers the question if
 // a rotate should be applied.
-func (m manager) shouldRotate() (bool, error) {
+func (m svcManager) shouldRotate() (bool, error) {
 	info, err := m.file.Stat()
 	if err != nil {
 		return false, err
@@ -45,7 +45,7 @@ func (m manager) shouldRotate() (bool, error) {
 // changeCurrentLogFile creates a new logfile to which logger
 // will log further incoming logs and returns the old log file
 // which containing all the content.
-func (m *manager) changeCurrentLogFile() (*os.File, error) {
+func (m *svcManager) changeCurrentLogFile() (*os.File, error) {
 	oldFilename := m.file.Name()
 	id := random.ID(2)
 	filename := fmt.Sprintf("%s_%s_%s.log", m.svc.Name(), m.svc.ID(), id)
@@ -62,7 +62,7 @@ func (m *manager) changeCurrentLogFile() (*os.File, error) {
 	return oldFile, nil
 }
 
-func (m *manager) compressBackupFile(src io.Reader) (*os.File, error) {
+func (m *svcManager) compressBackupFile(src io.Reader) (*os.File, error) {
 	filename := fmt.Sprintf("%s_%d.gz", m.svc.Name(), time.Now().Unix())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	backup, err := os.Create(p)
@@ -79,7 +79,7 @@ func (m *manager) compressBackupFile(src io.Reader) (*os.File, error) {
 	return backup, nil
 }
 
-func (m *manager) rawBackupFile(src io.Reader) (*os.File, error) {
+func (m *svcManager) rawBackupFile(src io.Reader) (*os.File, error) {
 	filename := fmt.Sprintf("%s_%d.log", m.svc.Name(), time.Now().Unix())
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	backup, err := os.Create(p)
@@ -92,7 +92,7 @@ func (m *manager) rawBackupFile(src io.Reader) (*os.File, error) {
 	return backup, nil
 }
 
-func (m *manager) backup(src io.Reader) (*os.File, error) {
+func (m *svcManager) backup(src io.Reader) (*os.File, error) {
 	fmt.Println(len(m.backups), m.maxBackups)
 	if len(m.backups) == m.maxBackups {
 		m.deleteOldBackups()
@@ -103,11 +103,11 @@ func (m *manager) backup(src io.Reader) (*os.File, error) {
 	return m.rawBackupFile(src)
 }
 
-func (m manager) removeOldFile(name string) error {
+func (m svcManager) removeOldFile(name string) error {
 	return os.Remove(name)
 }
 
-func (m *manager) deleteOldBackups() error {
+func (m *svcManager) deleteOldBackups() error {
 	for _, backup := range m.backups {
 		if err := os.Remove(backup.Name()); err != nil {
 			return err
@@ -116,6 +116,6 @@ func (m *manager) deleteOldBackups() error {
 	return nil
 }
 
-func (m *manager) addBackup(backup *os.File) {
+func (m *svcManager) addBackup(backup *os.File) {
 	m.backups = append(m.backups, backup)
 }
