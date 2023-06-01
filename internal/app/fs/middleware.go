@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/naivary/instance/internal/pkg/japi"
-	"github.com/naivary/instance/internal/pkg/log/builder"
+	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"golang.org/x/exp/slog"
 )
 

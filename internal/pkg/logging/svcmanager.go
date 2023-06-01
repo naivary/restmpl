@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/log/builder"
+	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"github.com/naivary/instance/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
@@ -32,7 +32,7 @@ type svcManager struct {
 	stream chan builder.Recorder
 }
 
-func New(k *koanf.Koanf, svc service.Service) (Manager, error) {
+func NewSvcManager(k *koanf.Koanf, svc service.Service) (Manager, error) {
 	m := &svcManager{
 		k:          k,
 		svc:        svc,

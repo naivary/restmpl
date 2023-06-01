@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/log"
+	"github.com/naivary/instance/internal/pkg/logging"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/spf13/afero"
 )
@@ -17,7 +17,7 @@ var _ service.Service = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	logManager log.Manager
+	logManager logging.Manager
 	store      filestore.Store[afero.File]
 }
 
@@ -66,7 +66,7 @@ func (f *Fs) Init() error {
 	}
 	f.store = fstore
 
-	mngr, err := log.New(f.K, f)
+	mngr, err := logging.NewSvcManager(f.K, f)
 	if err != nil {
 		return err
 	}

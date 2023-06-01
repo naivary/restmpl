@@ -14,8 +14,8 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
-	"github.com/naivary/instance/internal/pkg/log"
-	"github.com/naivary/instance/internal/pkg/log/builder"
+	"github.com/naivary/instance/internal/pkg/logging"
+	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
@@ -39,7 +39,7 @@ type API struct {
 	svcs       []service.Service
 	http       chi.Router
 	srv        *http.Server
-	logManager log.Manager
+	logManager logging.Manager
 	ctx        context.Context
 }
 
@@ -61,7 +61,7 @@ func NewAPI(cfgFile string) (*API, error) {
 	if err := a.k.Set("cfgFile", cfgFile); err != nil {
 		return nil, err
 	}
-	a.logManager = log.NewEnvManager(os.Stdout)
+	a.logManager = logging.NewEnvManager(os.Stdout)
 	return a, nil
 }
 

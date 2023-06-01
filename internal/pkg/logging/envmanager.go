@@ -1,9 +1,9 @@
-package log
+package logging
 
 import (
 	"io"
 
-	"github.com/naivary/instance/internal/pkg/log/builder"
+	"github.com/naivary/instance/internal/pkg/logging/builder"
 	"golang.org/x/exp/slog"
 )
 
