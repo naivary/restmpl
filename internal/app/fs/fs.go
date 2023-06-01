@@ -75,6 +75,7 @@ func (f *Fs) Init() error {
 }
 
 func (f Fs) Shutdown() error {
+	f.logManager.Shutdown()
 	return nil
 }
 

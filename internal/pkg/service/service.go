@@ -8,7 +8,7 @@ type Service interface {
 	// Unique identifier of the service.
 	ID() string
 
-	// Human friendly name of the service.
+	// Unique Human friendly name of the service.
 	Name() string
 
 	// Detailed description of the service
