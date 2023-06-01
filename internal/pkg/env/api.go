@@ -91,15 +91,6 @@ func (a API) Version() string {
 	return a.k.String("version")
 }
 
-func (a *API) initHTTP() {
-	root := chi.NewRouter()
-	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
-	root.Use(middleware.RequestID)
-	root.Use(middleware.CleanPath)
-	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))
-	a.http = root
-}
-
 func (a *API) HTTP() chi.Router {
 	if a.http != nil {
 		return a.http
@@ -192,4 +183,13 @@ func (a API) Health() error {
 		return errors.New("config manager is nil")
 	}
 	return nil
+}
+
+func (a *API) initHTTP() {
+	root := chi.NewRouter()
+	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
+	root.Use(middleware.RequestID)
+	root.Use(middleware.CleanPath)
+	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))
+	a.http = root
 }

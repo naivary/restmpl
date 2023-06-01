@@ -24,7 +24,8 @@ func (m *svcManager) rotate() error {
 	if err != nil {
 		return err
 	}
-	err = m.removeOldFile(oldFile.Name())
+	// remove old file
+	err = os.Remove(oldFile.Name())
 	if err != nil {
 		return err
 	}
@@ -62,6 +63,17 @@ func (m *svcManager) changeCurrentLogFile() (*os.File, error) {
 	return oldFile, nil
 }
 
+func (m *svcManager) backup(src io.Reader) (*os.File, error) {
+	fmt.Println(len(m.backups), m.maxBackups)
+	if len(m.backups) == m.maxBackups {
+		m.deleteOldBackups()
+	}
+	if m.compress {
+		return m.compressBackupFile(src)
+	}
+	return m.rawBackupFile(src)
+}
+
 func (m *svcManager) compressBackupFile(src io.Reader) (*os.File, error) {
 	filename := fmt.Sprintf("%s_%d.gz", m.svc.Name(), time.Now().Unix())
 	p := filepath.Join(m.k.String("logsDir"), filename)
@@ -90,21 +102,6 @@ func (m *svcManager) rawBackupFile(src io.Reader) (*os.File, error) {
 		return nil, err
 	}
 	return backup, nil
-}
-
-func (m *svcManager) backup(src io.Reader) (*os.File, error) {
-	fmt.Println(len(m.backups), m.maxBackups)
-	if len(m.backups) == m.maxBackups {
-		m.deleteOldBackups()
-	}
-	if m.compress {
-		return m.compressBackupFile(src)
-	}
-	return m.rawBackupFile(src)
-}
-
-func (m svcManager) removeOldFile(name string) error {
-	return os.Remove(name)
 }
 
 func (m *svcManager) deleteOldBackups() error {

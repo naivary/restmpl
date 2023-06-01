@@ -57,6 +57,19 @@ func (m svcManager) Shutdown() {
 	close(m.stream)
 }
 
+func (m *svcManager) init() error {
+	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
+	p := filepath.Join(m.k.String("logsDir"), filename)
+	file, err := os.Create(p)
+	if err != nil {
+		return err
+	}
+	m.file = file
+	m.logger = slog.New(slog.NewJSONHandler(m.file, nil)).With(m.commonAttrs()...)
+	go m.handle()
+	return nil
+}
+
 func (m *svcManager) handle() {
 	for record := range m.stream {
 		ctx, rec := record.Data()
@@ -69,19 +82,6 @@ func (m *svcManager) handle() {
 			return
 		}
 	}
-}
-
-func (m *svcManager) init() error {
-	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
-	p := filepath.Join(m.k.String("logsDir"), filename)
-	file, err := os.Create(p)
-	if err != nil {
-		return err
-	}
-	m.file = file
-	m.logger = slog.New(slog.NewJSONHandler(m.file, nil)).With(m.commonAttrs()...)
-	go m.handle()
-	return nil
 }
 
 func (m svcManager) commonAttrs() []any {

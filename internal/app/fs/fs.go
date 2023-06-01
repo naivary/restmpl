@@ -29,6 +29,10 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.store == nil {
 		return nil, errors.New("missing filestore")
 	}
+
+	if err := f.store.Health(); err != nil {
+		return nil, errors.New("filestore unhealthy")
+	}
 	return &service.Info{
 		ID:   f.ID(),
 		Name: f.Name(),

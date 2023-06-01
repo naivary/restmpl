@@ -14,6 +14,7 @@ type Store[T any] interface {
 	Create(path string, r io.Reader) (T, error)
 	Remove(path string) error
 	Read(path string) ([]byte, error)
+	Health() error
 }
 
 var _ Store[afero.File] = (*Filestore)(nil)
@@ -37,11 +38,6 @@ func New(k *koanf.Koanf) (Filestore, error) {
 			Fs: afero.NewCacheOnReadFs(osFs, memFs, k.Duration("fs.ttl")),
 		},
 	}, nil
-}
-
-func (f Filestore) followsNamingConvention(name string) bool {
-	r, _ := regexp.Compile("^[a-z._0-9-]+$")
-	return r.MatchString(name)
 }
 
 func (f Filestore) Create(path string, r io.Reader) (afero.File, error) {
@@ -81,4 +77,13 @@ func (f Filestore) Remove(path string) error {
 
 func (f Filestore) Read(path string) ([]byte, error) {
 	return f.Store.ReadFile(path)
+}
+
+func (f Filestore) Health() error {
+	return nil
+}
+
+func (f Filestore) followsNamingConvention(name string) bool {
+	r, _ := regexp.Compile("^[a-z._0-9-]+$")
+	return r.MatchString(name)
 }
