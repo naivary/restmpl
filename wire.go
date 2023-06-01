@@ -33,6 +33,7 @@ func newEnv(cfgFile string) (env.Env, error) {
 
 func createServices(env *env.API) ([]service.Service, error) {
 	svcs := make([]service.Service, 0)
+	// global dependencies
 	k := env.Config()
 	db := env.DB()
 	// services

@@ -54,3 +54,14 @@ func (e *EnvBuilder) ServiceShutdown(svc service.Service) *EnvBuilder {
 	e.rec.AddAttrs(svcShutdown)
 	return e
 }
+
+func (e *EnvBuilder) ServiceInit(svc service.Service) *EnvBuilder {
+	attr := slog.Group(
+		"service",
+		slog.String("name", svc.Name()),
+		slog.String("id", svc.ID()),
+		slog.String("endpoint", svc.Pattern()),
+	)
+	e.rec.AddAttrs(attr)
+	return e
+}

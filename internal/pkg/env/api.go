@@ -139,6 +139,8 @@ func (a *API) Join(svcs ...service.Service) error {
 			return err
 		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
+		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Service successfully started!").ServiceInit(svc)
+		a.logManager.Log(rec)
 	}
 	a.svcs = append(a.svcs, svcs...)
 	return nil

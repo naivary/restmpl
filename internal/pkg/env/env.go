@@ -22,8 +22,7 @@ type Env interface {
 	// a simple map.
 	Config() *koanf.Koanf
 
-	// Serve the services for
-	// public traffic.
+	// Serve the env and its services for public traffic
 	Serve() error
 
 	Join(svcs ...service.Service) error
