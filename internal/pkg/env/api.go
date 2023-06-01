@@ -120,6 +120,9 @@ func (a API) Config() *koanf.Koanf {
 // requests. It also handles the graceful shutdown
 // of OS Interrupts signals.
 func (a *API) Serve() error {
+	if !a.isInited {
+		return ErrNotInited
+	}
 	srv, err := server.New(a.k, a.HTTP())
 	if err != nil {
 		return err
@@ -138,6 +141,9 @@ func (a *API) Serve() error {
 }
 
 func (a *API) Join(svcs ...service.Service) error {
+	if !a.isInited {
+		return ErrNotInited
+	}
 	for _, svc := range svcs {
 		if err := svc.Init(); err != nil {
 			return err
@@ -155,6 +161,9 @@ func (a *API) Join(svcs ...service.Service) error {
 // This includes the http server, the services
 // and the global dependencies db, koanf.
 func (a *API) Shutdown() error {
+	if !a.isInited {
+		return nil
+	}
 	slog.InfoCtx(a.ctx, "Gracefully shutting down API server")
 	ctx, cancel := context.WithTimeout(a.ctx, 10*time.Second)
 	defer cancel()
