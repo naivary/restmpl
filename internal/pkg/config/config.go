@@ -54,8 +54,7 @@ func New(path string) (*koanf.Koanf, error) {
 // set. Otherwise the current directory
 // will be used.
 func getBasepath(k *koanf.Koanf) string {
-	ok := k.Exists("dataDir")
-	if ok {
+	if k.Exists("dataDir") {
 		return k.String("dataDir")
 	}
 	basepath, err := os.Getwd()
@@ -75,30 +74,25 @@ func buildDirs(k *koanf.Koanf) error {
 
 	// create the version dir (e.g. 0.1.0) which stores
 	// the main database of the application.
-	err := os.MkdirAll(versionDir, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(versionDir, os.ModePerm); err != nil {
 		return err
 	}
-	err = k.Set("versionDir", versionDir)
-	if err != nil {
+	if err := k.Set("versionDir", versionDir); err != nil {
 		return err
 	}
 
 	// create the backup dir
 	backupDir := filepath.Join(versionDir, "backup")
-	err = os.MkdirAll(backupDir, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(backupDir, os.ModePerm); err != nil {
 		return err
 	}
-	err = k.Set("backupDir", backupDir)
-	if err != nil {
+	if err := k.Set("backupDir", backupDir); err != nil {
 		return err
 	}
 
 	// create logging dir
 	logsDir := filepath.Join(versionDir, "logs")
-	err = os.MkdirAll(logsDir, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(logsDir, os.ModePerm); err != nil {
 		return err
 	}
 	return k.Set("logsDir", logsDir)

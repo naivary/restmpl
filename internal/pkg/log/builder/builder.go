@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/knadh/koanf/v2"
 	"golang.org/x/exp/slog"
 )
 
@@ -44,4 +45,21 @@ func (r *record) IncomingRequest(req *http.Request) {
 		slog.String("user_agent", req.UserAgent()),
 	)
 	r.slogRecord.AddAttrs(attr)
+}
+
+func (r *record) APIServerStart(k *koanf.Koanf, srv *http.Server) {
+	api := slog.Group(
+		"api",
+		slog.String("name", k.String("name")),
+		slog.String("version", k.String("version")),
+		slog.String("used_config_file", k.String("cfgFile")),
+	)
+
+	srvConfig := slog.Group(
+		"server",
+		slog.String("addr", srv.Addr),
+	)
+
+	r.slogRecord.AddAttrs(api, srvConfig)
+
 }

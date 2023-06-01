@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -13,6 +14,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/database"
+	"github.com/naivary/instance/internal/pkg/log/builder"
 	"github.com/naivary/instance/internal/pkg/server"
 	"github.com/naivary/instance/internal/pkg/service"
 	"github.com/pocketbase/dbx"
@@ -36,12 +38,15 @@ type API struct {
 	svcs     []service.Service
 	http     chi.Router
 	srv      *http.Server
+	logger   *slog.Logger
 	ctx      context.Context
 }
 
 // NewAPI creates the an API env provided
-// with the given config file. `Config`
-// can be used even the env is not inited.
+// with the given config file. All dependencies
+// beside the config of the env will not be
+// inited. This can be accomplished using
+// the init function.
 func NewAPI(cfgFile string) (*API, error) {
 	a := &API{
 		cfgFile: cfgFile,
@@ -52,23 +57,26 @@ func NewAPI(cfgFile string) (*API, error) {
 		return nil, err
 	}
 	a.k = k
+	if err := a.k.Set("cfgFile", cfgFile); err != nil {
+		return nil, err
+	}
 	return a, nil
 }
 
 // Init will initialze the env by setting up
-// other dependencies. Also it will run a health check
-// after setting up the dependencies.
+// the remaining dependencies not initiliazed by `NewAPI`
+// and run a health check using `Health`.
 func (a *API) Init() error {
 	if a.isInited {
 		return nil
 	}
+	a.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	db, err := database.Connect(a.k)
 	if err != nil {
 		return err
 	}
 	a.db = db
-
 	a.initHTTP()
 	a.isInited = true
 	return a.Health()
@@ -107,14 +115,6 @@ func (a API) Config() *koanf.Koanf {
 	return a.k
 }
 
-func (a API) Services() map[string]service.Service {
-	m := make(map[string]service.Service, len(a.svcs))
-	for _, svc := range a.svcs {
-		m[svc.ID()] = svc
-	}
-	return m
-}
-
 // Serve will start the http server for public
 // requests. It also handles the graceful shutdown
 // of OS Interrupts signals.
@@ -128,13 +128,13 @@ func (a *API) Serve() error {
 			return
 		}
 	}()
-	slog.InfoCtx(
-		a.ctx,
-		"Starting the http server",
-		slog.String("api_name", a.k.String("name")),
-		slog.String("version", a.k.String("version")),
-		slog.String("used_config_file", a.cfgFile),
-	)
+
+	rec := builder.New(a.ctx, slog.LevelInfo, "Successfully started API server!")
+	rec.APIServerStart(a.k, srv)
+	if err := a.log(rec); err != nil {
+		return err
+	}
+
 	a.srv = srv
 	return nil
 }
@@ -149,6 +149,7 @@ func (a *API) Join(svcs ...service.Service) error {
 		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 	}
+	a.svcs = append(a.svcs, svcs...)
 	return nil
 }
 
@@ -156,6 +157,7 @@ func (a *API) Join(svcs ...service.Service) error {
 // This includes the http server, the services
 // and the global dependencies db, koanf.
 func (a *API) Shutdown() error {
+	slog.InfoCtx(a.ctx, "Gracefully shutting down API server")
 	ctx, cancel := context.WithTimeout(a.ctx, 10*time.Second)
 	defer cancel()
 	if err := a.db.Close(); err != nil {
@@ -165,6 +167,15 @@ func (a *API) Shutdown() error {
 		return err
 	}
 	for _, svc := range a.svcs {
+		slog.InfoCtx(
+			a.ctx,
+			"service shutdown",
+			slog.Group(
+				"service",
+				slog.String("name", svc.Name()),
+				slog.String("id", svc.ID()),
+			),
+		)
 		if err := svc.Shutdown(); err != nil {
 			return err
 		}
@@ -182,6 +193,14 @@ func (a API) Health() error {
 	}
 	if a.k == nil {
 		return errors.New("config manager is nil")
+	}
+	return nil
+}
+
+func (a API) log(rec builder.Recorder) error {
+	_, r := rec.Data()
+	if err := a.logger.Handler().Handle(a.ctx, r); err != nil {
+		return err
 	}
 	return nil
 }

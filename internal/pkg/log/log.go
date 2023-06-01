@@ -61,7 +61,6 @@ func (m manager) Log(r builder.Recorder) {
 }
 
 func (m manager) Shutdown() {
-	fmt.Println("shutdownn called")
 	m.file.Close()
 	close(m.stream)
 }

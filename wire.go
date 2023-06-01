@@ -54,10 +54,9 @@ func initGracefulShutdown(e env.Env) error {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 	<-done
-	slog.InfoCtx(e.Context(), "Gracefully shutting down env and services")
 	if err := e.Shutdown(); err != nil {
 		return err
 	}
-	slog.InfoCtx(e.Context(), "Services and env shutdown. Exiting.")
+	slog.InfoCtx(e.Context(), "Graceful shutdown succeeded! Exiting.")
 	return nil
 }

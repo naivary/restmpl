@@ -12,9 +12,6 @@ type Env interface {
 	ID() string
 	Version() string
 
-	// Running services of the environment keyed by ID.
-	Services() map[string]service.Service
-
 	// http router to serve public request to the services
 	HTTP() chi.Router
 

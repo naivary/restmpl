@@ -1,8 +1,7 @@
 ---
 version: "0.1.0"
-name: "instance"
+name: "api"
 dataDir: "."
-env: "test"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.
