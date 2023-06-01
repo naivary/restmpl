@@ -75,6 +75,6 @@ func (f Fs) read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "image/png")
-	w.Write(data)
 	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }

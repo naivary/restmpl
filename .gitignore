@@ -17,8 +17,8 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
-# SQLite database
-instance_data/
+# API data
+api_data/
 
 
 .idea

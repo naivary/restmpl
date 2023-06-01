@@ -1,7 +1,7 @@
 ---
 version: "0.1.0"
 name: "api"
-dataDir: "."
+dataDir: "/home/musti/naivary/projects/instance/"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.
@@ -19,6 +19,7 @@ server:
     readHeader: 2s
     write: 2s
     idle: 10s
+    request: 20s
   maxHeaderBytes: 1024
 logs:
   # maxSize of a log file before a

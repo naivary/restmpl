@@ -22,10 +22,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-const (
-	reqTimeout = 20 * time.Second
-)
-
 var _ Env = (*API)(nil)
 
 type API struct {
@@ -100,7 +96,7 @@ func (a *API) initHTTP() {
 	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
-	root.Use(middleware.Timeout(reqTimeout))
+	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))
 	a.http = root
 }
 
