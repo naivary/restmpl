@@ -11,7 +11,7 @@ import (
 // This should be only considered for testing purposes.
 func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 	// check if the connection is needed for testing purposes
-	if k == nil {
+	if k.Exists("testing") {
 		return inMem()
 	}
 	db, err := dbx.Open("sqlite", buildDsn(k))
@@ -19,16 +19,13 @@ func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 		return nil, err
 	}
 	initOptions(db)
-	err = initPragmas(db)
-	if err != nil {
+	if err = initPragmas(db); err != nil {
 		return nil, err
 	}
 	return db, nil
 }
 
-// inMem provides an in-memory
-// sqlite database which is
-// used for test purposes
+// inMem provides an in-memory sqlite database.
 func inMem() (*dbx.DB, error) {
 	db, err := dbx.Open("sqlite", "file::memory:")
 	if err != nil {

@@ -2,6 +2,7 @@ package env
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -25,28 +26,52 @@ const (
 var _ Env = (*API)(nil)
 
 type API struct {
-	cfgFile  string
-	isInited bool
-
 	// global dependencies
 	db *dbx.DB
 	k  *koanf.Koanf
 
-	svcs []service.Service
-	http chi.Router
-	srv  *http.Server
-	ctx  context.Context
+	// internal
+	cfgFile  string
+	isInited bool
+	svcs     []service.Service
+	http     chi.Router
+	srv      *http.Server
+	ctx      context.Context
 }
 
+// NewAPI creates the an API env provided
+// with the given config file. `Config`
+// can be used even the env is not inited.
 func NewAPI(cfgFile string) (*API, error) {
 	a := &API{
 		cfgFile: cfgFile,
 		ctx:     context.Background(),
 	}
-	if err := a.init(); err != nil {
+	k, err := config.New(cfgFile)
+	if err != nil {
 		return nil, err
 	}
+	a.k = k
 	return a, nil
+}
+
+// Init will initialze the env by setting up
+// other dependencies. Also it will run a health check
+// after setting up the dependencies.
+func (a *API) Init() error {
+	if a.isInited {
+		return nil
+	}
+
+	db, err := database.Connect(a.k)
+	if err != nil {
+		return err
+	}
+	a.db = db
+
+	a.initHTTP()
+	a.isInited = true
+	return a.Health()
 }
 
 func (a API) DB() *dbx.DB {
@@ -114,28 +139,6 @@ func (a *API) Serve() error {
 	return nil
 }
 
-func (a *API) init() error {
-	if a.isInited {
-		return nil
-	}
-
-	k, err := config.New(a.cfgFile)
-	if err != nil {
-		return err
-	}
-	a.k = k
-
-	db, err := database.Connect(k)
-	if err != nil {
-		return err
-	}
-	a.db = db
-
-	a.initHTTP()
-	a.isInited = true
-	return nil
-}
-
 func (a *API) Join(svcs ...service.Service) error {
 	for _, svc := range svcs {
 		if err := svc.Init(); err != nil {
@@ -171,4 +174,14 @@ func (a *API) Shutdown() error {
 
 func (a API) Context() context.Context {
 	return a.ctx
+}
+
+func (a API) Health() error {
+	if err := a.db.DB().PingContext(a.ctx); err != nil {
+		return err
+	}
+	if a.k == nil {
+		return errors.New("config manager is nil")
+	}
+	return nil
 }

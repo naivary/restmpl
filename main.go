@@ -3,8 +3,6 @@ package main
 import (
 	"errors"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"golang.org/x/exp/slog"
 )
@@ -39,14 +37,5 @@ func run() error {
 		}
 	}()
 
-	// graceful shutdown
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
-	<-done
-	slog.InfoCtx(e.Context(), "Gracefully shutting down env and services")
-	if err := e.Shutdown(); err != nil {
-		return err
-	}
-	slog.InfoCtx(e.Context(), "Services and env shutdown. Exiting.")
-	return nil
+	return initGracefulShutdown(e)
 }

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/naivary/instance/internal/pkg/config/configtest"
+	"github.com/naivary/instance/internal/pkg/config"
 	"github.com/naivary/instance/internal/pkg/env"
 	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/instance/internal/pkg/must"
@@ -20,24 +20,26 @@ var (
 	fsTest, ts = setup()
 )
 
-func setup() (Fs, *httptest.Server) {
-	f := Fs{}
-	k, err := configtest.New()
+func setup() (*Fs, *httptest.Server) {
+	f := new(Fs)
+	api, err := env.NewAPI(config.DefaultCfgFile)
+	f.K = api.Config()
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.K = k
-
-	st, err := filestoretest.New(k)
+	if err := f.K.Set("testing", true); err != nil {
+		log.Fatal(err)
+	}
+	if err := api.Init(); err != nil {
+		log.Fatal(err)
+	}
+	st, err := filestoretest.New(f.K)
 	if err != nil {
 		log.Fatal(err)
 	}
 	f.store = st
-	api, err := env.NewAPI("")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := api.Join(&f); err != nil {
+
+	if err := api.Join(f); err != nil {
 		log.Fatal(err)
 	}
 	return f, httptest.NewServer(api.HTTP())

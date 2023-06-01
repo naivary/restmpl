@@ -6,5 +6,5 @@ import "embed"
 // and will be used for test purposes
 // by koanf.
 //
-//go:embed instance.yaml
+//go:embed default.yaml
 var Fs embed.FS

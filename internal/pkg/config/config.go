@@ -7,25 +7,47 @@ import (
 
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/fs"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/instance/configs"
 	"golang.org/x/exp/slog"
 )
 
 const (
 	keyPathDelimiter = "."
+	DefaultCfgFile   = ""
 )
 
-func New(path string) (*koanf.Koanf, error) {
+func defaultConfig() (*koanf.Koanf, error) {
+	k := koanf.New(keyPathDelimiter)
+	err := k.Load(fs.Provider(configs.Fs, "default.yaml"), yaml.Parser())
+	if err != nil {
+		return nil, err
+	}
+	if err = buildDirs(k); err != nil {
+		return nil, err
+	}
+	return k, nil
+}
+
+func customConfig(path string) (*koanf.Koanf, error) {
 	k := koanf.New(keyPathDelimiter)
 	err := k.Load(file.Provider(path), yaml.Parser())
 	if err != nil {
 		return nil, err
 	}
-	err = buildDirs(k)
-	if err != nil {
+	if err = buildDirs(k); err != nil {
 		return nil, err
 	}
 	return k, err
+
+}
+
+func New(path string) (*koanf.Koanf, error) {
+	if path == "" {
+		return defaultConfig()
+	}
+	return customConfig(path)
 }
 
 // getBasePath checks if the dataDir is

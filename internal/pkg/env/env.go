@@ -34,6 +34,11 @@ type Env interface {
 	// Graceful shutdown of the env
 	Shutdown() error
 
-	// Context of the environmen
+	// Health of the env
+	Health() error
+
+	// Context of the environment
 	Context() context.Context
+
+	Init() error
 }

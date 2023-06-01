@@ -2,6 +2,7 @@
 version: "0.1.0"
 name: "instance"
 dataDir: "."
+env: "test"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.
@@ -25,5 +26,8 @@ logs:
   # rotation should be applied (in bytes)
   # default: 12582912 (12 MB)
   maxSize: 12582912
+  # maxBackups to store before all but the
+  # latest backup will be deleted.
   maxBackups: 5
+  # if the backup files should be compressed as gzip
   compress: true
