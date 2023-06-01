@@ -11,7 +11,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var _ Manager = (*svcManager)(nil)
+var _ Manager[*builder.SvcBuilder] = (*svcManager)(nil)
 
 type svcManager struct {
 	// size at which a rotate should be initiliazed
@@ -32,7 +32,7 @@ type svcManager struct {
 	stream chan builder.Recorder
 }
 
-func NewSvcManager(k *koanf.Koanf, svc service.Service) (Manager, error) {
+func NewSvcManager(k *koanf.Koanf, svc service.Service) (Manager[*builder.SvcBuilder], error) {
 	m := &svcManager{
 		k:          k,
 		svc:        svc,

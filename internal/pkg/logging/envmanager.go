@@ -7,7 +7,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var _ Manager = (*envManager)(nil)
+var _ Manager[*builder.EnvBuilder] = (*envManager)(nil)
 
 type envManager struct {
 	logger *slog.Logger
@@ -15,10 +15,11 @@ type envManager struct {
 }
 
 func NewEnvManager(w io.Writer) *envManager {
-	return &envManager{
+	e := &envManager{
 		w:      w,
 		logger: slog.New(slog.NewTextHandler(w, nil)),
 	}
+	return e
 }
 
 func (e envManager) Shutdown() {}

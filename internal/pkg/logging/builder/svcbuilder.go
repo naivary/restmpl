@@ -9,25 +9,25 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var _ Recorder = (*svcRecord)(nil)
+var _ Recorder = (*SvcBuilder)(nil)
 
-type svcRecord struct {
+type SvcBuilder struct {
 	rec slog.Record
 	ctx context.Context
 }
 
-func NewSvcBuilder(ctx context.Context, level slog.Leveler, msg string) *svcRecord {
-	return &svcRecord{
+func NewSvcBuilder(ctx context.Context, level slog.Leveler, msg string) *SvcBuilder {
+	return &SvcBuilder{
 		ctx: ctx,
 		rec: slog.NewRecord(time.Now(), level.Level(), msg, 0),
 	}
 }
 
-func (r svcRecord) Data() (context.Context, slog.Record) {
+func (r SvcBuilder) Data() (context.Context, slog.Record) {
 	return r.ctx, r.rec
 }
 
-func (r *svcRecord) IncomingRequest(req *http.Request) {
+func (r *SvcBuilder) IncomingRequest(req *http.Request) *SvcBuilder {
 	id := middleware.GetReqID(req.Context())
 	attr := slog.Group(
 		"request",
@@ -40,4 +40,5 @@ func (r *svcRecord) IncomingRequest(req *http.Request) {
 		slog.String("user_agent", req.UserAgent()),
 	)
 	r.rec.AddAttrs(attr)
+	return r
 }

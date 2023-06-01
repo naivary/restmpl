@@ -10,25 +10,25 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-var _ Recorder = (*envBuilder)(nil)
+var _ Recorder = (*EnvBuilder)(nil)
 
-type envBuilder struct {
+type EnvBuilder struct {
 	ctx context.Context
 	rec slog.Record
 }
 
-func NewEnvBuilder(ctx context.Context, level slog.Leveler, msg string) *envBuilder {
-	return &envBuilder{
+func NewEnvBuilder(ctx context.Context, level slog.Leveler, msg string) *EnvBuilder {
+	return &EnvBuilder{
 		ctx: ctx,
 		rec: slog.NewRecord(time.Now(), level.Level(), msg, 0),
 	}
 }
 
-func (e *envBuilder) Data() (context.Context, slog.Record) {
+func (e *EnvBuilder) Data() (context.Context, slog.Record) {
 	return e.ctx, e.rec
 }
 
-func (e *envBuilder) APIServerStart(k *koanf.Koanf, srv *http.Server) {
+func (e *EnvBuilder) APIServerStart(k *koanf.Koanf, srv *http.Server) *EnvBuilder {
 	api := slog.Group(
 		"api",
 		slog.String("name", k.String("name")),
@@ -42,13 +42,15 @@ func (e *envBuilder) APIServerStart(k *koanf.Koanf, srv *http.Server) {
 	)
 
 	e.rec.AddAttrs(api, srvConfig)
+	return e
 }
 
-func (e *envBuilder) ServiceShutdown(svc service.Service) {
+func (e *EnvBuilder) ServiceShutdown(svc service.Service) *EnvBuilder {
 	svcShutdown := slog.Group(
 		"service",
 		slog.String("name", svc.Name()),
 		slog.String("id", svc.ID()),
 	)
 	e.rec.AddAttrs(svcShutdown)
+	return e
 }
