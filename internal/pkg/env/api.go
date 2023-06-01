@@ -129,9 +129,9 @@ func (a *API) Serve() error {
 			return
 		}
 	}()
-	rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!")
-	rec.APIServerStart(a.k, srv)
-	a.logManager.Log(rec)
+	b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!")
+	b.APIServerStart(a.k, srv)
+	a.logManager.Log(b)
 
 	a.srv = srv
 	return nil
@@ -165,9 +165,9 @@ func (a *API) Shutdown() error {
 		return err
 	}
 	for _, svc := range a.svcs {
-		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown")
-		rec.ServiceShutdown(svc)
-		a.logManager.Log(rec)
+		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown")
+		b.ServiceShutdown(svc)
+		a.logManager.Log(b)
 		if err := svc.Shutdown(); err != nil {
 			return err
 		}
