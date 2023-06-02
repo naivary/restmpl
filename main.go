@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 
 	"golang.org/x/exp/slog"
@@ -13,17 +12,17 @@ func main() {
 	}
 }
 
-func getCfgFile() (string, error) {
+func getCfgFile() string {
 	if len(os.Args) < 2 {
-		return "", errors.New("missing config file as the first argument")
+		return ""
 	}
-	return os.Args[1], nil
+	return os.Args[1]
 }
 
 func run() error {
-	cfgFile, err := getCfgFile()
-	if err != nil {
-		return err
+	cfgFile := getCfgFile()
+	if cfgFile == "" {
+		slog.Info("no custom config file provided. Using default.yaml")
 	}
 	e, err := newEnv(cfgFile)
 	if err != nil {

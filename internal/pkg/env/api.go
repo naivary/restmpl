@@ -20,6 +20,8 @@ import (
 	"github.com/naivary/apitmpl/internal/pkg/server"
 	"github.com/naivary/apitmpl/internal/pkg/service"
 	"github.com/pocketbase/dbx"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"golang.org/x/exp/slog"
 )
 
@@ -80,6 +82,10 @@ func (a *API) Init() error {
 	a.metric = metrics.NewManager()
 	a.meta = a.newMeta()
 	a.initHTTP()
+	// registrining env metrics
+	if err := a.metric.Register(a.Metrics()...); err != nil {
+		return err
+	}
 	a.isInited = true
 	return a.Health()
 }
@@ -192,6 +198,12 @@ func (a API) Health() error {
 	if a.k == nil {
 		return errors.New("config manager is nil")
 	}
+	if a.metric == nil {
+		return errors.New("missing metric manager")
+	}
+	if a.logger == nil {
+		return errors.New("missing logger manager")
+	}
 	return nil
 }
 
@@ -213,4 +225,12 @@ func (a *API) initMonitorHTTP() chi.Router {
 	r.Mount("/metrics", a.metrics())
 	r.Get("/health", a.health)
 	return r
+}
+
+func (a *API) Metrics() []prometheus.Collector {
+	return []prometheus.Collector{
+		collectors.NewGoCollector(),
+		collectors.NewDBStatsCollector(a.db.DB(), "main_db"),
+		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	}
 }

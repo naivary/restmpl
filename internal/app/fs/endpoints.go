@@ -39,6 +39,7 @@ func (f Fs) create(w http.ResponseWriter, r *http.Request) {
 		jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 		return
 	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
