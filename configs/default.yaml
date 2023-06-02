@@ -1,6 +1,6 @@
 ---
 version: "0.1.0"
-name: "apitmpl"
+name: "api"
 dataDir: "/home/musti/naivary/projects/apitmpl/"
 fs:
   basepath: "/home/musti/instance_example"
