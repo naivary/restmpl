@@ -45,7 +45,7 @@ func (e *EnvBuilder) APIServerStart(k *koanf.Koanf, srv *http.Server) *EnvBuilde
 	return e
 }
 
-func (e *EnvBuilder) ServiceShutdown(svc service.Service) *EnvBuilder {
+func (e *EnvBuilder) ServiceInfo(svc service.Service) *EnvBuilder {
 	svcShutdown := slog.Group(
 		"service",
 		slog.String("name", svc.Name()),

@@ -6,9 +6,7 @@ import (
 	"syscall"
 
 	"github.com/naivary/apitmpl/internal/app/fs"
-	"github.com/naivary/apitmpl/internal/app/sys"
 	"github.com/naivary/apitmpl/internal/pkg/env"
-	"github.com/naivary/apitmpl/internal/pkg/models"
 	"github.com/naivary/apitmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
@@ -33,21 +31,10 @@ func newEnv(cfgFile string) (env.Env, error) {
 
 func createServices(env *env.API) ([]service.Service, error) {
 	svcs := make([]service.Service, 0)
-	// global dependencies
-	k := env.Config()
-	db := env.DB()
-	// services
 	f := new(fs.Fs)
-	s := new(sys.Sys)
+	f.K = env.Config()
 
-	f.K = k
-
-	svcs = append(svcs, f, s)
-	s.Svcs = svcs
-	s.K = k
-	m := models.NewMeta(k, db, env)
-	s.Meta = m
-
+	svcs = append(svcs, f)
 	return svcs, nil
 }
 

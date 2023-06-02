@@ -20,7 +20,6 @@ import (
 	"github.com/naivary/apitmpl/internal/pkg/server"
 	"github.com/naivary/apitmpl/internal/pkg/service"
 	"github.com/pocketbase/dbx"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 )
 
@@ -28,18 +27,19 @@ var _ Env = (*API)(nil)
 
 type API struct {
 	// global dependencies
-	db *dbx.DB
-	k  *koanf.Koanf
+	db   *dbx.DB
+	k    *koanf.Koanf
+	meta meta
 
 	// internal
-	cfgFile    string
-	isInited   bool
-	svcs       []service.Service
-	http       chi.Router
-	metrics    metrics.Manager
-	srv        *http.Server
-	logManager logging.Manager
-	ctx        context.Context
+	cfgFile  string
+	isInited bool
+	svcs     []service.Service
+	http     chi.Router
+	metric   metrics.Manager
+	srv      *http.Server
+	logger   logging.Manager
+	ctx      context.Context
 }
 
 // NewAPI creates the an API env provided
@@ -60,7 +60,7 @@ func NewAPI(cfgFile string) (*API, error) {
 	if err := a.k.Set("cfgFile", cfgFile); err != nil {
 		return nil, err
 	}
-	a.logManager = logging.NewEnvManager(os.Stdout)
+	a.logger = logging.NewEnvManager(os.Stdout)
 	return a, nil
 }
 
@@ -77,7 +77,8 @@ func (a *API) Init() error {
 		return err
 	}
 	a.db = db
-	a.metrics = metrics.New()
+	a.metric = metrics.New()
+	a.meta = a.newMeta()
 	a.initHTTP()
 	a.isInited = true
 	return a.Health()
@@ -114,6 +115,9 @@ func (a *API) Serve() error {
 	if !a.isInited {
 		return ErrNotInited
 	}
+	if len(a.svcs) == 0 {
+		return ErrNoServices
+	}
 	srv, err := server.New(a.k, a.HTTP())
 	if err != nil {
 		return err
@@ -123,10 +127,8 @@ func (a *API) Serve() error {
 			return
 		}
 	}()
-	b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!")
-	b.APIServerStart(a.k, srv)
-	a.logManager.Log(b)
-
+	b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!").APIServerStart(a.k, srv)
+	a.logger.Log(b)
 	a.srv = srv
 	return nil
 }
@@ -142,12 +144,12 @@ func (a *API) Join(svcs ...service.Service) error {
 		if _, err := svc.Health(); err != nil {
 			return err
 		}
-		if err := a.metrics.Register(svc.Metrics()...); err != nil {
+		if err := a.metric.Register(svc.Metrics()...); err != nil {
 			return err
 		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Service successfully started!").ServiceInit(svc)
-		a.logManager.Log(rec)
+		a.logger.Log(rec)
 	}
 	a.svcs = append(a.svcs, svcs...)
 	return nil
@@ -170,8 +172,8 @@ func (a *API) Shutdown() error {
 		return err
 	}
 	for _, svc := range a.svcs {
-		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown").ServiceShutdown(svc)
-		a.logManager.Log(b)
+		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown").ServiceInfo(svc)
+		a.logger.Log(b)
 		if err := svc.Shutdown(); err != nil {
 			return err
 		}
@@ -199,6 +201,16 @@ func (a *API) initHTTP() {
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))
-	root.Mount("/metrics", promhttp.HandlerFor(a.metrics.Registry(), promhttp.HandlerOpts{Registry: a.metrics.Registry()}))
+	for _, mw := range a.middlewares() {
+		root.Use(mw)
+	}
+	root.Mount("/sys", a.initMonitorHTTP())
 	a.http = root
+}
+
+func (a *API) initMonitorHTTP() chi.Router {
+	r := chi.NewRouter()
+	r.Mount("/metrics", a.metrics())
+	r.Get("/health", a.health)
+	return r
 }
