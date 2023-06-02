@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/env"
-	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/naivary/apitmpl/internal/pkg/env"
+	"github.com/naivary/apitmpl/internal/pkg/service"
 	"github.com/pocketbase/dbx"
 )
 

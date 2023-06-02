@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/naivary/apitmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 

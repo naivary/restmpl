@@ -1,6 +1,6 @@
 package env
 
-import "github.com/naivary/instance/internal/pkg/config"
+import "github.com/naivary/apitmpl/internal/pkg/config"
 
 func NewTestAPI() (*API, error) {
 	a, err := NewAPI(config.DefaultCfgFile)

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/filestore"
+	"github.com/naivary/apitmpl/internal/pkg/filestore"
 	"github.com/spf13/afero"
 )
 

@@ -6,9 +6,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/instance/internal/pkg/logging"
-	"github.com/naivary/instance/internal/pkg/models"
-	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/naivary/apitmpl/internal/pkg/logging"
+	"github.com/naivary/apitmpl/internal/pkg/models"
+	"github.com/naivary/apitmpl/internal/pkg/service"
 )
 
 var _ service.Service = (*Sys)(nil)

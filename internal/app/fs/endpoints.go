@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/google/jsonapi"
-	"github.com/naivary/instance/internal/pkg/filestore"
-	"github.com/naivary/instance/internal/pkg/japi"
+	"github.com/naivary/apitmpl/internal/pkg/filestore"
+	"github.com/naivary/apitmpl/internal/pkg/japi"
 )
 
 func (f Fs) create(w http.ResponseWriter, r *http.Request) {

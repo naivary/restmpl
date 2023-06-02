@@ -1,7 +1,7 @@
 ---
 version: "0.1.0"
-name: "api"
-dataDir: "/home/musti/naivary/projects/instance/"
+name: "apitmpl"
+dataDir: "/home/musti/naivary/projects/apitmpl/"
 fs:
   basepath: "/home/musti/instance_example"
   # maxSize of a file in bytes.

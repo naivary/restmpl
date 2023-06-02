@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/jsonapi"
-	"github.com/naivary/instance/internal/pkg/japi"
-	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/naivary/apitmpl/internal/pkg/japi"
+	"github.com/naivary/apitmpl/internal/pkg/service"
 )
 
 func (s Sys) health(w http.ResponseWriter, r *http.Request) {

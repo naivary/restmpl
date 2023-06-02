@@ -5,11 +5,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/naivary/instance/internal/app/fs"
-	"github.com/naivary/instance/internal/app/sys"
-	"github.com/naivary/instance/internal/pkg/env"
-	"github.com/naivary/instance/internal/pkg/models"
-	"github.com/naivary/instance/internal/pkg/service"
+	"github.com/naivary/apitmpl/internal/app/fs"
+	"github.com/naivary/apitmpl/internal/app/sys"
+	"github.com/naivary/apitmpl/internal/pkg/env"
+	"github.com/naivary/apitmpl/internal/pkg/models"
+	"github.com/naivary/apitmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 

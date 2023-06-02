@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/naivary/instance/internal/pkg/env"
-	"github.com/naivary/instance/internal/pkg/filestore/filestoretest"
-	"github.com/naivary/instance/internal/pkg/must"
+	"github.com/naivary/apitmpl/internal/pkg/env"
+	"github.com/naivary/apitmpl/internal/pkg/filestore/filestoretest"
+	"github.com/naivary/apitmpl/internal/pkg/must"
 )
 
 var (

@@ -1,4 +1,4 @@
-module github.com/naivary/instance
+module github.com/naivary/apitmpl
 
 go 1.20
 

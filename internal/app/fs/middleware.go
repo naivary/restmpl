@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/google/jsonapi"
-	"github.com/naivary/instance/internal/pkg/japi"
-	"github.com/naivary/instance/internal/pkg/logging/builder"
+	"github.com/naivary/apitmpl/internal/pkg/japi"
+	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
 	"golang.org/x/exp/slog"
 )
 
