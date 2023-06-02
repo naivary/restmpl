@@ -20,7 +20,7 @@ func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 func (f Fs) info(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rec := builder.NewSvcBuilder(r.Context(), slog.LevelInfo, "handling request").IncomingRequest(r)
-		f.logManager.Log(rec)
+		f.l.Log(rec)
 		next.ServeHTTP(w, r)
 	})
 }

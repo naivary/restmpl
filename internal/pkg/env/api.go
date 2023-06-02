@@ -77,7 +77,7 @@ func (a *API) Init() error {
 		return err
 	}
 	a.db = db
-	a.metric = metrics.New()
+	a.metric = metrics.NewManager()
 	a.meta = a.newMeta()
 	a.initHTTP()
 	a.isInited = true

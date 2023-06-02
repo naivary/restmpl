@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/naivary/apitmpl/internal/pkg/env"
+	"github.com/naivary/apitmpl/internal/pkg/env/envtest"
 	"github.com/naivary/apitmpl/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/apitmpl/internal/pkg/must"
 )
@@ -21,7 +21,7 @@ var (
 
 func setup() (*Fs, *httptest.Server) {
 	f := new(Fs)
-	api, err := env.NewTestAPI()
+	api, err := envtest.NewAPI()
 	if err != nil {
 		log.Fatal(err)
 	}

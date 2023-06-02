@@ -4,10 +4,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type Manager interface {
-	Register(...prometheus.Collector) error
-	Registry() *prometheus.Registry
-
+type Managee interface {
 	AddCounter(name string, c prometheus.Counter)
 	AddCounterVec(name string, cVec prometheus.CounterVec)
 	AddGauge(name string, g prometheus.Gauge)
@@ -18,6 +15,12 @@ type Manager interface {
 	AddHistrogramVec(name string, hVec prometheus.HistogramVec)
 	GetCounter(name string) prometheus.Counter
 	All() []prometheus.Collector
+}
+
+type Manager interface {
+	Managee
+	Register(...prometheus.Collector) error
+	Registry() *prometheus.Registry
 }
 
 var _ Manager = (*manager)(nil)
@@ -34,7 +37,21 @@ type manager struct {
 	summaryVecs   map[string]prometheus.SummaryVec
 }
 
-func New() Manager {
+func NewLocaler() Managee {
+	return &manager{
+		re:            prometheus.NewRegistry(),
+		counterVecs:   make(map[string]prometheus.CounterVec),
+		counters:      make(map[string]prometheus.Counter),
+		gauges:        make(map[string]prometheus.Gauge),
+		gaugeVecs:     make(map[string]prometheus.GaugeVec),
+		histograms:    make(map[string]prometheus.Histogram),
+		histogramVecs: make(map[string]prometheus.HistogramVec),
+		summaries:     make(map[string]prometheus.Summary),
+		summaryVecs:   make(map[string]prometheus.SummaryVec),
+	}
+}
+
+func NewManager() Manager {
 	return &manager{
 		re:            prometheus.NewRegistry(),
 		counterVecs:   make(map[string]prometheus.CounterVec),
@@ -88,6 +105,5 @@ func (m manager) All() []prometheus.Collector {
 	for _, hVec := range m.histogramVecs {
 		met = append(met, hVec)
 	}
-
 	return met
 }

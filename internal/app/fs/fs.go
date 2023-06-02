@@ -19,8 +19,9 @@ var _ service.Service = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	logManager logging.Manager
-	store      filestore.Store[afero.File]
+	store filestore.Store[afero.File]
+	l     logging.Manager
+	m     metrics.Managee
 }
 
 func (f Fs) Health() (*service.Info, error) {
@@ -76,19 +77,20 @@ func (f *Fs) Init() error {
 	if err != nil {
 		return err
 	}
-	f.logManager = mngr
+	f.l = mngr
+	f.m = metrics.NewLocaler()
 	return nil
 }
 
 func (f Fs) Shutdown() error {
-	f.logManager.Shutdown()
+	f.l.Shutdown()
 	return nil
 }
 
 func (f Fs) Metrics() []prometheus.Collector {
-	met := make([]prometheus.Collector, 0)
-	met = append(met, metrics.IncomingHTTPRequest(&f), metrics.NumberOfErrors(&f))
-	return met
+	f.m.AddCounter("req", metrics.IncomingHTTPRequest(&f))
+	f.m.AddCounter("err", metrics.NumberOfErrors(&f))
+	return f.m.All()
 }
 
 func (f Fs) Description() string {
