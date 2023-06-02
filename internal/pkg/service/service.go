@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Service interface {
@@ -29,7 +30,7 @@ type Service interface {
 
 	// Metrics returns the service specific
 	// collected metrics. Probably Prometheus in our case
-	Metrics() error
+	Metrics() []prometheus.Collector
 
 	// Initialize the service given the global dependencies
 	Init() error

@@ -16,9 +16,11 @@ import (
 	"github.com/naivary/apitmpl/internal/pkg/database"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
 	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
+	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/server"
 	"github.com/naivary/apitmpl/internal/pkg/service"
 	"github.com/pocketbase/dbx"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 )
 
@@ -34,6 +36,7 @@ type API struct {
 	isInited   bool
 	svcs       []service.Service
 	http       chi.Router
+	metrics    metrics.Manager
 	srv        *http.Server
 	logManager logging.Manager
 	ctx        context.Context
@@ -74,6 +77,7 @@ func (a *API) Init() error {
 		return err
 	}
 	a.db = db
+	a.metrics = metrics.New()
 	a.initHTTP()
 	a.isInited = true
 	return a.Health()
@@ -138,6 +142,9 @@ func (a *API) Join(svcs ...service.Service) error {
 		if _, err := svc.Health(); err != nil {
 			return err
 		}
+		if err := a.metrics.Register(svc.Metrics()...); err != nil {
+			return err
+		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
 		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Service successfully started!").ServiceInit(svc)
 		a.logManager.Log(rec)
@@ -163,8 +170,7 @@ func (a *API) Shutdown() error {
 		return err
 	}
 	for _, svc := range a.svcs {
-		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown")
-		b.ServiceShutdown(svc)
+		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown").ServiceShutdown(svc)
 		a.logManager.Log(b)
 		if err := svc.Shutdown(); err != nil {
 			return err
@@ -193,5 +199,6 @@ func (a *API) initHTTP() {
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))
+	root.Mount("/metrics", promhttp.HandlerFor(a.metrics.Registry(), promhttp.HandlerOpts{Registry: a.metrics.Registry()}))
 	a.http = root
 }

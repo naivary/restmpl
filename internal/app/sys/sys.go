@@ -7,8 +7,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
+	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/models"
 	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var _ service.Service = (*Sys)(nil)
@@ -18,6 +20,7 @@ type Sys struct {
 	K    *koanf.Koanf
 	Meta models.Meta
 
+	metManager metrics.Manager
 	logManager logging.Manager
 }
 
@@ -35,6 +38,9 @@ func (s Sys) Pattern() string {
 
 func (s Sys) HTTP() chi.Router {
 	r := chi.NewRouter()
+	for _, mw := range s.Middlewares() {
+		r.Use(mw)
+	}
 	r.Get("/health", s.health)
 	r.Get("/metrics", s.metrics)
 	return r
@@ -58,8 +64,10 @@ func (s Sys) Health() (*service.Info, error) {
 	}, nil
 }
 
-func (s Sys) Metrics() error {
-	return nil
+func (s Sys) Metrics() []prometheus.Collector {
+	s.metManager.AddCounter("requestCounter", metrics.IncomingHTTPRequest(&s))
+	s.metManager.AddCounter("errorCounter", metrics.NumberOfErrors(&s))
+	return s.metManager.All()
 }
 
 func (s *Sys) Init() error {
@@ -68,6 +76,7 @@ func (s *Sys) Init() error {
 		return err
 	}
 	s.logManager = mngr
+	s.metManager = metrics.New()
 	return nil
 }
 

@@ -8,7 +8,9 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/apitmpl/internal/pkg/filestore"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
+	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/afero"
 )
 
@@ -83,8 +85,10 @@ func (f Fs) Shutdown() error {
 	return nil
 }
 
-func (f Fs) Metrics() error {
-	return nil
+func (f Fs) Metrics() []prometheus.Collector {
+	met := make([]prometheus.Collector, 0)
+	met = append(met, metrics.IncomingHTTPRequest(&f), metrics.NumberOfErrors(&f))
+	return met
 }
 
 func (f Fs) Description() string {
