@@ -13,8 +13,17 @@ import (
 func (f Fs) Middlewares() []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		f.info,
+		f.countReq,
 		f.forceFilepath,
 	}
+}
+
+func (f Fs) countReq(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c := f.m.GetCounter("req")
+		c.Inc()
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (f Fs) info(next http.Handler) http.Handler {

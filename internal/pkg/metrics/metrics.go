@@ -12,8 +12,15 @@ type Managee interface {
 	AddSummary(name string, s prometheus.Summary)
 	AddSummaryVec(name string, sVec prometheus.SummaryVec)
 	AddHistogram(name string, h prometheus.Histogram)
-	AddHistrogramVec(name string, hVec prometheus.HistogramVec)
+	AddHistogramVec(name string, hVec prometheus.HistogramVec)
 	GetCounter(name string) prometheus.Counter
+	GetCounterVec(name string) prometheus.CounterVec
+	GetGauge(name string) prometheus.Gauge
+	GetGaugeVec(name string) prometheus.GaugeVec
+	GetSummary(name string) prometheus.Summary
+	GetSummaryVec(name string) prometheus.SummaryVec
+	GetHistogram(name string) prometheus.Histogram
+	GetHistogramVec(name string) prometheus.HistogramVec
 	All() []prometheus.Collector
 }
 

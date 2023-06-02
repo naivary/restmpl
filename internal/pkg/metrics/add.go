@@ -30,6 +30,6 @@ func (m manager) AddHistogram(name string, h prometheus.Histogram) {
 	m.histograms[name] = h
 }
 
-func (m manager) AddHistrogramVec(name string, hVec prometheus.HistogramVec) {
+func (m manager) AddHistogramVec(name string, hVec prometheus.HistogramVec) {
 	m.histogramVecs[name] = hVec
 }
