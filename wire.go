@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/naivary/apitmpl/internal/app/auth"
 	"github.com/naivary/apitmpl/internal/app/fs"
 	"github.com/naivary/apitmpl/internal/pkg/env"
 	"github.com/naivary/apitmpl/internal/pkg/service"
@@ -34,7 +35,11 @@ func createServices(env *env.API) ([]service.Service, error) {
 	f := new(fs.Fs)
 	f.K = env.Config()
 
-	svcs = append(svcs, f)
+	a := new(auth.Auth)
+	a.K = env.Config()
+	a.DB = env.DB()
+
+	svcs = append(svcs, f, a)
 	return svcs, nil
 }
 

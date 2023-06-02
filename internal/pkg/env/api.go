@@ -14,6 +14,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/apitmpl/internal/pkg/config"
 	"github.com/naivary/apitmpl/internal/pkg/database"
+	"github.com/naivary/apitmpl/internal/pkg/jwtauth"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
 	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
 	"github.com/naivary/apitmpl/internal/pkg/metrics"
@@ -54,16 +55,29 @@ func NewAPI(cfgFile string) (*API, error) {
 		cfgFile: cfgFile,
 		ctx:     context.Background(),
 	}
-	k, err := config.New(cfgFile)
-	if err != nil {
-		return nil, err
-	}
-	a.k = k
-	if err := a.k.Set("cfgFile", cfgFile); err != nil {
+	if err := a.initConfig(); err != nil {
 		return nil, err
 	}
 	a.logger = logging.NewEnvManager(os.Stdout)
 	return a, nil
+}
+
+func (a *API) initConfig() error {
+	k, err := config.New(a.cfgFile)
+	if err != nil {
+		return err
+	}
+	a.k = k
+	if err := a.k.Set("cfgFile", a.cfgFile); err != nil {
+		return err
+	}
+
+	secret := os.Getenv("API_JWT_SECRET")
+	if secret == "" {
+		return errors.New("API_JWT_SECRET env variable not set")
+	}
+	jwtauth.SetSecret([]byte(secret))
+	return nil
 }
 
 // Init will initialze the env by setting up
@@ -222,6 +236,7 @@ func (a *API) initHTTP() {
 
 func (a *API) initMonitorHTTP() chi.Router {
 	r := chi.NewRouter()
+	r.Use(jwtauth.Verify)
 	r.Mount("/metrics", a.metrics())
 	r.Get("/health", a.health)
 	return r

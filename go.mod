@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/jsonapi v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
@@ -12,6 +13,7 @@ require (
 	github.com/knadh/koanf/providers/fs v0.1.0
 	github.com/knadh/koanf/v2 v2.0.1
 	github.com/pocketbase/dbx v1.10.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/spf13/afero v1.9.5
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	modernc.org/sqlite v1.22.1
@@ -30,7 +32,6 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/prometheus/client_golang v1.15.1 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect

@@ -44,7 +44,7 @@ type manager struct {
 	summaryVecs   map[string]prometheus.SummaryVec
 }
 
-func NewLocaler() Managee {
+func NewManagee() Managee {
 	return &manager{
 		re:            prometheus.NewRegistry(),
 		counterVecs:   make(map[string]prometheus.CounterVec),

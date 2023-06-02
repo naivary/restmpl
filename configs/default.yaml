@@ -14,6 +14,8 @@ fs:
 server:
   crt: ./configs/cert/localhost.crt
   key: ./configs/cert/localhost.key
+  host: "localhost"
+  port: 8080
   addr: ":8080"
   timeout:
     readHeader: 2s
@@ -31,3 +33,5 @@ logs:
   maxBackups: 5
   # if the backup files should be compressed as gzip
   compress: true
+jwt:
+  issuer: "https://api.auth.com"

@@ -78,7 +78,7 @@ func (f *Fs) Init() error {
 		return err
 	}
 	f.l = mngr
-	f.m = metrics.NewLocaler()
+	f.m = metrics.NewManagee()
 	return nil
 }
 
