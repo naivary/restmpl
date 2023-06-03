@@ -35,7 +35,7 @@ func (a Auth) ID() string {
 }
 
 func (a Auth) Description() string {
-	return "authentication service using jwt"
+	return "jwt authentication"
 }
 
 func (a Auth) Pattern() string {
