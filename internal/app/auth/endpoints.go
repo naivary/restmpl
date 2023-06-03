@@ -17,4 +17,5 @@ func (a Auth) signin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(t))
 }
+
 func (a Auth) signup(w http.ResponseWriter, r *http.Request) {}

@@ -1,11 +1,8 @@
 package jwtauth
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -66,64 +63,10 @@ func (j JWTAuth) NewSignedToken(sub any, claims jwt.MapClaims) (string, error) {
 	return jwt.NewWithClaims(j.signingMethod, m).SignedString(secret)
 }
 
-// Verify the provided Bearer JWT token and set the claims
-// of the token in the request context with the key `claimsKey`
-func Verify(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw := strings.TrimSpace(strings.Replace(r.Header.Get("Authorization"), "Bearer", "", 1))
-		token, err := jwt.Parse(raw, func(t *jwt.Token) (any, error) {
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("invalid alg")
-			}
-			return secret, nil
-		})
-		if err := checkTokenValidationErr(err); err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(err.Error()))
-			return
-		}
-		if !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("token is invalid"))
-			return
-		}
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("claims in wrong format"))
-			return
-		}
-		r = r.WithContext(context.WithValue(r.Context(), claimsKey, claims))
-		next.ServeHTTP(w, r)
-	})
-}
-
-func GetClaims(ctx context.Context) (jwt.MapClaims, error) {
-	val := ctx.Value(claimsKey)
-	c, ok := val.(jwt.MapClaims)
-	if !ok {
-		return nil, ErrMissingClaims
-	}
-	return c, nil
-}
-
 func (j JWTAuth) addRegisteredClaims(sub any, m jwt.MapClaims) {
 	m["sub"] = sub
 	m["iss"] = j.issuer
 	m["exp"] = time.Now().Add(j.expDuration).Unix()
 	m["iat"] = time.Now().Unix()
 	m["jti"] = random.ID(defaultIDLen)
-}
-
-func checkTokenValidationErr(err error) error {
-	if err == nil {
-		return nil
-	}
-	if errors.Is(err, jwt.ErrTokenExpired) {
-		return errors.New("token is expired and should be renewed using the refresh token")
-	}
-	if errors.Is(err, jwt.ErrSignatureInvalid) {
-		return jwt.ErrSignatureInvalid
-	}
-	return err
 }
