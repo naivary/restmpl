@@ -4,11 +4,10 @@ import (
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/naivary/apitmpl/internal/pkg/random"
 )
 
 func (a Auth) signin(w http.ResponseWriter, r *http.Request) {
-	t, err := a.jwt.NewSignedToken(random.ID(6), jwt.MapClaims{})
+	t, err := a.jwt.NewSignedToken("something", jwt.MapClaims{})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
