@@ -6,7 +6,7 @@ import (
 
 type meta struct {
 	ID       string          `jsonapi:"primary,meta"`
-	DBDriver string          `jsonapi:"attr,driverName"`
+	DBDriver string          `jsonapi:"attr,dbDriverName"`
 	Svcs     []*service.Info `jsonapi:"attr,services"`
 	Version  string          `jsonapi:"attr,version"`
 	Name     string          `jsonapi:"attr,name"`

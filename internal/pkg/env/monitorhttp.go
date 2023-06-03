@@ -30,7 +30,9 @@ func (a *API) health(w http.ResponseWriter, r *http.Request) {
 			jsonapi.MarshalErrors(w, japi.Errors(&jerr))
 			return
 		}
-		infos = append(infos, info)
+		if info != nil {
+			infos = append(infos, info)
+		}
 	}
 	a.meta.Svcs = infos
 

@@ -35,3 +35,4 @@ logs:
   compress: true
 jwt:
   issuer: "https://api.auth.com"
+  expiration: 5m

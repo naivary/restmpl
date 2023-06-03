@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
@@ -58,7 +59,8 @@ func (m svcManager) Shutdown() {
 }
 
 func (m *svcManager) init() error {
-	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), m.svc.ID())
+	shortenID, _, _ := strings.Cut(m.svc.ID(), "-")
+	filename := fmt.Sprintf("%s_%s.log", m.svc.Name(), shortenID)
 	p := filepath.Join(m.k.String("logsDir"), filename)
 	file, err := os.Create(p)
 	if err != nil {

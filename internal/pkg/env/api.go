@@ -76,7 +76,7 @@ func (a *API) initConfig() error {
 	if secret == "" {
 		return errors.New("API_JWT_SECRET env variable not set")
 	}
-	jwtauth.SetSecret([]byte(secret))
+	jwtauth.SetSecret(secret)
 	return nil
 }
 
