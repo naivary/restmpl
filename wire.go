@@ -7,6 +7,7 @@ import (
 
 	"github.com/naivary/apitmpl/internal/app/auth"
 	"github.com/naivary/apitmpl/internal/app/fs"
+	"github.com/naivary/apitmpl/internal/app/users"
 	"github.com/naivary/apitmpl/internal/pkg/env"
 	"github.com/naivary/apitmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
@@ -39,7 +40,11 @@ func createServices(env *env.API) ([]service.Service, error) {
 	a.K = env.Config()
 	a.DB = env.DB()
 
-	svcs = append(svcs, f, a)
+	u := new(users.Users)
+	u.DB = env.DB()
+	u.K = env.Config()
+
+	svcs = append(svcs, f, a, u)
 	return svcs, nil
 }
 
