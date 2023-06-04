@@ -40,7 +40,7 @@ type Service interface {
 }
 
 type Info struct {
-	ID   string `jsonapi:"primary,service"`
-	Name string `jsonapi:"attr,name"`
-	Desc string `jsonapi:"attr,desc"`
+	ID   string `json:"service"`
+	Name string `json:"name"`
+	Desc string `json:"desc"`
 }

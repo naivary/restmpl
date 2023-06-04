@@ -10,9 +10,15 @@ import (
 func (u Users) create(w http.ResponseWriter, r *http.Request) {
 	user := models.NewUser()
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	u.DB.Model(&user).Insert()
+	if err := user.CheckPassword(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := u.DB.Model(&user).Insert(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

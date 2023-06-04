@@ -43,7 +43,7 @@ func New(k *koanf.Koanf) (Filestore, error) {
 func (f Filestore) Create(path string, r io.Reader) (afero.File, error) {
 	// assure that it is following a proper naming convention.
 	if !f.followsNamingConvention(filepath.Base(path)) {
-		return nil, &ErrWrongNaming
+		return nil, ErrWrongNaming
 	}
 
 	// dont create the file, if exists

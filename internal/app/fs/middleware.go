@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/jsonapi"
-	"github.com/naivary/apitmpl/internal/pkg/japi"
 	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
 	"golang.org/x/exp/slog"
 )
@@ -58,6 +56,5 @@ func (f Fs) forceFilepath(next http.Handler) http.Handler {
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
-		jsonapi.MarshalErrors(w, japi.Errors(&errEmptyFilepath))
 	})
 }

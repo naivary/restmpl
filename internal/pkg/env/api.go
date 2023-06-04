@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/google/jsonapi"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
 	"github.com/naivary/apitmpl/internal/pkg/config"
@@ -223,7 +222,7 @@ func (a API) Health() error {
 
 func (a *API) initHTTP() {
 	root := chi.NewRouter()
-	root.Use(middleware.SetHeader("Content-Type", jsonapi.MediaType))
+	root.Use(middleware.SetHeader("Content-Type", "application/json"))
 	root.Use(middleware.RequestID)
 	root.Use(middleware.CleanPath)
 	root.Use(middleware.Timeout(a.k.Duration("server.timeout.request")))

@@ -5,11 +5,11 @@ import (
 )
 
 type meta struct {
-	ID       string          `jsonapi:"primary,meta"`
-	DBDriver string          `jsonapi:"attr,dbDriverName"`
-	Svcs     []*service.Info `jsonapi:"attr,services"`
-	Version  string          `jsonapi:"attr,version"`
-	Name     string          `jsonapi:"attr,name"`
+	ID       string          `json:"id"`
+	DBDriver string          `json:"dbDriverName"`
+	Svcs     []*service.Info `json:"services"`
+	Version  string          `json:"version"`
+	Name     string          `json:"name"`
 }
 
 func (a API) newMeta() meta {

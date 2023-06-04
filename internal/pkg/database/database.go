@@ -22,6 +22,9 @@ func Connect(k *koanf.Koanf) (*dbx.DB, error) {
 	if err = initPragmas(db); err != nil {
 		return nil, err
 	}
+	if initSchema(db); err != nil {
+		return nil, err
+	}
 	return db, nil
 }
 
