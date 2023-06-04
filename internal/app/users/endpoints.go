@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/naivary/apitmpl/internal/pkg/hash"
+	"github.com/naivary/apitmpl/internal/pkg/jwtauth"
 	"github.com/naivary/apitmpl/internal/pkg/models"
 	"github.com/pocketbase/dbx"
 )
@@ -34,6 +35,9 @@ func (u Users) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// clear any sensitive data from the struct to
+	// not expose them to the public.
+	user.ClearSensitive()
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -96,4 +100,22 @@ func (u Users) list(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (u Users) delete(w http.ResponseWriter, r *http.Request) {
+	claims, err := jwtauth.GetClaims(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	sub, err := claims.GetSubject()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if _, err := u.DB.Delete("users", dbx.HashExp{"id": sub}).Execute(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

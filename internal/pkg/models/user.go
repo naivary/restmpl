@@ -11,10 +11,10 @@ import (
 )
 
 type User struct {
-	ID        string `json:"id"`
-	CreatedAt int64  `json:"createdAt"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
+	ID        string `json:"id,omitempty"`
+	CreatedAt int64  `json:"createdAt,omitempty"`
+	Username  string `json:"username,omitempty"`
+	Email     string `json:"email,omitempty"`
 	Password  string `json:"password,omitempty"`
 }
 
@@ -28,6 +28,12 @@ func NewUser() User {
 // implementing dbx.TableModel
 func (u User) TableName() string {
 	return "users"
+}
+
+// ClearSensitive clears all the data of
+// the sensitive fileds like password
+func (u *User) ClearSensitive() {
+	u.Password = ""
 }
 
 // IsValid ensures that the encoded

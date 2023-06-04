@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/apitmpl/internal/pkg/jwtauth"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
 	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/service"
@@ -64,6 +65,10 @@ func (u Users) HTTP() chi.Router {
 	r.Post("/", u.create)
 	r.Get("/{userID}", u.single)
 	r.Get("/list", u.list)
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verify)
+		r.Delete("/delete", u.delete)
+	})
 	return r
 }
 
