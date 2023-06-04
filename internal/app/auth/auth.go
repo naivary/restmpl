@@ -79,7 +79,6 @@ func (a Auth) Metrics() []prometheus.Collector {
 func (a Auth) HTTP() chi.Router {
 	r := chi.NewRouter()
 	r.Post("/signin", a.signin)
-	r.Post("/signup", a.signup)
 	return r
 }
 

@@ -62,6 +62,8 @@ func (u Users) Metrics() []prometheus.Collector {
 func (u Users) HTTP() chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", u.create)
+	r.Get("/{userID}", u.single)
+	r.Get("/list", u.list)
 	return r
 }
 

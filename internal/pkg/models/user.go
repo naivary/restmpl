@@ -15,7 +15,7 @@ type User struct {
 	CreatedAt int64  `json:"createdAt"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Password  string `json:"password,omitempty"`
 }
 
 func NewUser() User {
@@ -31,11 +31,13 @@ func (u User) TableName() string {
 }
 
 // IsValid ensures that the encoded
-// data of the struct are valid
+// data of the struct are valid e.g.
+// password strength, email validation...
 func (u User) IsValid() error {
 	checks := []func() error{
 		u.isValidEmail,
 		u.isValidPassword,
+		u.isValidUsername,
 	}
 	for _, check := range checks {
 		if err := check(); err != nil {
@@ -48,6 +50,15 @@ func (u User) IsValid() error {
 func (u User) isValidEmail() error {
 	if _, err := mail.ParseAddress(u.Email); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (u User) isValidUsername() error {
+	pattern := `^[\w\.][^0-9]+$`
+	if ok, err := regexp.Match(pattern, []byte(u.Username)); !ok || err != nil {
+		e := fmt.Errorf("username not matching pattern: %s", pattern)
+		return errors.Join(e, err)
 	}
 	return nil
 }

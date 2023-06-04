@@ -1,6 +1,8 @@
 package database
 
-import "github.com/pocketbase/dbx"
+import (
+	"github.com/pocketbase/dbx"
+)
 
 func initSchema(db *dbx.DB) error {
 	tables := []func(*dbx.DB) error{
