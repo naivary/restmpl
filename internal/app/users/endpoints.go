@@ -13,7 +13,7 @@ func (u Users) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if err := user.CheckPassword(); err != nil {
+	if err := user.IsValid(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
