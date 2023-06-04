@@ -80,18 +80,19 @@ func (a *API) initConfig() error {
 }
 
 // Init will initialze the env by setting up
-// the remaining dependencies not initiliazed by `NewAPI`
-// and run a health check using `Health`.
+// the remaining dependencies not initiliazed by
+// `NewAPI` and run a health check against the env
+// using `Health`.
 func (a *API) Init() error {
 	if a.isInited {
 		return nil
 	}
-
 	db, err := database.Connect(a.k)
 	if err != nil {
 		return err
 	}
 	a.db = db
+
 	a.metric = metrics.NewManager()
 	a.meta = a.newMeta()
 	a.initHTTP()
