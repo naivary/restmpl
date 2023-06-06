@@ -32,7 +32,10 @@ func setup() {
 	testLite = o
 }
 
-func destroy() {
+func destroy(ok bool) {
+	if !ok {
+		return
+	}
 	defer testLite.store.Close()
 	files := []string{"osdlite.db", "osdlite.db-shm", "osdlite.db-wal"}
 	for _, file := range files {
@@ -45,7 +48,7 @@ func destroy() {
 func TestMain(m *testing.M) {
 	setup()
 	code := m.Run()
-	destroy()
+	destroy(true)
 	os.Exit(code)
 }
 
@@ -65,7 +68,30 @@ func TestCreatObject(t *testing.T) {
 	if _, err := obj.Write(testRandPayload()); err != nil {
 		t.Error(err)
 	}
-	if err := testLite.CreateObj(obj); err != nil {
+	if err := testLite.CreateObject(obj); err != nil {
 		t.Error(err)
 	}
+}
+
+func TestGetObject(t *testing.T) {
+	b := testBucket()
+	if err := testLite.CreateBucket(b); err != nil {
+		t.Error(err)
+	}
+	o := testObj(b)
+	if _, err := o.Write(testRandPayload()); err != nil {
+		t.Error(err)
+	}
+	if err := testLite.CreateObject(o); err != nil {
+		t.Error(err)
+	}
+	oG, err := testLite.GetObject(b.ID, o.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if oG.ID != o.ID {
+		t.Fatalf("id's of the objects are not equal. Got: %s. Expected: %s", oG.ID, o.ID)
+	}
+	fmt.Println(oG)
 }

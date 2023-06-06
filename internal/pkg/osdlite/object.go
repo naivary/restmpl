@@ -2,7 +2,6 @@ package osdlite
 
 import (
 	"bytes"
-	"io"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +16,9 @@ type object struct {
 	Owner        string `json:"owner"`
 	BucketID     string `json:"bucketId"`
 	Payload      []byte `json:"payload"`
+
+	// current reading position
+	pos int
 }
 
 func NewObject(b *bucket, name string) *object {
@@ -41,18 +43,27 @@ func (o object) TableName() string {
 }
 
 func (o *object) Write(p []byte) (int, error) {
-	var buf bytes.Buffer
-	n, err := buf.Write(p)
+	o.Payload = append(o.Payload, p...)
+	return len(p), nil
+}
+
+// Read implements the io.Reader interface.
+// It will read the payload of the object,
+// without removing the original payload.
+func (o *object) Read(p []byte) (int, error) {
+	n, err := bytes.NewReader(o.Payload[o.pos:]).Read(p)
 	if err != nil {
 		return 0, err
 	}
-	o.Payload = buf.Bytes()
+	o.pos += n
 	return n, nil
 }
 
-func (o *object) Read(p []byte) (int, error) {
-	if len(o.Payload) == 0 {
-		return 0, io.EOF
-	}
-	return copy(p, o.Payload), nil
+func (o *object) String() string {
+	return string(o.Payload)
+}
+
+// Size of the payload
+func (o *object) Size() int {
+	return len(o.Payload)
 }

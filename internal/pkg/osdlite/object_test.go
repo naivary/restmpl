@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestWrite(t *testing.T) {
+func TestWriteObject(t *testing.T) {
 	b := testBucket()
 	o := testObj(b)
 	p := testRandPayload()
@@ -17,7 +17,7 @@ func TestWrite(t *testing.T) {
 	}
 }
 
-func TestRead(t *testing.T) {
+func TestReadObject(t *testing.T) {
 	b := testBucket()
 	obj := testObj(b)
 	expected := testRandPayload()
@@ -31,4 +31,19 @@ func TestRead(t *testing.T) {
 	if !bytes.Equal(got, expected) {
 		t.Fatalf("read didn't succeed. Got: %s. Expected: %s", string(got), string(expected))
 	}
+}
+
+func TestReadAsReader(t *testing.T) {
+	var buf bytes.Buffer
+	b := testBucket()
+	o := testObj(b)
+	if _, err := o.Write(testRandPayload()); err != nil {
+		t.Error(err)
+	}
+	if _, err := buf.ReadFrom(o); err != nil {
+		t.Error(err)
+	}
+
+	t.Log(buf.String())
+	t.Log(o.String())
 }

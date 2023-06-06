@@ -27,10 +27,22 @@ func New() (*OSDLite, error) {
 	return o, nil
 }
 
-func (o OSDLite) CreateObj(obj *object) error {
+func (o OSDLite) CreateObject(obj *object) error {
 	return o.store.Model(obj).Insert()
 }
 
 func (o OSDLite) CreateBucket(b *bucket) error {
 	return o.store.Model(b).Insert()
+}
+
+func (o OSDLite) GetObject(bucketID, objectID string) (*object, error) {
+	q := o.store.Select().From("objects").Where(dbx.HashExp{
+		"bucket_id": bucketID,
+		"id":        objectID,
+	})
+	obj := object{}
+	if err := q.One(&obj); err != nil {
+		return nil, err
+	}
+	return &obj, nil
 }
