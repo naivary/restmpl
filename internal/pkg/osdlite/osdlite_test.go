@@ -79,7 +79,8 @@ func TestGetObject(t *testing.T) {
 		t.Error(err)
 	}
 	o := testObj(b)
-	if _, err := o.Write(testRandPayload()); err != nil {
+	p := testRandPayload()
+	if _, err := o.Write(p); err != nil {
 		t.Error(err)
 	}
 	if err := testLite.CreateObject(o); err != nil {
@@ -93,5 +94,4 @@ func TestGetObject(t *testing.T) {
 	if oG.ID != o.ID {
 		t.Fatalf("id's of the objects are not equal. Got: %s. Expected: %s", oG.ID, o.ID)
 	}
-	fmt.Println(oG)
 }
