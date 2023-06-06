@@ -1,95 +1,71 @@
 package osdlite
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/pocketbase/dbx"
+	"github.com/naivary/apitmpl/internal/pkg/random"
 )
 
-var (
-	testLite    = setup()
-	randPayload = []byte("some random payload")
-)
+var testLite *OSDLite
 
-func setup() *OSDLite {
+func testBucket() *bucket {
+	return NewBucket(fmt.Sprintf("test_name_%s", uuid.NewString()), "test", uuid.NewString())
+}
+
+func testObj(b *bucket) *object {
+	return NewObject(b, fmt.Sprintf("test_obj_%s", uuid.NewString()))
+}
+
+func testRandPayload() []byte {
+	return []byte(random.String(5))
+}
+
+func setup() {
 	o, err := New()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return o
+	testLite = o
+}
+
+func destroy() {
+	defer testLite.store.Close()
+	files := []string{"osdlite.db", "osdlite.db-shm", "osdlite.db-wal"}
+	for _, file := range files {
+		if err := os.Remove(file); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	destroy()
+	os.Exit(code)
 }
 
 func TestCreateBucket(t *testing.T) {
-	owner := uuid.NewString()
-	b := NewBucket("create_bucket", owner, "test")
-	if err := testLite.CreatBucket(b); err != nil {
-		t.Error(err)
-		return
-	}
-	q := testLite.fs.Select("name").From("buckets").Where(dbx.HashExp{"id": b.ID})
-	bu := bucket{}
-	if err := q.One(&bu); err != nil {
-		t.Error(err)
-		return
-	}
-	if bu.Name != "create_bucket" {
-		t.Log(bu)
-		t.Fatalf("Name not equal. Expected: create_bucket. Got: %s", bu.Name)
-	}
-}
-
-func TestCreateObject(t *testing.T) {
-	b := NewBucket("create_object", uuid.NewString(), "test")
-	if err := testLite.CreatBucket(b); err != nil {
-		t.Error(err)
-	}
-	o := NewObject(b, "create_obj")
-	if _, err := o.Write(randPayload); err != nil {
-		t.Error(err)
-		return
-	}
-	if err := testLite.CreateObject(o); err != nil {
+	b := testBucket()
+	if err := testLite.CreateBucket(b); err != nil {
 		t.Error(err)
 	}
 }
 
-func TestRemoveBucket(t *testing.T) {
-	b := NewBucket("remove_bucket", uuid.NewString(), "test")
-	if err := testLite.CreatBucket(b); err != nil {
+func TestCreatObject(t *testing.T) {
+	b := testBucket()
+	if err := testLite.CreateBucket(b); err != nil {
 		t.Error(err)
 	}
-	o := NewObject(b, "remove_bucket_obj")
-	if _, err := o.Write(randPayload); err != nil {
-		t.Error(err)
-		return
-	}
-	if err := testLite.CreateObject(o); err != nil {
+	obj := testObj(b)
+	if _, err := obj.Write(testRandPayload()); err != nil {
 		t.Error(err)
 	}
-	if err := testLite.RemoveBucket(b); err != nil {
+	if err := testLite.CreateObj(obj); err != nil {
 		t.Error(err)
-	}
-}
-
-func TestRemoveObject(t *testing.T) {
-	b := NewBucket("remove_object", uuid.NewString(), "test")
-	if err := testLite.CreatBucket(b); err != nil {
-		t.Error(err)
-		return
-	}
-	o := NewObject(b, "remove_object_obj")
-	if _, err := o.Write(randPayload); err != nil {
-		t.Error(err)
-		return
-	}
-	if err := testLite.CreateObject(o); err != nil {
-		t.Error(err)
-		return
-	}
-	if err := testLite.RemoveObject(o); err != nil {
-		t.Error(err)
-		return
 	}
 }

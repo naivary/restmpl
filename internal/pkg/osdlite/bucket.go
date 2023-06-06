@@ -7,27 +7,23 @@ import (
 )
 
 type bucket struct {
-	ID        string `json:"id"`
-	CreatedAt int64  `json:"createdAt"`
-	Name      string `json:"name"`
-	Owner     string `json:"owner"`
-	Basepath  string `json:"basepath"`
+	ID        string
+	CreatedAt int64
+	Name      string
+	Basepath  string
+	Owner     string
 }
 
-func NewBucket(name, owner, basepath string) *bucket {
+func NewBucket(name, basepath, owner string) *bucket {
 	return &bucket{
 		ID:        uuid.NewString(),
-		Name:      name,
-		Owner:     owner,
-		Basepath:  basepath,
 		CreatedAt: time.Now().Unix(),
+		Name:      name,
+		Basepath:  basepath,
+		Owner:     owner,
 	}
 }
 
 func (b bucket) TableName() string {
 	return "buckets"
-}
-
-func (b bucket) Create() error {
-	return nil
 }

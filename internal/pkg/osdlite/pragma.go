@@ -8,12 +8,12 @@ func (o OSDLite) initPragmas() error {
 		PRAGMA synchronous        = NORMAL;
 		PRAGMA foreign_keys       = 1;	
 	`
-	if _, err := o.fs.NewQuery(query).Execute(); err != nil {
+	if _, err := o.store.NewQuery(query).Execute(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o OSDLite) initOptions() {
-	o.fs.DB().SetMaxOpenConns(1)
+	o.store.DB().SetMaxOpenConns(1)
 }

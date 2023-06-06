@@ -14,7 +14,7 @@ func (o OSDLite) initSchema() error {
 }
 
 func (o OSDLite) initBucketSchema() error {
-	q := o.fs.CreateTable("buckets", map[string]string{
+	q := o.store.CreateTable("buckets", map[string]string{
 		"id":         "TEXT PRIMARY KEY",
 		"created_at": "INTEGER",
 		"name":       "TEXT UNIQUE",
@@ -28,7 +28,7 @@ func (o OSDLite) initBucketSchema() error {
 }
 
 func (o OSDLite) initObjectSchema() error {
-	q := o.fs.CreateTable("objects", map[string]string{
+	q := o.store.CreateTable("objects", map[string]string{
 		"id":            "TEXT PRIMARY KEY",
 		"created_at":    "INTEGER",
 		"last_modified": "INTEGER",
