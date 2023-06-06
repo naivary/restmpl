@@ -4,7 +4,6 @@ func (o OSDLite) initSchema() error {
 	schemas := []func() error{
 		o.initBucketSchema,
 		o.initObjectSchema,
-		o.initTagsSchema,
 	}
 	for _, schema := range schemas {
 		if err := schema(); err != nil {
@@ -37,24 +36,11 @@ func (o OSDLite) initObjectSchema() error {
 		"owner":         "TEXT",
 		"tags":          "TEXT",
 		"version":       "INTEGER",
-		"bucket_id":     "TEXT REFERENCES buckets(id)",
+		"bucket_id":     "TEXT REFERENCES buckets(id) ON DELETE CASCADE",
 		"payload":       "BLOB",
 	})
 	if _, err := q.Execute(); err != nil {
 		return err
 	}
 	return nil
-}
-
-func (o OSDLite) initTagsSchema() error {
-	q := o.fs.CreateTable("tags", map[string]string{
-		"id":    "TEXT PRIMARY KEY",
-		"key":   "TEXT",
-		"value": "TEXT",
-	})
-	if _, err := q.Execute(); err != nil {
-		return err
-	}
-	return nil
-
 }

@@ -7,15 +7,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type OSD interface {
-	Health() error
-	Create(object) error
-	Read(string) error
-	Remove(string) error
-}
-
-var _ OSD = (*OSDLite)(nil)
-
 type OSDLite struct {
 	fs *dbx.DB
 }
@@ -39,8 +30,23 @@ func New() (*OSDLite, error) {
 	return o, o.Health()
 }
 
-func (o OSDLite) Create(obj object) error {
-	return o.fs.Model(&obj).Insert()
+func (o OSDLite) CreateObject(obj *object) error {
+	if len(obj.Payload.Bytes()) <= 0 {
+		return errors.New("object has not payload")
+	}
+	return o.fs.Model(obj).Insert()
+}
+
+func (o OSDLite) CreatBucket(b *bucket) error {
+	return o.fs.Model(b).Insert()
+}
+
+func (o OSDLite) RemoveBucket(b *bucket) error {
+	return o.fs.Model(b).Delete()
+}
+
+func (o OSDLite) RemoveObject(obj *object) error {
+	return o.fs.Model(obj).Delete()
 }
 
 func (o OSDLite) Health() error {

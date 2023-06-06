@@ -1,9 +1,9 @@
 ---
 version: "0.1.0"
-name: "api"
-dataDir: "/home/musti/naivary/projects/apitmpl/"
+name: "restmpl"
+dataDir: "/home/musti/naivary/projects/restmpl/"
 fs:
-  basepath: "/home/musti/instance_example"
+  basepath: "/home/musti/restmpl"
   # maxSize of a file in bytes.
   # Default: 12MB
   maxSize: 12582912
