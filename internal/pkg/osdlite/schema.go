@@ -4,6 +4,7 @@ func (o OSDLite) initSchema() error {
 	schemas := []func() error{
 		o.initBucketSchema,
 		o.initObjectSchema,
+		o.initNameUniquenessWithinBucket,
 	}
 	for _, schema := range schemas {
 		if err := schema(); err != nil {
@@ -32,13 +33,21 @@ func (o OSDLite) initObjectSchema() error {
 		"id":            "TEXT PRIMARY KEY",
 		"created_at":    "INTEGER",
 		"last_modified": "INTEGER",
-		"name":          "TEXT UNIQUE",
+		"name":          "TEXT",
 		"owner":         "TEXT",
 		"tags":          "TEXT",
 		"version":       "INTEGER",
 		"bucket_id":     "TEXT REFERENCES buckets(id) ON DELETE CASCADE",
 		"payload":       "BLOB",
 	})
+	if _, err := q.Execute(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OSDLite) initNameUniquenessWithinBucket() error {
+	q := o.store.CreateUniqueIndex("objects", "composite_uniqueness", "name", "bucket_id")
 	if _, err := q.Execute(); err != nil {
 		return err
 	}

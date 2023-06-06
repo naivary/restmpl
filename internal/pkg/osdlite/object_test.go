@@ -47,3 +47,34 @@ func TestReadAsReader(t *testing.T) {
 	t.Log(buf.String())
 	t.Log(o.String())
 }
+
+func TestReadFrom(t *testing.T) {
+	p := testRandPayload()
+	r := bytes.NewReader(p)
+	b := testBucket()
+	o := testObj(b)
+	if _, err := o.ReadFrom(r); err != nil {
+		t.Error(err)
+	}
+	if !bytes.Equal(p, o.Payload) {
+		t.Fatalf("paylaod is not the same as the expected. Got: %s. Expected: %s", o.PayloadString(), string(p))
+	}
+
+}
+
+func TestWriteTo(t *testing.T) {
+	p := testRandPayload()
+	buf := new(bytes.Buffer)
+	b := testBucket()
+	o := testObj(b)
+	if _, err := o.Write(p); err != nil {
+		t.Error(err)
+	}
+	if _, err := o.WriteTo(buf); err != nil {
+		t.Error(err)
+	}
+	if !bytes.Equal(p, buf.Bytes()) {
+		t.Fatalf("bytes are not equal. Got: %s. Expected: %s", buf.String(), string(p))
+	}
+
+}

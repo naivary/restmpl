@@ -36,13 +36,25 @@ func (o OSDLite) CreateBucket(b *bucket) error {
 }
 
 func (o OSDLite) GetObject(bucketID, objectID string) (*object, error) {
+	obj := object{}
 	q := o.store.Select().From("objects").Where(dbx.HashExp{
 		"bucket_id": bucketID,
 		"id":        objectID,
 	})
-	obj := object{}
 	if err := q.One(&obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil
+}
+
+func (o OSDLite) GetBucket(bucketID string) (*bucket, error) {
+	b := bucket{}
+	q := o.store.Select().From("buckets").Where(dbx.HashExp{
+		"id": bucketID,
+	})
+
+	if err := q.One(&b); err != nil {
+		return nil, err
+	}
+	return &b, nil
 }
