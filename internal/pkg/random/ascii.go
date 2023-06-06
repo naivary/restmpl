@@ -35,3 +35,8 @@ func ID(len int) string {
 	id, _ := ascii(len)
 	return hex.EncodeToString([]byte(id))
 }
+
+func String(len int) string {
+	str, _ := ascii(len)
+	return str
+}
