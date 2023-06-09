@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/naivary/apitmpl/internal/pkg/env/envtest"
-	"github.com/naivary/apitmpl/internal/pkg/filestore/filestoretest"
 	"github.com/naivary/apitmpl/internal/pkg/must"
 )
 
@@ -26,12 +25,6 @@ func setup() (*Fs, *httptest.Server) {
 		log.Fatal(err)
 	}
 	f.K = api.Config()
-
-	st, err := filestoretest.New(f.K)
-	if err != nil {
-		log.Fatal(err)
-	}
-	f.store = st
 
 	if err := api.Join(f); err != nil {
 		log.Fatal(err)

@@ -6,12 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/apitmpl/internal/pkg/filestore"
 	"github.com/naivary/apitmpl/internal/pkg/logging"
 	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/naivary/objstlite"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/spf13/afero"
 )
 
 var _ service.Service = (*Fs)(nil)
@@ -19,23 +18,19 @@ var _ service.Service = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	store filestore.Store[afero.File]
 	l     logging.Manager
 	m     metrics.Managee
+	store *objstlite.ObjstLite
 }
 
 func (f Fs) Health() (*service.Info, error) {
 	if f.K == nil {
 		return nil, errors.New("missing config manager")
 	}
-
 	if f.store == nil {
-		return nil, errors.New("missing filestore")
+		return nil, errors.New("missing object storage")
 	}
 
-	if err := f.store.Health(); err != nil {
-		return nil, errors.New("filestore unhealthy")
-	}
 	return &service.Info{
 		ID:   f.ID(),
 		Name: f.Name(),
@@ -67,17 +62,16 @@ func (f Fs) Pattern() string {
 }
 
 func (f *Fs) Init() error {
-	fstore, err := filestore.New(f.K)
+	lMngr, err := logging.NewSvcManager(f.K, f)
 	if err != nil {
 		return err
 	}
-	f.store = fstore
-
-	mngr, err := logging.NewSvcManager(f.K, f)
+	f.l = lMngr
+	st, err := objstlite.New()
 	if err != nil {
 		return err
 	}
-	f.l = mngr
+	f.store = st
 	f.m = metrics.NewManagee()
 	return nil
 }
