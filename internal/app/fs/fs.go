@@ -9,7 +9,6 @@ import (
 	"github.com/naivary/apitmpl/internal/pkg/logging"
 	"github.com/naivary/apitmpl/internal/pkg/metrics"
 	"github.com/naivary/apitmpl/internal/pkg/service"
-	"github.com/naivary/objstlite"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -18,19 +17,14 @@ var _ service.Service = (*Fs)(nil)
 type Fs struct {
 	K *koanf.Koanf
 
-	l     logging.Manager
-	m     metrics.Managee
-	store *objstlite.ObjstLite
+	l logging.Manager
+	m metrics.Managee
 }
 
 func (f Fs) Health() (*service.Info, error) {
 	if f.K == nil {
 		return nil, errors.New("missing config manager")
 	}
-	if f.store == nil {
-		return nil, errors.New("missing object storage")
-	}
-
 	return &service.Info{
 		ID:   f.ID(),
 		Name: f.Name(),
@@ -43,9 +37,6 @@ func (f Fs) HTTP() chi.Router {
 	for _, mw := range f.Middlewares() {
 		r.Use(mw)
 	}
-	r.Post("/", f.create)
-	r.Delete("/remove", f.remove)
-	r.Get("/read", f.read)
 	return r
 }
 
@@ -67,11 +58,6 @@ func (f *Fs) Init() error {
 		return err
 	}
 	f.l = lMngr
-	st, err := objstlite.New()
-	if err != nil {
-		return err
-	}
-	f.store = st
 	f.m = metrics.NewManagee()
 	return nil
 }
