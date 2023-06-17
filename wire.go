@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/naivary/restmpl/internal/app/auth"
+	"github.com/naivary/restmpl/internal/app/fs"
 	"github.com/naivary/restmpl/internal/app/users"
 	"github.com/naivary/restmpl/internal/pkg/env"
 	"github.com/naivary/restmpl/internal/pkg/service"
@@ -41,7 +42,11 @@ func createServices(env *env.API) ([]service.Service, error) {
 	u.DB = env.DB()
 	u.K = env.Config()
 
-	svcs = append(svcs, a, u)
+	f := new(fs.Fs)
+	f.K = env.Config()
+	f.DB = env.DB()
+
+	svcs = append(svcs, a, u, f)
 	return svcs, nil
 }
 

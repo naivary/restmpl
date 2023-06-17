@@ -3,6 +3,7 @@ module github.com/naivary/restmpl
 go 1.20
 
 require (
+	github.com/dgraph-io/badger/v4 v4.1.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
@@ -10,7 +11,7 @@ require (
 	github.com/knadh/koanf/providers/file v0.1.0
 	github.com/knadh/koanf/providers/fs v0.1.0
 	github.com/knadh/koanf/v2 v2.0.1
-	github.com/naivary/objst v0.1.0
+	github.com/naivary/objst v0.2.1
 	github.com/pocketbase/dbx v1.10.0
 	github.com/prometheus/client_golang v1.11.1
 	golang.org/x/crypto v0.10.0
@@ -21,7 +22,6 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/dgraph-io/badger/v4 v4.1.0 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

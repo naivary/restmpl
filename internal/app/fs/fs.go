@@ -3,6 +3,7 @@ package fs
 import (
 	"errors"
 
+	"github.com/dgraph-io/badger/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
@@ -21,19 +22,24 @@ type Fs struct {
 	K  *koanf.Koanf
 	DB *dbx.DB
 
-	l logging.Manager
-	m metrics.Managee
-	b *objst.Bucket
+	l       logging.Manager
+	m       metrics.Managee
+	b       *objst.Bucket
+	maxSize int64
+	formKey string
 }
 
-func (f Fs) Init() error {
-	f.l = logging.NewSvcManager(&f)
+func (f *Fs) Init() error {
+	f.l = logging.NewSvcManager(f)
 	f.m = metrics.NewManagee()
-	b, err := objst.NewBucket(nil)
+	opts := badger.DefaultOptions("/tmp/badger/store")
+	b, err := objst.NewBucket(&opts)
 	if err != nil {
 		return err
 	}
 	f.b = b
+	f.maxSize = f.K.Int64("fs.maxSize")
+	f.formKey = f.K.String("fs.formKey")
 	return nil
 }
 
@@ -47,13 +53,16 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.b == nil {
 		return nil, errors.New("bucket is missing")
 	}
+	if err := f.b.Health(); err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
 func (f Fs) HTTP() chi.Router {
 	r := chi.NewRouter()
 	r.Use(jwtauth.Verify)
-	r.Get("/{id}", f.get)
+	r.Get("/", f.read)
 	r.Post("/", f.create)
 	r.Delete("/{id}", f.remove)
 	return r
@@ -80,5 +89,5 @@ func (f Fs) Pattern() string {
 }
 
 func (f Fs) Shutdown() error {
-	return nil
+	return f.b.Shutdown()
 }
