@@ -9,17 +9,17 @@ import (
 )
 
 type Env interface {
+	// Unique ID of the environment
 	ID() string
+
+	// version of the environment
 	Version() string
 
 	// http router to serve public request to the services
 	HTTP() chi.Router
 
-	// Config return the configuration
-	// of your env. It can be in any
-	// form like your favorite config
-	// manager (e.g. viper, koanf) or
-	// a simple map.
+	// Configuration of the environment represented
+	// by the koanf config manager.
 	Config() *koanf.Koanf
 
 	// Serve the env and its services for public traffic
@@ -28,6 +28,7 @@ type Env interface {
 	Join(svcs ...service.Service) error
 
 	// Graceful shutdown of the env
+	// and its associated services
 	Shutdown() error
 
 	// Health of the env
@@ -36,5 +37,6 @@ type Env interface {
 	// Context of the environment
 	Context() context.Context
 
+	// Initiliaze the environment and all its dependencies
 	Init() error
 }

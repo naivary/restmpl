@@ -1,13 +1,33 @@
 package logging
 
 import (
+	"os"
+
 	"github.com/naivary/restmpl/internal/pkg/logging/builder"
+	"golang.org/x/exp/slog"
 )
 
-// Should all log to the same file or seperate?
-// If so: Every service should provide its own file to which it logs
-// in the schema <name>_<id>.log
 type Manager interface {
-	Log(builder.Recorder)
-	Shutdown()
+	Log(builder.Recorder) error
+	AddCommonAttrs(attrs []any)
+}
+
+var _ Manager = (*manager)(nil)
+
+type manager struct {
+	logger *slog.Logger
+}
+
+func newManager() *manager {
+	return &manager{
+		logger: slog.New(slog.NewTextHandler(os.Stdout, nil)),
+	}
+}
+
+func (m manager) Log(record builder.Recorder) error {
+	return m.logger.Handler().Handle(record.Data())
+}
+
+func (m *manager) AddCommonAttrs(attrs []any) {
+	m.logger = m.logger.With(attrs)
 }

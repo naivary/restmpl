@@ -28,12 +28,9 @@ import (
 var _ Env = (*API)(nil)
 
 type API struct {
-	// global dependencies
-	db   *dbx.DB
-	k    *koanf.Koanf
-	meta meta
-
-	// internal
+	db       *dbx.DB
+	k        *koanf.Koanf
+	meta     meta
 	cfgFile  string
 	isInited bool
 	svcs     []service.Service
@@ -57,7 +54,7 @@ func NewAPI(cfgFile string) (*API, error) {
 	if err := a.initConfig(); err != nil {
 		return nil, err
 	}
-	a.logger = logging.NewEnvManager(os.Stdout)
+	a.logger = logging.NewEnvManager(a.k)
 	return a, nil
 }
 
@@ -147,7 +144,7 @@ func (a *API) Serve() error {
 			return
 		}
 	}()
-	b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Successfully started API server!").APIServerStart(a.k, srv)
+	b := builder.New(a.ctx, slog.LevelInfo, "Successfully started API Server").APIServerStart(a.k, srv)
 	a.logger.Log(b)
 	a.srv = srv
 	return nil
@@ -168,7 +165,7 @@ func (a *API) Join(svcs ...service.Service) error {
 			return err
 		}
 		a.http.Mount(svc.Pattern(), svc.HTTP())
-		rec := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "Service successfully started!").ServiceInit(svc)
+		rec := builder.New(a.ctx, slog.LevelInfo, "Service successfully started!").ServiceInit(svc)
 		a.logger.Log(rec)
 	}
 	a.svcs = append(a.svcs, svcs...)
@@ -185,15 +182,17 @@ func (a *API) Shutdown() error {
 	slog.InfoCtx(a.ctx, "Gracefully shutting down API server")
 	ctx, cancel := context.WithTimeout(a.ctx, 10*time.Second)
 	defer cancel()
-	if err := a.db.Close(); err != nil {
-		return err
-	}
 	if err := a.srv.Shutdown(ctx); err != nil {
 		return err
 	}
+	if err := a.db.Close(); err != nil {
+		return err
+	}
 	for _, svc := range a.svcs {
-		b := builder.NewEnvBuilder(a.ctx, slog.LevelInfo, "service shutdown").ServiceInfo(svc)
-		a.logger.Log(b)
+		b := builder.New(a.ctx, slog.LevelInfo, "service shutdown").ServiceInfo(svc)
+		if err := a.logger.Log(b); err != nil {
+			return err
+		}
 		if err := svc.Shutdown(); err != nil {
 			return err
 		}

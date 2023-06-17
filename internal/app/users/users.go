@@ -37,11 +37,7 @@ func (u Users) Description() string {
 }
 
 func (u *Users) Init() error {
-	mngr, err := logging.NewSvcManager(u.K, u)
-	if err != nil {
-		return err
-	}
-	u.l = mngr
+	u.l = logging.NewSvcManager(u)
 	u.m = metrics.NewManagee()
 	return nil
 }
@@ -77,6 +73,5 @@ func (u Users) Pattern() string {
 }
 
 func (u Users) Shutdown() error {
-	u.l.Shutdown()
 	return nil
 }

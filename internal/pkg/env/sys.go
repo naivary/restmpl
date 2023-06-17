@@ -9,7 +9,7 @@ import (
 )
 
 func (a *API) health(w http.ResponseWriter, r *http.Request) {
-	infos := []*service.Info{}
+	infos := make([]*service.Info, 0, len(a.svcs))
 	// check env health
 	if err := a.Health(); err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)

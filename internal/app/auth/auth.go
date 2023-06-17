@@ -43,12 +43,7 @@ func (a Auth) Pattern() string {
 }
 
 func (a *Auth) Init() error {
-	l, err := logging.NewSvcManager(a.K, a)
-	if err != nil {
-		return err
-	}
-	a.l = l
-
+	a.l = logging.NewSvcManager(a)
 	a.m = metrics.NewManagee()
 
 	secret := os.Getenv("API_JWT_SECRET")

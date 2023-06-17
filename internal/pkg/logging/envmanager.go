@@ -1,33 +1,11 @@
 package logging
 
-import (
-	"io"
+import "github.com/knadh/koanf/v2"
 
-	"github.com/naivary/restmpl/internal/pkg/logging/builder"
-	"golang.org/x/exp/slog"
-)
-
-var _ Manager = (*envManager)(nil)
-
-type envManager struct {
-	logger *slog.Logger
-	w      io.Writer
-}
-
-func NewEnvManager(w io.Writer) *envManager {
-	e := &envManager{
-		w:      w,
-		logger: slog.New(slog.NewTextHandler(w, nil)),
-	}
-	return e
-}
-
-func (e envManager) Shutdown() {}
-
-func (e envManager) Log(r builder.Recorder) {
-	ctx, rec := r.Data()
-	if err := e.logger.Handler().Handle(ctx, rec); err != nil {
-		slog.Error("could not write", slog.String("err", err.Error()))
-		return
-	}
+func NewEnvManager(k *koanf.Koanf) *manager {
+	m := newManager()
+	attrs := make([]any, 0)
+	attrs = append(attrs, commonEnvAttrs(k))
+	m.AddCommonAttrs(attrs)
+	return m
 }

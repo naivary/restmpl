@@ -11,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/naivary/restmpl/internal/pkg/hash"
 	"github.com/naivary/restmpl/internal/pkg/jwtauth"
+	"github.com/naivary/restmpl/internal/pkg/logging/builder"
 	"github.com/naivary/restmpl/internal/pkg/models"
 	"github.com/pocketbase/dbx"
+	"golang.org/x/exp/slog"
 )
 
 func (u Users) create(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +53,8 @@ func (u Users) single(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	b := builder.New(r.Context(), slog.LevelInfo, "something").IncomingRequest(r)
+	u.l.Log(b)
 	user := models.NewUser()
 	q := u.DB.Select("id", "username", "email", "created_at").
 		From("users").
