@@ -6,6 +6,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf/v2"
+	"github.com/naivary/objst"
+	"github.com/naivary/restmpl/internal/pkg/jwtauth"
 	"github.com/naivary/restmpl/internal/pkg/logging"
 	"github.com/naivary/restmpl/internal/pkg/metrics"
 	"github.com/naivary/restmpl/internal/pkg/service"
@@ -21,11 +23,17 @@ type Fs struct {
 
 	l logging.Manager
 	m metrics.Managee
+	b *objst.Bucket
 }
 
 func (f Fs) Init() error {
 	f.l = logging.NewSvcManager(&f)
 	f.m = metrics.NewManagee()
+	b, err := objst.NewBucket(nil)
+	if err != nil {
+		return err
+	}
+	f.b = b
 	return nil
 }
 
@@ -36,11 +44,18 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.m == nil {
 		return nil, errors.New("missing metrics managee")
 	}
+	if f.b == nil {
+		return nil, errors.New("bucket is missing")
+	}
 	return nil, nil
 }
 
 func (f Fs) HTTP() chi.Router {
 	r := chi.NewRouter()
+	r.Use(jwtauth.Verify)
+	r.Get("/{id}", f.get)
+	r.Post("/", f.create)
+	r.Delete("/{id}", f.remove)
 	return r
 }
 
