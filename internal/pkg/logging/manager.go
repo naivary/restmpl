@@ -9,7 +9,7 @@ import (
 
 type Manager interface {
 	Log(builder.Recorder) error
-	AddCommonAttrs(attrs []any)
+	AddCommonAttrs(attrs ...any)
 }
 
 var _ Manager = (*manager)(nil)
@@ -28,6 +28,6 @@ func (m manager) Log(record builder.Recorder) error {
 	return m.logger.Handler().Handle(record.Data())
 }
 
-func (m *manager) AddCommonAttrs(attrs []any) {
-	m.logger = m.logger.With(attrs)
+func (m *manager) AddCommonAttrs(attrs ...any) {
+	m.logger = m.logger.With(attrs...)
 }

@@ -18,6 +18,11 @@ import (
 )
 
 func (u Users) create(w http.ResponseWriter, r *http.Request) {
+	b := builder.New(r.Context(), slog.LevelInfo, "creating new user")
+	if err := u.l.Log(b); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	user := models.NewUser()
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
