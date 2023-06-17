@@ -1,19 +1,15 @@
 package metrics
 
 import (
-	"fmt"
-
 	"github.com/naivary/restmpl/internal/pkg/service"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func IncomingHTTPRequest(svc service.Service) prometheus.Counter {
-	help := fmt.Sprintf("number of incoming request for all the subroutes of %s", svc.Pattern())
-	name := fmt.Sprintf("incoming_http_request_%s", svc.Name())
 	return prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: name,
-			Help: help,
+			Name: "incoming_http_requests",
+			Help: "number of incoming request (including 4XX and 5XX)",
 			ConstLabels: prometheus.Labels{
 				"name":        svc.Name(),
 				"id":          svc.ID(),
@@ -25,12 +21,10 @@ func IncomingHTTPRequest(svc service.Service) prometheus.Counter {
 }
 
 func NumberOfErrors(svc service.Service) prometheus.Counter {
-	help := fmt.Sprintf("number of errors that appeared in the service %s", svc.Name())
-	name := fmt.Sprintf("err_counter_%s", svc.Name())
 	return prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: name,
-			Help: help,
+			Name: "incoming_unsuccessfull_http_requests",
+			Help: "number of request which finished with 4XX or 5XX",
 			ConstLabels: prometheus.Labels{
 				"id": svc.ID(),
 			},

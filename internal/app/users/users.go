@@ -53,11 +53,15 @@ func (u Users) Health() (*service.Info, error) {
 }
 
 func (u Users) Metrics() []prometheus.Collector {
-	return nil
+	u.m.AddCounter("incomingReq", metrics.IncomingHTTPRequest(&u))
+	return u.m.All()
 }
 
 func (u Users) HTTP() chi.Router {
 	r := chi.NewRouter()
+	for _, mw := range u.middlewares() {
+		r.Use(mw)
+	}
 	r.Post("/", u.create)
 	r.Get("/{userID}", u.single)
 	r.Get("/list", u.list)

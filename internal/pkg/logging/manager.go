@@ -18,7 +18,7 @@ type manager struct {
 	logger *slog.Logger
 }
 
-func newManager() *manager {
+func NewManager() *manager {
 	return &manager{
 		logger: slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	}

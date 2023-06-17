@@ -94,7 +94,7 @@ func (u Users) list(w http.ResponseWriter, r *http.Request) {
 	if limit > 0 {
 		users = make([]models.User, 0, limit)
 	}
-	q := u.DB.Select("id", "username", "email", "created_at").From("users").Limit(int64(limit))
+	q := u.DB.Select("id", "username", "email", "created_at").From("users").Limit(limit)
 	if err := q.All(&users); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -54,7 +54,7 @@ func NewAPI(cfgFile string) (*API, error) {
 	if err := a.initConfig(); err != nil {
 		return nil, err
 	}
-	a.logger = logging.NewEnvManager(a.k)
+	a.logger = logging.NewManager()
 	return a, nil
 }
 
