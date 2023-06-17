@@ -1,8 +1,8 @@
 package envtest
 
 import (
-	"github.com/naivary/apitmpl/internal/pkg/config"
-	"github.com/naivary/apitmpl/internal/pkg/env"
+	"github.com/naivary/restmpl/internal/pkg/config"
+	"github.com/naivary/restmpl/internal/pkg/env"
 )
 
 func NewAPI() (*env.API, error) {

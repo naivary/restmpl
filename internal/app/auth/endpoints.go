@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/naivary/apitmpl/internal/pkg/models"
+	"github.com/naivary/restmpl/internal/pkg/models"
 	"github.com/pocketbase/dbx"
 )
 

@@ -5,11 +5,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/naivary/apitmpl/internal/app/auth"
-	"github.com/naivary/apitmpl/internal/app/fs"
-	"github.com/naivary/apitmpl/internal/app/users"
-	"github.com/naivary/apitmpl/internal/pkg/env"
-	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/naivary/restmpl/internal/app/auth"
+	"github.com/naivary/restmpl/internal/app/users"
+	"github.com/naivary/restmpl/internal/pkg/env"
+	"github.com/naivary/restmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 
@@ -33,8 +32,6 @@ func newEnv(cfgFile string) (env.Env, error) {
 
 func createServices(env *env.API) ([]service.Service, error) {
 	svcs := make([]service.Service, 0)
-	f := new(fs.Fs)
-	f.K = env.Config()
 
 	a := new(auth.Auth)
 	a.K = env.Config()
@@ -44,7 +41,7 @@ func createServices(env *env.API) ([]service.Service, error) {
 	u.DB = env.DB()
 	u.K = env.Config()
 
-	svcs = append(svcs, f, a, u)
+	svcs = append(svcs, a, u)
 	return svcs, nil
 }
 

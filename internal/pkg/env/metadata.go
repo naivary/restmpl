@@ -1,7 +1,7 @@
 package env
 
 import (
-	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/naivary/restmpl/internal/pkg/service"
 )
 
 type meta struct {

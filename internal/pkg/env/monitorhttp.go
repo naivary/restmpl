@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/naivary/restmpl/internal/pkg/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

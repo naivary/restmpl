@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/naivary/apitmpl/internal/pkg/hash"
-	"github.com/naivary/apitmpl/internal/pkg/jwtauth"
-	"github.com/naivary/apitmpl/internal/pkg/models"
+	"github.com/naivary/restmpl/internal/pkg/hash"
+	"github.com/naivary/restmpl/internal/pkg/jwtauth"
+	"github.com/naivary/restmpl/internal/pkg/models"
 	"github.com/pocketbase/dbx"
 )
 

@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
+	"github.com/naivary/restmpl/internal/pkg/logging/builder"
 )
 
 // Should all log to the same file or seperate?

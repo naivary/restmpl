@@ -9,7 +9,7 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/fs"
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/apitmpl/configs"
+	"github.com/naivary/restmpl/configs"
 	"golang.org/x/exp/slog"
 )
 

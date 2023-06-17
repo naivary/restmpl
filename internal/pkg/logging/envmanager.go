@@ -3,7 +3,7 @@ package logging
 import (
 	"io"
 
-	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
+	"github.com/naivary/restmpl/internal/pkg/logging/builder"
 	"golang.org/x/exp/slog"
 )
 

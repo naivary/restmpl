@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/knadh/koanf/v2"
-	"github.com/naivary/apitmpl/internal/pkg/logging/builder"
-	"github.com/naivary/apitmpl/internal/pkg/service"
+	"github.com/naivary/restmpl/internal/pkg/logging/builder"
+	"github.com/naivary/restmpl/internal/pkg/service"
 	"golang.org/x/exp/slog"
 )
 

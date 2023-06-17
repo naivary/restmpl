@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/naivary/apitmpl/internal/pkg/random"
+	"github.com/naivary/restmpl/internal/pkg/random"
 )
 
 func (m *svcManager) rotate() error {
