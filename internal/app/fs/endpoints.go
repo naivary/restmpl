@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"errors"
 	"io"
 	"net/http"
 
@@ -55,6 +56,21 @@ func (f Fs) remove(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	claims, err := jwtauth.GetClaims(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	owner, err := claims.GetSubject()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_, err = f.b.IsAuthorizedByName(owner, r.Form.Get("name"))
+	if errors.Is(err, objst.ErrUnauthorized) {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	if err := f.b.DeleteByName(r.Form.Get("name")); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -68,9 +84,27 @@ func (f Fs) read(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	obj, err := f.b.GetByName(r.Form.Get("name"))
+	if !r.Form.Has("name") {
+		http.Error(w, "paramter name must be set", http.StatusBadRequest)
+		return
+	}
+	claims, err := jwtauth.GetClaims(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	owner, err := claims.GetSubject()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	obj, err := f.b.IsAuthorizedByName(owner, r.Form.Get("name"))
+	if errors.Is(err, objst.ErrUnauthorized) {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	if err != nil && !errors.Is(err, objst.ErrUnauthorized) {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	ct, _ := obj.GetMeta(objst.ContentType)

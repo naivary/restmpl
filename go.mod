@@ -11,7 +11,7 @@ require (
 	github.com/knadh/koanf/providers/file v0.1.0
 	github.com/knadh/koanf/providers/fs v0.1.0
 	github.com/knadh/koanf/v2 v2.0.1
-	github.com/naivary/objst v0.3.1
+	github.com/naivary/objst v0.5.0
 	github.com/pocketbase/dbx v1.10.0
 	github.com/prometheus/client_golang v1.11.1
 	golang.org/x/crypto v0.10.0
