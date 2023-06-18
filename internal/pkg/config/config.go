@@ -54,8 +54,8 @@ func New(path string) (*koanf.Koanf, error) {
 // set. Otherwise the current directory
 // will be used.
 func getBasepath(k *koanf.Koanf) string {
-	if k.Exists("dataDir") {
-		return k.String("dataDir")
+	if k.Exists("db.dataDir") {
+		return k.String("db.dataDir")
 	}
 	basepath, err := os.Getwd()
 	if err != nil {

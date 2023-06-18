@@ -1,7 +1,6 @@
 package fs
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -16,24 +15,22 @@ func (f Fs) create(w http.ResponseWriter, r *http.Request) {
 	}
 	file, h, err := r.FormFile(f.formKey)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	claims, err := jwtauth.GetClaims(r.Context())
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	owner, err := claims.GetSubject()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	obj := objst.NewObject(h.Filename, owner)
 	if _, err := obj.ReadFrom(file); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if !r.Form.Has(objst.ContentType) {
@@ -42,8 +39,7 @@ func (f Fs) create(w http.ResponseWriter, r *http.Request) {
 	}
 	obj.SetMeta(objst.ContentType, r.Form.Get(objst.ContentType))
 	if err := f.b.Create(obj); err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -55,6 +51,15 @@ func (f Fs) remove(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	if !r.Form.Has("name") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if err := f.b.DeleteByName(r.Form.Get("name")); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (f Fs) read(w http.ResponseWriter, r *http.Request) {
@@ -65,15 +70,14 @@ func (f Fs) read(w http.ResponseWriter, r *http.Request) {
 	}
 	obj, err := f.b.GetByName(r.Form.Get("name"))
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	ct, _ := obj.GetMeta(objst.ContentType)
 	w.Header().Set("Content-Type", ct)
 	w.WriteHeader(http.StatusOK)
 	if _, err := io.Copy(w, obj); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

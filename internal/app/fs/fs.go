@@ -27,19 +27,22 @@ type Fs struct {
 	b       *objst.Bucket
 	maxSize int64
 	formKey string
+	dataDir string
 }
 
 func (f *Fs) Init() error {
+	f.maxSize = f.K.Int64("fs.maxSize")
+	f.formKey = f.K.String("fs.formKey")
+	f.dataDir = f.K.String("fs.dataDir")
+
 	f.l = logging.NewSvcManager(f)
 	f.m = metrics.NewManagee()
-	opts := badger.DefaultOptions("/tmp/badger/store")
+	opts := badger.DefaultOptions(f.dataDir)
 	b, err := objst.NewBucket(&opts)
 	if err != nil {
 		return err
 	}
 	f.b = b
-	f.maxSize = f.K.Int64("fs.maxSize")
-	f.formKey = f.K.String("fs.formKey")
 	return nil
 }
 
@@ -53,9 +56,6 @@ func (f Fs) Health() (*service.Info, error) {
 	if f.b == nil {
 		return nil, errors.New("bucket is missing")
 	}
-	if err := f.b.Health(); err != nil {
-		return nil, err
-	}
 	return nil, nil
 }
 
@@ -64,7 +64,7 @@ func (f Fs) HTTP() chi.Router {
 	r.Use(jwtauth.Verify)
 	r.Get("/", f.read)
 	r.Post("/", f.create)
-	r.Delete("/{id}", f.remove)
+	r.Delete("/", f.remove)
 	return r
 }
 

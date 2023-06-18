@@ -1,7 +1,8 @@
 ---
 version: "0.1.0"
 name: "restmpl"
-dataDir: "/home/musti/naivary/projects/restmpl/"
+db:
+  dataDir: "/home/musti/naivary/projects/restmpl/"
 fs:
   basepath: "/home/musti/restmpl"
   # maxSize of a file in bytes.
@@ -11,6 +12,7 @@ fs:
   # Cache duration of a file.
   # Default: 1 minute
   ttl: 1m
+  dataDir: "/tmp/badger"
 server:
   crt: ./configs/cert/localhost.crt
   key: ./configs/cert/localhost.key
@@ -23,16 +25,6 @@ server:
     idle: 10s
     request: 20s
   maxHeaderBytes: 1024
-logs:
-  # maxSize of a log file before a
-  # rotation should be applied (in bytes)
-  # default: 12582912 (12 MB)
-  maxSize: 12582912
-  # maxBackups to store before all but the
-  # latest backup will be deleted.
-  maxBackups: 5
-  # if the backup files should be compressed as gzip
-  compress: true
 jwt:
   issuer: "https://api.auth.com"
   expiration: 5m
